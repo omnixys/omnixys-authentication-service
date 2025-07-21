@@ -16,6 +16,7 @@ github-actions:
 ci:
   - changed-files:
       - any-glob-to-any-file:
+          - '.github/workflows/**'
           - '.github/**'
           - 'devtools/**'
 
@@ -23,14 +24,46 @@ docs:
   - changed-files:
       - any-glob-to-any-file:
           - '**/*.md'
+          - 'docs/**'
+
+security:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/SECURITY.md'
+          - '**/*keycloak*'
+          - '**/*auth*'
+          - '**/*.pem'
+          - '**/*.crt'
 
 frontend:
   - changed-files:
       - any-glob-to-any-file:
-          - 'src/**'
           - 'apps/frontend/**'
+          - 'src/frontend/**'
 
 backend:
   - changed-files:
       - any-glob-to-any-file:
           - 'apps/backend/**'
+          - 'src/backend/**'
+
+feature:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/**'
+          - 'apps/**'
+          - 'features/**'
+
+bug:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.ts'
+          - '**/*.java'
+          - '**/*.py'
+
+refactor:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*service*'
+          - '**/*controller*'
+          - '**/*resolver*'
