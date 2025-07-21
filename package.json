@@ -1,6 +1,6 @@
 {
   "name": "authentication",
-  "version": "0.0.1",
+  "version": "2025.07.21",
   "description": "",
   "author": "",
   "private": true,
@@ -30,7 +30,7 @@
     "@js-temporal/polyfill": "^0.4.4",
     "@nestjs/apollo": "^13.1.0",
     "@nestjs/axios": "^4.0.0",
-    "@nestjs/common": "^10.3.9",
+    "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.5",
     "@nestjs/graphql": "^13.1.0",
@@ -95,6 +95,19 @@
     "typedoc": "^0.28.5",
     "typedoc-plugin-markdown": "^4.6.4",
     "typescript": "^5.1.3"
+  },
+  "overrides": {
+    "@nestjs/cli": {
+      "typescript": "$typescript"
+    },
+    "eslint-plugin-jest": {
+      "typescript": "$typescript"
+    },
+    "nest-keycloak-connect": {
+      "@nestjs/common": "$@nestjs/common",
+      "@nestjs/core": "$@nestjs/core",
+      "rxjs": "7.8.2"
+    }
   },
   "jest": {
     "moduleFileExtensions": [
