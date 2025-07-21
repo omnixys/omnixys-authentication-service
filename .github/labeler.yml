@@ -1,8 +1,10 @@
-# .github/labeler.yml
-
 dependencies:
+  - '**/package.json'
+  - '**/package-lock.json'
+  - '**/pyproject.toml'
   - '**/build.gradle'
   - '**/build.gradle.kts'
+  - '**/pom.xml'
 
 github-actions:
   - '.github/workflows/*.yml'
@@ -10,3 +12,13 @@ github-actions:
 ci:
   - '.github/**'
   - 'devtools/**'
+
+docs:
+  - '**/*.md'
+
+frontend:
+  - 'src/**'
+  - 'apps/frontend/**'
+
+backend:
+  - 'apps/backend/**'
