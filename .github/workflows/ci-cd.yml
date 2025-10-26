@@ -165,6 +165,12 @@ jobs:
         with:
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           publish_dir: ./docs
+          publish_branch: gh-pages
+          force_orphan: true
+          enable_jekyll: false
+          allow_empty_commit: false
+          keep_files: false
+          full_commit_message: "docs: update typedoc documentation [skip ci]"
 
   package:
     name: 📦 Package Application

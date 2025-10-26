@@ -1,17 +1,36 @@
 /** @type {import('typedoc').TypeDocOptions} */
 module.exports = {
-  out: '.extras/doc/api',
+  // Output-Verzeichnis
+  out: 'docs',
+
+  // Haupt-Einstiegspunkt (expand = alle Module im Ordner src)
   entryPoints: ['src'],
-  includeVersion: true,
-  // plugin: ['typedoc-plugin-markdown'],
   entryPointStrategy: 'expand',
-  excludeExternals: true,
+
+  // Anzeigeoptionen
+  name: 'Omnixys Authentication API Documentation',
+  includeVersion: true,
+  readme: './README.md',
+  lang: 'en', // statt htmlLang
+
+  // Theme-Konfiguration
+  theme: 'default', // → Standard HTML Theme
+  // plugin: ['typedoc-plugin-markdown'],
+  // theme: 'markdown'  → falls du Markdown-Ausgabe willst (z. B. für mkdocs)
+
+  // Sichtbarkeitsfilter
   excludePrivate: true,
-  theme: 'default',
-  // favicon: 'favicon.ico',
+  excludeProtected: false,
+  excludeExternals: true,
+
+  // Validierung
   validation: {
     invalidLink: true,
   },
-  name: 'Omnixys Authentication API Documentation',
-  readme: './README.md',
+
+  // Saubere URLs für GitHub Pages (optional)
+  cleanOutputDir: true, // löscht alten Inhalt von /docs bei jedem Build
+
+  // Branding über Custom CSS
+  customCss: 'public/theme.css',
 };
