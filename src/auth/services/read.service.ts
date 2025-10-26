@@ -15,11 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // /backend/auth/src/auth/services/keycloak-read.service.ts
 import { keycloakConnectOptions, paths } from '../../config/keycloak.js';
 import { LoggerService } from '../../logger/logger.service.js';

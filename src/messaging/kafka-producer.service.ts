@@ -15,10 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 // kafka-producer.service.ts
 // ✅ Verwaltet den Kafka Producer als langlebige Instanz
 
@@ -55,7 +51,7 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
    * @param topic - Kafka Topic
    * @param message - Datenobjekt
    */
-  async send<T>(topic: string, message: KafkaEnvelope<T>) {
+  async send<T>(topic: string, message: KafkaEnvelope<T>): Promise<void> {
     console.debug(`send message: ${JSON.stringify(message)} of topic: ${topic}`);
     await this.producer.send({
       topic,
@@ -95,15 +91,26 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
     },
     service: string,
     trace?: TraceContext,
-  ) {
+  ): Promise<void> {
     const topic = KafkaTopics.notification.sendCredentials;
-    const message = {
+
+    const message: KafkaEnvelope<
+      {
+        userId: string;
+        firstName: string;
+        username: string;
+        password: string;
+        phoneNumbers?: PhoneNumberInput[];
+      },
+      TraceContext
+    > = {
       event: 'sendCredentials',
       service,
       version: 'v1',
       trace,
       payload,
     };
+
     await this.send(topic, message);
   }
 

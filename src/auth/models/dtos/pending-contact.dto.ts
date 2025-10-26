@@ -15,14 +15,12 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/consistent-type-definitions */
 import type { PhoneNumberInput } from '../inputs/phone-number.input.js';
 
-export type PendingContact = {
+export interface PendingContact {
   id: string; // random id (uuid/cuid)
   invitationId: string;
   email?: string;
   phoneNumbers?: PhoneNumberInput[];
   createdAt: number; // epoch ms
-};
+}

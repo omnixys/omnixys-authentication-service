@@ -15,9 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { User } from '../entitys/user.entity.js';
 import { TokenPayload } from './token.payload.js';
 import { Field, ID, ObjectType } from '@nestjs/graphql';

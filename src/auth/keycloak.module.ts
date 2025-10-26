@@ -15,10 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { KafkaModule } from '../messaging/kafka.module.js';
 import { AdminMutationResolver } from './resolvers/admin-mutation.resolver.js';
 import { AuthMutationResolver } from './resolvers/auth-mutation.resolver.js';

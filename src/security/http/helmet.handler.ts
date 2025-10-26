@@ -15,9 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentre lösen
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 /**
  * Das Modul besteht aus Security-Funktionen für z.B. CSP, XSS, Click-Jacking,
  * HSTS und MIME-Sniffing, die durch Helmet bereitgestellt werden.

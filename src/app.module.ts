@@ -1,8 +1,3 @@
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /**
  * @license GPL-3.0-or-later
  * Copyright (C) 2025 Caleb Gyamfi - Omnixys Technologies
@@ -22,7 +17,6 @@
 
 // import { graphQlModuleOptions } from './config/graphql.js';
 import { KeycloakModule } from './auth/keycloak.module.js';
-import { HandlerModule } from './handlers/handler.module.js';
 import { HealthModule } from './health/health.module.js';
 import { LoggerModule } from './logger/logger.module.js';
 import { RequestLoggerMiddleware } from './logger/request-logger.middleware.js';
@@ -39,7 +33,6 @@ import { GraphQLModule } from '@nestjs/graphql';
     KeycloakModule,
     LoggerModule,
     KafkaModule,
-    HandlerModule,
     RedisModule,
     // GraphQLModule.forRoot<ApolloDriverConfig>(graphQlModuleOptions),
     ConfigModule.forRoot({ isGlobal: true }),
@@ -70,7 +63,7 @@ import { GraphQLModule } from '@nestjs/graphql';
   providers: [],
 })
 export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
+  configure(consumer: MiddlewareConsumer): void {
     consumer.apply(RequestLoggerMiddleware).forRoutes('*');
   }
 }

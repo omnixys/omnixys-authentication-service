@@ -15,9 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Role } from '../enums/role.enum.js';
 import { PhoneNumberInput } from './phone-number.input.js';
 import { Field, ID, InputType } from '@nestjs/graphql';

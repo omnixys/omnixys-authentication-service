@@ -15,8 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // kafka-envelope.type.ts
 // ✅ Typisierte Event-Hülle für Kafka-Nachrichten zur Standardisierung von Payloads
 
@@ -26,7 +24,13 @@
  *
  * @template T - Nutzdatenstruktur (Payload)
  */
-export interface KafkaEnvelope<T = unknown> {
+export interface KafkaEnvelope<
+  TPayload = unknown,
+  TTrace extends Record<string, string | undefined> = Record<
+    string,
+    string | undefined
+  >,
+> {
   /**
    * Event-Name (z. B. "acceptRsvp", "deleteUser")
    */
@@ -45,10 +49,10 @@ export interface KafkaEnvelope<T = unknown> {
   /**
    * Tracing-/Correlation-Kontext
    */
-  trace?: Record<string, any>;
+  trace?: TTrace;
 
   /**
    * Nutzdaten (z. B. Benutzer, Einladung, etc.)
    */
-  payload: T;
+  payload: TPayload;
 }

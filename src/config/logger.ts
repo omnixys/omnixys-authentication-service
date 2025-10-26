@@ -15,13 +15,10 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentre lösen
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { env } from './env.js';
 import { nodeConfig } from './node.js';
 import { resolve } from 'node:path';
+import type { DestinationStream } from 'pino';
 import pino, { type Logger, type TransportMultiOptions } from 'pino';
 import { type PrettyOptions } from 'pino-pretty';
 
@@ -83,7 +80,9 @@ const options: TransportMultiOptions = pretty
   : { targets: [fileOptions] };
 
 /** Transport für Pino erzeugen */
-const transports = pino.transport(options);
+const transports = pino.transport<Record<string, unknown>>(
+  options,
+) as unknown as DestinationStream;
 
 /**
  * Haupt-Logger-Instanz für die Anwendung.

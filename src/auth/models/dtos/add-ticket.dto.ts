@@ -15,13 +15,10 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-/* eslint-disable @typescript-eslint/consistent-type-definitions */
-import { Mode } from './add-attributes.dto.js';
+import type { Mode } from './add-attributes.dto.js';
 
-export type AddTicketDTO = {
+export interface AddTicketDTO {
   userId: string;
   mode: Mode;
   ticketId: string;
-};
+}

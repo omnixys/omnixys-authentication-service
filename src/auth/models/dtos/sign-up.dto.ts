@@ -15,15 +15,13 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/consistent-type-definitions */
 import type { PhoneNumberInput } from '../inputs/phone-number.input.js';
 
-export type SignUpDTO = {
+export interface SignUpDTO {
   invitationId: string;
   firstName: string;
   lastName: string;
   pendingContactId?: string | null;
   email?: string;
   phoneNumbers?: PhoneNumberInput[];
-};
+}

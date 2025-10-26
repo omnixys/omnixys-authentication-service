@@ -15,12 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/member-ordering */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import type { TraceContext } from '../trace/trace-context.util.js';
 import { getLogger } from './logger.js';
 import type { SpanContext, Tracer } from '@opentelemetry/api';
@@ -52,6 +46,7 @@ export class LoggerPlus {
   // readonly #kafka: KafkaProducerService;
   // readonly #serviceName: string;
   readonly #tracer: Tracer;
+  private readonly logger;
 
   constructor(
     context: string,
@@ -64,8 +59,6 @@ export class LoggerPlus {
     this.logger = getLogger(this.#context);
     this.#tracer = trace.getTracer('logger-plus');
   }
-
-  private readonly logger;
 
   public withContext(traceContext?: TraceContext): LoggerPlus {
     this.traceContext = traceContext;
@@ -97,7 +90,7 @@ export class LoggerPlus {
   private async sendLog(
     level: LogLevel,
     // message: string
-  ) {
+  ): Promise<void> {
     // Entscheide, ob ein manueller TraceContext gesetzt wurde
     const isExternalTraceContext = !!this.traceContext;
 
@@ -109,7 +102,7 @@ export class LoggerPlus {
         traceContext = {
           traceId: spanContext.traceId,
           spanId: spanContext.spanId,
-          sampled: spanContext.traceFlags === 1,
+          sampled: String(spanContext.traceFlags === 1),
         };
       }
     }
@@ -164,13 +157,13 @@ export class LoggerPlus {
     );
   }
 
-  async debug(message: string, ...args: unknown[]) {
+  async debug(message: string, ...args: unknown[]): Promise<void> {
     const msg = format(message, ...args);
     this.logger.debug(msg);
     // await this.sendLog(LogLevel.DEBUG, msg);
   }
 
-  async info(message: string, ...args: unknown[]) {
+  async info(message: string, ...args: unknown[]): Promise<void> {
     const msg = format(message, ...args);
     this.logger.info(msg);
     await this.sendLog(
@@ -179,7 +172,7 @@ export class LoggerPlus {
     );
   }
 
-  async warn(message: string, ...args: unknown[]) {
+  async warn(message: string, ...args: unknown[]): Promise<void> {
     const msg = format(message, ...args);
     this.logger.warn(msg);
     await this.sendLog(
@@ -188,7 +181,7 @@ export class LoggerPlus {
     );
   }
 
-  async error(message: string, ...args: unknown[]) {
+  async error(message: string, ...args: unknown[]): Promise<void> {
     const msg = format(message, ...args);
     this.logger.error(msg);
     await this.sendLog(
@@ -197,7 +190,7 @@ export class LoggerPlus {
     );
   }
 
-  async trace(message: string, ...args: unknown[]) {
+  async trace(message: string, ...args: unknown[]): Promise<void> {
     const msg = format(message, ...args);
     this.logger.trace?.(msg); // trace ist in Pino optional
     // await this.sendLog(LogLevel.TRACE, msg);

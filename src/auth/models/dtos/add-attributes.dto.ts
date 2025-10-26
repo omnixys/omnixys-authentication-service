@@ -15,14 +15,12 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/consistent-type-definitions */
 import type { KcAttributeInput } from '../attributes/user.attributes.js';
 
 export type Mode = 'set' | 'append' | 'remove';
 
-export type AddUserAttributeDTO = {
+export interface AddUserAttributeDTO {
   userId: string;
   attributes: KcAttributeInput;
   mode: Mode;
-};
+}

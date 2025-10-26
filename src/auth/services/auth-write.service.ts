@@ -15,9 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // /backend/auth/src/auth/services/keycloak-write.service.ts
 import { keycloakConnectOptions, paths } from '../../config/keycloak.js';
 import { LoggerService } from '../../logger/logger.service.js';
@@ -58,7 +55,7 @@ export class AuthWriteService extends KeycloakBaseService {
         password,
         scope: 'openid',
       });
-      const data = await this.kcRequest<Record<string, string | number>>(
+      const data = await this.kcRequest<KeycloakToken>(
         'post',
         paths.accessToken,
         { data: body.toString(), headers: this.loginHeaders, adminAuth: false },
@@ -67,7 +64,7 @@ export class AuthWriteService extends KeycloakBaseService {
       if (!data) {
         throw new UnauthorizedException('username oder passwort falsch!');
       }
-      return toToken(data as KeycloakToken);
+      return toToken(data);
     });
   }
 
@@ -84,7 +81,7 @@ export class AuthWriteService extends KeycloakBaseService {
         grant_type: 'refresh_token',
         refresh_token,
       });
-      const data = await this.kcRequest<Record<string, string | number>>(
+      const data = await this.kcRequest<KeycloakToken>(
         'post',
         paths.accessToken,
         { data: body.toString(), headers: this.loginHeaders, adminAuth: false },
@@ -93,7 +90,7 @@ export class AuthWriteService extends KeycloakBaseService {
       if (!data) {
         return null;
       }
-      return toToken(data as KeycloakToken);
+      return toToken(data);
     });
   }
 

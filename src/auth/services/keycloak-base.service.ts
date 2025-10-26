@@ -15,12 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // /backend/auth/src/auth/services/keycloak-base.service.ts
 import { keycloakConnectOptions, paths } from '../../config/keycloak.js';
 import type { LoggerPlus } from '../../logger/logger-plus.js';
@@ -282,13 +276,16 @@ export abstract class KeycloakBaseService {
     }
   }
 
-  protected buildAttributesFromPhones(phones?: Array<{ kind: PhoneKind; value: string }>) {
+  protected buildAttributesFromPhones(
+    phones?: Array<{ kind: PhoneKind; value: string }>,
+  ): Record<string, string[] | undefined> {
     const attributes: Record<string, string[] | undefined> = {};
     if (!phones?.length) {
       return attributes;
     }
 
-    const get = (k: PhoneKind) => phones.find((p) => p.kind === k)?.value?.trim();
+    const get = (k: PhoneKind): string | undefined =>
+      phones.find((p) => p.kind === k)?.value?.trim();
     const priv = get(PhoneKind.PRIVATE);
     const work = get(PhoneKind.WORK);
     const wa = get(PhoneKind.WHATSAPP);
@@ -319,7 +316,8 @@ export abstract class KeycloakBaseService {
     const out: Record<string, string[]> = {};
     const phones = u.phoneNumbers ?? [];
 
-    const getFirst = (k: PhoneKind) => phones.find((p) => p.kind === k)?.value?.trim();
+    const getFirst = (k: PhoneKind): string | undefined =>
+      phones.find((p) => p.kind === k)?.value?.trim();
 
     const privatePhone = getFirst(PhoneKind.PRIVATE);
     const workPhone = getFirst(PhoneKind.WORK);
@@ -359,7 +357,7 @@ export abstract class KeycloakBaseService {
     return out;
   }
 
-  private getJwks(issuer: string) {
+  private getJwks(issuer: string): RemoteJwkSet {
     const url = new URL(`${issuer}/protocol/openid-connect/certs`);
     const key = url.href;
     let jwks = this.#jwksCache.get(key);
@@ -370,3 +368,6 @@ export abstract class KeycloakBaseService {
     return jwks;
   }
 }
+
+// TODO type in /models
+export type RemoteJwkSet = ReturnType<typeof jose.createRemoteJWKSet>;

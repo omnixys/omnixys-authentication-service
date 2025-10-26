@@ -15,13 +15,10 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import type { ApolloFederationDriverConfig } from '@nestjs/apollo';
 import {
   ApolloDriver,
   ApolloFederationDriver,
-  ApolloFederationDriverConfig,
   type ApolloDriverConfig,
 } from '@nestjs/apollo';
 import { join } from 'node:path';

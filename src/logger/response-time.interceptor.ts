@@ -15,11 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentre lösen
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { getLogger } from './logger.js';
 import { Temporal } from '@js-temporal/polyfill';
 import {
@@ -72,7 +67,7 @@ export class ResponseTimeInterceptor implements NestInterceptor {
     return next.handle().pipe(tap(responseTimeObserver));
   }
 
-  readonly #empty = () => {
+  readonly #empty = (): void => {
     /* do nothing */
   };
 }

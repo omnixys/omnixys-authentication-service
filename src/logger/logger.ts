@@ -15,10 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentre lösen
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 /**
  * Das Modul besteht aus der Funktion {@linkcode getLogger} für einen Logger auf
  * der Basis von Pino: https://getpino.io. Pino wird auch von Fastify genutzt.

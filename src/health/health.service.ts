@@ -15,23 +15,24 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
+import { env } from '../config/env.js';
 import { Injectable } from '@nestjs/common';
 import { readFileSync, existsSync } from 'fs';
 import { Kafka } from 'kafkajs';
 
+const { KAFKA_BROKER, KEYS_PATH } = env;
 @Injectable()
 export class HealthService {
-  async checkHealth() {
+  // TODO interface in /Models
+  async checkHealth(): Promise<{
+    self: string;
+    kafka: string;
+    tlsCertificate: string;
+    tlsKey: string;
+  }> {
     const kafkaStatus = await this.checkKafka();
-    const certStatus = this.checkCertificate(`${process.env.KEYS_PATH!}/certificate.crt`);
-    const keyStatus = this.checkCertificate(`${process.env.KEYS_PATH!}/key.pem`);
+    const certStatus = this.checkCertificate(`${KEYS_PATH}/certificate.crt`);
+    const keyStatus = this.checkCertificate(`${KEYS_PATH}/key.pem`);
 
     return {
       self: 'ok',
@@ -44,14 +45,15 @@ export class HealthService {
   private async checkKafka(): Promise<string> {
     try {
       const kafka = new Kafka({
-        brokers: [process.env.KAFKA_BROKER!],
+        brokers: [KAFKA_BROKER],
         clientId: 'health-check',
       });
       const admin = kafka.admin();
       await admin.connect();
       await admin.disconnect();
       return 'ok';
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error('Kafka health check failed:', error);
       return 'unreachable';
     }
   }

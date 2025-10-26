@@ -15,12 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 // /backend/auth/src/auth/resolvers/auth.mutation.resolver.ts
 import { getLogger } from '../../logger/logger.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
@@ -76,7 +70,10 @@ export class UserMutationResolver {
     @Context() ctx: GqlCtx,
   ): Promise<SuccessPayload> {
     const user = ctx?.req.user;
-    this.logger.debug(`user=%o${user}`);
+    if (!user) {
+      // TODO bessere Error
+      throw new Error();
+    }
 
     if (!user?.sub) {
       // Kein authentifizierter Nutzer im Kontext
@@ -90,7 +87,7 @@ export class UserMutationResolver {
   async updateMyProfile(
     @Args('input') input: UpdateMyProfileInput,
     @Context() ctx: GqlCtx,
-  ) {
+  ): Promise<{ ok: boolean; message: string }> {
     const user = ctx?.req.user;
 
     if (!user?.sub) {

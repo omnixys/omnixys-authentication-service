@@ -15,24 +15,35 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-// src/infra/redis/redis.config.ts
 import type { RedisOptions } from 'ioredis';
 
-export const redisEnv = process.env as Record<string, string | undefined>;
-export const isRedisUrl = () =>
-  !!redisEnv.REDIS_URL && redisEnv.REDIS_URL.trim().length > 0;
+/**
+ * Zugriff auf Redis-bezogene Umgebungsvariablen.
+ */
+export const redisEnv: Record<string, string | undefined> = process.env;
 
+/**
+ * Prüft, ob eine REDIS_URL gesetzt ist.
+ */
+export function isRedisUrl(): boolean {
+  const url = redisEnv.REDIS_URL;
+  return typeof url === 'string' && url.trim().length > 0;
+}
+
+/**
+ * Erzeugt ein standardisiertes RedisOptions-Objekt für ioredis.
+ */
 export function makeRedisOptions(): RedisOptions {
   const port = Number(redisEnv.REDIS_PORT ?? 6379);
+
   return {
     host: redisEnv.REDIS_HOST ?? '127.0.0.1',
     port: Number.isFinite(port) ? port : 6379,
     username: redisEnv.REDIS_USERNAME ?? undefined,
     password: redisEnv.REDIS_PASSWORD ?? undefined,
-    retryStrategy: (times) => Math.min(100 + times * 200, 5_000),
-    reconnectOnError: (err) =>
+    retryStrategy: (times: number): number =>
+      Math.min(100 + times * 200, 5_000),
+    reconnectOnError: (err: Error): boolean =>
       /READONLY|ETIMEDOUT|ECONNRESET|EAI_AGAIN/i.test(err.message),
     maxRetriesPerRequest: null,
     enableAutoPipelining: true,

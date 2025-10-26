@@ -15,8 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/consistent-type-assertions */
 import type { TraceContext } from '../trace/trace-context.util.js';
 
 // kafka-header-builder.ts
@@ -33,13 +31,10 @@ export function buildKafkaHeaders(
   return Object.entries({
     'x-trace-id': generateUUID(),
     ...headers,
-  }).reduce(
-    (acc, [key, value]) => {
-      acc[key] = Buffer.from(value);
-      return acc;
-    },
-    {} as Record<string, Buffer>,
-  );
+  }).reduce<Record<string, Buffer>>((acc, [key, value]) => {
+    acc[key] = Buffer.from(value);
+    return acc;
+  }, {});
 }
 
 /**

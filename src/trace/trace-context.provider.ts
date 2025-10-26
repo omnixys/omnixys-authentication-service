@@ -15,9 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/member-ordering */
 import { TraceContext } from './trace-context.util.js';
 import { Injectable, Scope } from '@nestjs/common';
 
@@ -29,6 +26,8 @@ import { Injectable, Scope } from '@nestjs/common';
 export class TraceContextProvider {
   private context?: TraceContext;
 
+  #context: TraceContext | undefined;
+
   setContext(context: TraceContext): void {
     this.context = context;
   }
@@ -37,9 +36,7 @@ export class TraceContextProvider {
     return this.context;
   }
 
-  #context: TraceContext | undefined;
-
-  clear() {
+  clear(): void {
     this.#context = undefined;
   }
 

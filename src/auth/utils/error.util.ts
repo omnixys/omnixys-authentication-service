@@ -15,8 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import type { LoggerPlus } from '../../logger/logger-plus.js';
 import type { Span } from '@opentelemetry/api';
 /**

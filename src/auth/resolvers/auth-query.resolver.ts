@@ -15,14 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 // /backend/auth/src/auth/resolvers/auth.query.resolver.ts
 import { UnauthorizedException, UseInterceptors } from '@nestjs/common';
 import { Args, Context, ID, Query, Resolver } from '@nestjs/graphql';
@@ -122,7 +114,12 @@ export class AuthQueryResolver {
     this.logger.debug('me');
     const user = ctx?.req.user;
 
-    this.logger.debug('user=%o', user!);
+    if (!user) {
+      // TODO bessere Error
+      throw new Error();
+    }
+
+    this.logger.debug('user=%o', user);
 
     if (!user?.sub) {
       // Kein authentifizierter Nutzer im Kontext

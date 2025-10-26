@@ -15,21 +15,17 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { env } from '../config/env.js';
 import { Injectable } from '@nestjs/common';
 import { HealthIndicatorResult } from '@nestjs/terminus';
 import { Kafka } from 'kafkajs';
 
+const { KAFKA_BROKER } = env;
 @Injectable()
 export class KafkaIndicator {
   async isHealthy(): Promise<HealthIndicatorResult> {
     const kafka = new Kafka({
-      brokers: [process.env.KAFKA_BROKER!],
+      brokers: [KAFKA_BROKER],
       clientId: 'health-check',
     });
 
@@ -45,6 +41,7 @@ export class KafkaIndicator {
         },
       };
     } catch (error) {
+      console.error('Kafka health check failed:', error);
       return {
         kafka: {
           status: 'down',

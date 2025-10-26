@@ -15,12 +15,10 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import type { KeycloakToken } from '../dtos/kc-token.dto.js';
 import type { TokenPayload } from '../payloads/token.payload.js';
 
-export function toToken(tokenPayload: KeycloakToken) {
+export function toToken(tokenPayload: KeycloakToken): TokenPayload {
   const token: TokenPayload = {
     accessToken: tokenPayload.access_token,
     expiresIn: tokenPayload.expires_in,

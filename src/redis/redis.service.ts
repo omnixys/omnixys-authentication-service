@@ -15,8 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 // src/infra/redis/redis.service.ts
 import { makeRedisClient } from './redis.client.js';
 import type { RedisClient } from './redis.types.js';
@@ -30,7 +28,7 @@ export class RedisService implements OnApplicationShutdown {
     return this.client;
   }
 
-  async onApplicationShutdown() {
+  async onApplicationShutdown(): Promise<void> {
     try {
       await this.client.quit();
     } catch {

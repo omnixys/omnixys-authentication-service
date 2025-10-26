@@ -15,12 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // src/service/pending-contact.service.ts
 import { PendingContact } from '../auth/models/dtos/pending-contact.dto.js';
 import { RedisService } from './redis.service.js';
@@ -32,7 +26,7 @@ import * as jose from 'jose';
 export class PendingContactService {
   constructor(private readonly redis: RedisService) {} // ← statt Inject('REDIS')
 
-  private keyFor(id: string) {
+  private keyFor(id: string): string {
     return `pc:${id}`;
   }
 

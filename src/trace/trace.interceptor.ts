@@ -15,35 +15,31 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { TraceContextProvider } from './trace-context.provider.js';
-import { TraceContextUtil } from './trace-context.util.js';
+import { TraceContextUtil, TraceContext } from './trace-context.util.js';
 import {
   CallHandler,
   ExecutionContext,
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { Observable } from 'rxjs';
 
 @Injectable()
-export class TraceInterceptor implements NestInterceptor {
-  readonly #traceContextProvider: TraceContextProvider;
+export class TraceInterceptor<T = unknown> implements NestInterceptor<T, T> {
+  constructor(private readonly traceContextProvider: TraceContextProvider) {}
 
-  constructor(traceContextProvider: TraceContextProvider) {
-    this.#traceContextProvider = traceContextProvider;
-  }
+  intercept(context: ExecutionContext, next: CallHandler<T>): Observable<T> {
+    const request = context.switchToHttp().getRequest<Request>();
+    const headers = (request?.headers ?? {}) as Record<
+      string,
+      string | string[]
+    >;
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const request = context.switchToHttp().getRequest();
-    const headers = request?.headers ?? {};
-
-    const trace = TraceContextUtil.fromHeaders(headers);
-    this.#traceContextProvider.setContext(trace);
+    // Extrahiere Trace-Kontext mit klar definiertem Typ
+    const trace: TraceContext = TraceContextUtil.fromHeaders(headers);
+    this.traceContextProvider.setContext(trace);
 
     return next.handle();
   }

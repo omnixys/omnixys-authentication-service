@@ -15,11 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentre lösen
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { getLogger } from './logger.js';
 import { Injectable, type NestMiddleware } from '@nestjs/common';
 import { type NextFunction, type Request, type Response } from 'express';
@@ -38,7 +33,7 @@ export class RequestLoggerMiddleware implements NestMiddleware {
    * @param _res Nicht-verwendetes Response-Objekt von Express
    * @param next Funktion der als nächstes aufzurufenden Middleware
    */
-  use(req: Request, _res: Response, next: NextFunction) {
+  use(req: Request, _res: Response, next: NextFunction): void {
     const { method, originalUrl, headers } = req;
     this.#logger.debug(
       'method=%s, url=%s, header=%o',

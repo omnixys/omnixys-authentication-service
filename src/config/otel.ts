@@ -15,12 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 // src/observability/otel.ts
 import { env } from './env.js';
 import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
@@ -50,7 +44,8 @@ const prometheusExporter = new PrometheusExporter(
     endpoint: '/metrics',
   },
   () => {
-    console.log(
+    // TODO console log entfernen
+    console.debug(
       '✅ Prometheus exporter läuft auf http://localhost:9464/metrics',
     );
   },
@@ -58,8 +53,8 @@ const prometheusExporter = new PrometheusExporter(
 
 let sdk: NodeSDK; // <<< global deklariert
 
-export async function startOtelSDK() {
-  const detected = await detectResources({
+export async function startOtelSDK(): Promise<void> {
+  const detected = detectResources({
     detectors: [envDetector, hostDetector, osDetector, processDetector],
   });
 
@@ -78,16 +73,18 @@ export async function startOtelSDK() {
     instrumentations: [getNodeAutoInstrumentations()],
   });
 
-  await sdk.start();
-  console.log(
+  sdk.start();
+  // TODO console log entfernen
+  console.debug(
     '✅ OpenTelemetry gestartet – mit service.name = shopping-cart-service',
   );
 }
 
-export async function shutdownOtelSDK() {
+export async function shutdownOtelSDK(): Promise<void> {
   if (sdk) {
     await sdk.shutdown();
-    console.log('🛑 OpenTelemetry SDK gestoppt');
+    // TODO console log entfernen
+    console.debug('🛑 OpenTelemetry SDK gestoppt');
   } else {
     console.warn('⚠️ OpenTelemetry SDK war nicht initialisiert');
   }

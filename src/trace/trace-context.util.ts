@@ -15,16 +15,14 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /**
  * Kontextinformationen für Tracing mit Zipkin / B3.
  */
-export interface TraceContext {
+export interface TraceContext extends Record<string, string | undefined> {
   traceId?: string;
   spanId?: string;
   parentSpanId?: string;
-  sampled?: boolean;
+  sampled?: string;
 }
 
 /**
@@ -43,7 +41,7 @@ export class TraceContextUtil {
       return {};
     }
 
-    const get = (key: string) =>
+    const get = (key: string): string | undefined =>
       (headers[key] ?? headers[key.toLowerCase()]) as string | undefined;
 
     // 🎯 W3C trace context parsing
@@ -57,7 +55,7 @@ export class TraceContextUtil {
         return {
           traceId,
           spanId,
-          sampled: flags === '01',
+          sampled: String(flags === '01'),
         };
       }
     }
@@ -73,7 +71,7 @@ export class TraceContextUtil {
       traceId,
       spanId,
       parentSpanId,
-      sampled: sampledRaw !== undefined ? sampled : undefined,
+      sampled: sampledRaw !== undefined ? String(sampled) : undefined,
     };
   }
 }

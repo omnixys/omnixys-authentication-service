@@ -1,9 +1,20 @@
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/**
+ * @license GPL-3.0-or-later
+ * Copyright (C) 2025 Caleb Gyamfi - Omnixys Technologies
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * For more information, visit <https://www.gnu.org/licenses/>.
+ */
+
 import type { KeycloakTokenPayload } from '../dtos/kc-token.dto.js';
 import type { KeycloakUser } from '../dtos/kc-user.dto.js';
 import type { PhoneNumber } from '../entitys/phone-number.entity.js';
@@ -118,7 +129,7 @@ function fromTokenPayload(p: KeycloakTokenPayload): User {
   }
 
   if (Array.isArray(p.phoneNumbers)) {
-    p.phoneNumbers.filter(Boolean).forEach((v, i) =>
+    p.phoneNumbers.filter(Boolean).forEach((v: string, i) =>
       phoneList.push({
         kind: PhoneKind.OTHER,
         value: v,
@@ -128,11 +139,9 @@ function fromTokenPayload(p: KeycloakTokenPayload): User {
   }
 
   const realmRolesStr: string[] = Array.isArray(p.realm_access?.roles)
-    ? p.realm_access!.roles
+    ? p.realm_access.roles
     : [];
-  const attrRolesStr: string[] = Array.isArray(p.roles)
-    ? (p.roles as string[])
-    : [];
+  const attrRolesStr: string[] = Array.isArray(p.roles) ? p.roles : [];
 
   // Merge + Enum-Normalisierung
   const roles: Role[] = toEnumRoles([...realmRolesStr, ...attrRolesStr]);
@@ -144,7 +153,9 @@ function fromTokenPayload(p: KeycloakTokenPayload): User {
     lastName: p.last_name ?? 'N/A',
     email: p.email ?? 'N/A',
     roles,
-    invitationIds: Array.isArray(p.invitationIds) ? p.invitationIds : [],
+    invitationIds: Array.isArray(p.invitationIds)
+      ? (p.invitationIds as string[])
+      : [],
     ticketIds: Array.isArray(p.ticketIds) ? p.ticketIds : undefined,
     phoneNumbers: phoneList.length ? phoneList : undefined,
     eventIds: p.event_ids,

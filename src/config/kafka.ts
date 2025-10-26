@@ -15,15 +15,10 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // kafka.ts (früher kafka.config.ts)
 // ✅ Zentrale Kafka-Instanz mit korrektem Partitioner und Timeouts
 
+import type { Consumer } from 'kafkajs';
 import { Kafka, Partitioners, logLevel } from 'kafkajs';
 
 /**
@@ -49,7 +44,7 @@ export const kafkaProducer = kafka.producer({
  * KafkaJS Consumer Factory
  * @param groupId - ConsumerGroup-ID
  */
-export const createKafkaConsumer = (groupId: string) =>
+export const createKafkaConsumer = (groupId: string): Consumer =>
   kafka.consumer({
     groupId,
     sessionTimeout: 30000,

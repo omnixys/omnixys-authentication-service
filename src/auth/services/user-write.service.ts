@@ -15,9 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 // /backend/auth/src/auth/services/keycloak-write.service.ts
 import { paths } from '../../config/keycloak.js';
 import { LoggerService } from '../../logger/logger.service.js';
@@ -139,7 +136,7 @@ export class UserWriteService extends KeycloakBaseService {
     });
   }
 
-  async sendPasswordResetNotification(id: string) {
+  async sendPasswordResetNotification(id: string): Promise<void> {
     throw new Error(`Method not implemented.${id}`);
   }
 

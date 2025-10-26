@@ -15,14 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-base-to-string */
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 // /backend/auth/src/auth/services/keycloak-write.service.ts
 import { paths } from '../../config/keycloak.js';
 import { LoggerService } from '../../logger/logger.service.js';
@@ -44,12 +36,36 @@ import { KeycloakBaseService } from './keycloak-base.service.js';
 import { KeycloakReadService } from './read.service.js';
 import { Injectable } from '@nestjs/common';
 
+// TODO interfaces in /models
 interface KeycloakUserPatch {
   username: string;
   firstName: string;
   lastName: string;
   email: string;
   attributes?: Record<string, unknown>;
+}
+
+interface KcRaw {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  emailVerified: boolean;
+  attributes: { roles: string[] };
+  enabled: boolean;
+  createdTimestamp: number;
+  totp: boolean;
+  disableableCredentialTypes: string[];
+  requiredActions: string[];
+  notBefore: number;
+  access: {
+    manageGroupMembership: boolean;
+    view: boolean;
+    mapRoles: boolean;
+    impersonate: boolean;
+    manage: boolean;
+  };
 }
 
 /**
@@ -146,9 +162,13 @@ export class AdminWriteService extends KeycloakBaseService {
     const mode = input.mode ?? 'set';
 
     // 1) Aktuellen KC-User (RAW) laden
-    const kcRaw = await this.kcRequest<any>('get', `${paths.users}/${encodeURIComponent(userId)}`, {
-      headers: await this.adminJsonHeaders(),
-    });
+    const kcRaw: KcRaw = await this.kcRequest<KcRaw>(
+      'get',
+      `${paths.users}/${encodeURIComponent(userId)}`,
+      {
+        headers: await this.adminJsonHeaders(),
+      },
+    );
 
     // 2) Aktuelle Attribute normalisieren (string[])
     const current: Record<string, string[]> = {};
@@ -162,7 +182,7 @@ export class AdminWriteService extends KeycloakBaseService {
 
     for (const key of keys) {
       if (!isKcAttributeKey(key)) {
-        throw new Error(`Unsupported attribute key: ${key}`);
+        throw new Error(`Unsupported attribute key: ${String(key)}`);
       }
       const next = normalizeAttributeValue(key, attributes[key], mode); // → string[]
 
@@ -221,7 +241,7 @@ export class AdminWriteService extends KeycloakBaseService {
     });
   }
 
-  async updateUser(id: string, input: UpdateMyProfileInput) {
+  async updateUser(id: string, input: UpdateMyProfileInput): Promise<void> {
     // 1) Bestehenden User laden (für Merge)
     const kcUser = await this.readService.findById(id);
 
@@ -334,7 +354,7 @@ export class AdminWriteService extends KeycloakBaseService {
     attrs: Record<string, string[] | undefined>,
     key: string,
     value: string | null | undefined,
-  ) {
+  ): void {
     if (value === undefined) {
       return;
     } // nicht angefasst
@@ -360,7 +380,7 @@ export class AdminWriteService extends KeycloakBaseService {
     };
   }
 
-  private sameArr(a?: string[], b?: string[]) {
+  private sameArr(a?: string[], b?: string[]): boolean {
     const A = Array.isArray(a) ? [...a].sort() : [];
     const B = Array.isArray(b) ? [...b].sort() : [];
     if (A.length !== B.length) {

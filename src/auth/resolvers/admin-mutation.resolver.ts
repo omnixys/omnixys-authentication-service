@@ -15,11 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 // /backend/auth/src/auth/resolvers/auth.mutation.resolver.ts
 import { UseInterceptors } from '@nestjs/common';
 import { Args, ID, Mutation, Resolver } from '@nestjs/graphql';

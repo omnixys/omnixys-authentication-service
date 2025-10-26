@@ -15,11 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/consistent-type-definitions */
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-/* eslint-disable @typescript-eslint/consistent-type-imports */
-import * as jose from 'jose';
+import type * as jose from 'jose';
 
 export type KeycloakTokenPayload = jose.JWTPayload & {
   sub?: string;
@@ -41,11 +37,11 @@ export type KeycloakTokenPayload = jose.JWTPayload & {
   event_ids?: string[];
 };
 
-export type KeycloakToken = {
+export interface KeycloakToken {
   access_token: string;
   expires_in: number;
   refresh_token: string;
   refresh_expires_in: number;
   id_token: string;
   scope: string;
-};
+}

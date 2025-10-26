@@ -15,9 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Zentrale Konfiguration aller Kafka-Topics im System.
  * Dient der Typsicherheit, Übersichtlichkeit und Wiederverwendbarkeit in Publishern und Handlern.
@@ -48,10 +45,13 @@ export type KafkaTopicsType = typeof KafkaTopics;
  * Hilfsfunktion zur Auflistung aller konfigurierten Topic-Namen (z.B. für Subscriptions).
  */
 export function getAllKafkaTopics(): string[] {
-  const flatten = (obj: any): string[] =>
+  const flatten = (obj: Record<string, unknown>): string[] =>
     Object.values(obj).flatMap((value) =>
-      typeof value === 'string' ? [value] : flatten(value),
+      typeof value === 'string'
+        ? [value]
+        : flatten(value as Record<string, unknown>),
     );
+
   return flatten(KafkaTopics);
 }
 

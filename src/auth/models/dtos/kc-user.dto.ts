@@ -15,9 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/consistent-type-definitions */
-export type KeycloakUser = {
+export interface KeycloakUser {
   id?: string;
   enabled?: boolean;
   username: string;
@@ -36,4 +34,4 @@ export type KeycloakUser = {
     roles: string[];
     eventIds?: string[];
   };
-};
+}

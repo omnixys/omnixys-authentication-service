@@ -15,10 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 // /backend/auth/src/auth/resolvers/auth.mutation.resolver.ts
 import { UseInterceptors } from '@nestjs/common';
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
@@ -47,12 +43,19 @@ export interface GqlCtx {
   res: Response;
 }
 
+export interface CookieReq {
+  cookies: {
+    kc_access_token: string;
+    kc_refresh_token: string;
+  };
+}
+
 /** Liest den `kc_access_token` Cookie sicher und typisiert aus. */
 export function readAccessTokenFromCookie(ctx: GqlCtx): string | undefined {
   if (!ctx.req) {
     return undefined;
   }
-  const cookieReq = ctx.req;
+  const cookieReq: CookieReq = ctx.req;
   const value = cookieReq.cookies?.kc_access_token;
   return typeof value === 'string' ? value : undefined;
 }
@@ -162,9 +165,9 @@ export class AuthMutationResolver {
     refreshToken: string | null,
     @Context() ctx: GqlCtx,
   ): Promise<TokenPayload> {
-    const token =
-      refreshToken ??
-      (ctx?.req?.cookies?.kc_refresh_token as string | undefined);
+    const cookieReq: CookieReq = ctx.req;
+    const value = cookieReq.cookies?.kc_refresh_token;
+    const token: string = refreshToken ?? value;
 
     const result = await this.authService.refresh(token);
     if (!result) {
@@ -192,9 +195,9 @@ export class AuthMutationResolver {
   @Mutation(() => SuccessPayload, { name: 'logout' })
   @Public()
   async logout(@Context() ctx: GqlCtx): Promise<SuccessPayload> {
-    const refreshToken = ctx?.req?.cookies?.kc_refresh_token as
-      | string
-      | undefined;
+    const cookieReq: CookieReq = ctx.req;
+    const value = cookieReq.cookies?.kc_refresh_token;
+    const refreshToken = value;
     await this.authService.logout(refreshToken);
 
     clearCookieSafe(ctx?.res, 'kc_access_token');

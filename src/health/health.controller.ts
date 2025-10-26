@@ -15,18 +15,18 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { healthEnv } from '../config/env.js';
 import { KafkaIndicator } from './kafka.indicator.js';
 import { Controller, Get } from '@nestjs/common';
-import { HealthCheckService, HttpHealthIndicator, HealthCheck } from '@nestjs/terminus';
+import {
+  HealthCheckService,
+  HttpHealthIndicator,
+  HealthCheck,
+  HealthCheckResult,
+} from '@nestjs/terminus';
 import { Public } from 'nest-keycloak-connect';
 
+const { KEYCLOAK_HEALTH_URL, TEMPO_HEALTH_URL, PROMETHEUS_HEALTH_URL } = healthEnv;
 @Controller('health')
 export class HealthController {
   readonly #health: HealthCheckService;
@@ -42,20 +42,20 @@ export class HealthController {
   @Get('liveness')
   @HealthCheck()
   @Public()
-  liveness() {
+  liveness(): Promise<HealthCheckResult> {
     return this.#health.check([() => Promise.resolve({ app: { status: 'up' } })]);
   }
 
   @Get('readiness')
   @HealthCheck()
   @Public()
-  readiness() {
+  readiness(): Promise<HealthCheckResult> {
     return this.#health.check([
       () => Promise.resolve({ app: { status: 'up' } }),
       () => this.#kafka.isHealthy(),
-      () => this.#http.pingCheck('keycloak', process.env.KEYCLOAK_HEALTH_URL!),
-      () => this.#http.pingCheck('tempo', process.env.TEMPO_HEALTH_URL!),
-      () => this.#http.pingCheck('prometheus', process.env.PROMETHEUS_HEALTH_URL!),
+      () => this.#http.pingCheck('keycloak', KEYCLOAK_HEALTH_URL),
+      () => this.#http.pingCheck('tempo', TEMPO_HEALTH_URL),
+      () => this.#http.pingCheck('prometheus', PROMETHEUS_HEALTH_URL),
     ]);
   }
 }

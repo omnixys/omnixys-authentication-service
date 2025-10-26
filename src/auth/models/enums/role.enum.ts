@@ -15,12 +15,12 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/consistent-type-definitions */
 import { registerEnumType } from '@nestjs/graphql';
 
-export type RoleData = { id: string; name: string };
+export interface RoleData {
+  id: string;
+  name: string;
+}
 
 export enum Role {
   ADMIN = 'ADMIN',
@@ -55,7 +55,7 @@ export function roleStrToEnum(s: string | undefined | null): Role | null {
   if (!s) {
     return null;
   }
-  const hit = KC_TO_ENUM[s] || KC_TO_ENUM[String(s).toLowerCase()];
+  const hit = KC_TO_ENUM[s] ?? KC_TO_ENUM[String(s).toLowerCase()];
   return hit ?? null;
 }
 

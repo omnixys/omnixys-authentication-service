@@ -1,5 +1,5 @@
 TODO
 
-keycloak id in token
 logger optimieren
-eslint auflösen
+
+Refactor typen, interface alle in /models

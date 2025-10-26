@@ -65,8 +65,14 @@ export const env = {
   KC_URL: process.env.KC_URL ?? 'http://localhost:18080/auth',
   KC_REALM: process.env.KC_REALM ?? 'camunda-platform',
   KC_CLIENT_ID: process.env.KC_CLIENT_ID ?? 'camunda-identity',
+  KAFKA_BROKER: process.env.KAFKA_BROKER ?? '9092',
 } as const;
 
+export const healthEnv = {
+  KEYCLOAK_HEALTH_URL: process.env.KEYCLOAK_HEALTH_URL ?? '',
+  TEMPO_HEALTH_URL: process.env.TEMPO_HEALTH_URL ?? '',
+  PROMETHEUS_HEALTH_URL: process.env.PROMETHEUS_HEALTH_URL ?? '',
+} as const;
 /**
  * Debug-Ausgabe (nur in Entwicklung)
  */

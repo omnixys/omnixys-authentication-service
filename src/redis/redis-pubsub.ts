@@ -15,50 +15,80 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-// src/infra/redis/redis-pubsub.ts
-import { makeRedisClient } from './redis.client.js';
-import { ensureReady, closeClients } from './redis.health.js';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { PubSub } from 'graphql-subscriptions';
+import type { Redis } from 'ioredis';
+
+import { makeRedisClient } from './redis.client.js';
+import { ensureReady, closeClients } from './redis.health.js';
 export { TRIGGER } from './redis-triggers.js';
 
+/**
+ * Wenn GQL_PUBSUB_INMEMORY=1 gesetzt ist, wird stattdessen der einfache In-Memory PubSub verwendet.
+ */
 const useInMemory = process.env.GQL_PUBSUB_INMEMORY === '1';
 
-let pubsub: any;
-let publisher: any;
-let subscriber: any;
+interface RedisPubSubSingleton {
+  publisher: Redis;
+  subscriber: Redis;
+  pubsub: RedisPubSub;
+}
 
+let publisher: Redis | undefined;
+let subscriber: Redis | undefined;
+let pubsub: RedisPubSub | PubSub;
+
+/**
+ * Initialisierung – sorgt für Singleton-Instanz über Hot Reloads hinweg (z. B. bei Next.js oder Gateway Reload).
+ */
 if (useInMemory) {
   pubsub = new PubSub();
 } else {
-  const g = globalThis as any;
-  const KEY = '__REDIS_PUBSUB_SINGLETON__';
-  if (!g[KEY]) {
+  const globalRef = globalThis as unknown as {
+    __REDIS_PUBSUB_SINGLETON__?: RedisPubSubSingleton;
+  };
+
+  if (!globalRef.__REDIS_PUBSUB_SINGLETON__) {
     const pub = makeRedisClient('pub');
     const sub = makeRedisClient('sub');
-    const rps = new RedisPubSub({ publisher: pub, subscriber: sub });
-    g[KEY] = { publisher: pub, subscriber: sub, pubsub: rps };
+    const redisPubSub = new RedisPubSub({
+      publisher: pub,
+      subscriber: sub,
+    });
+
+    globalRef.__REDIS_PUBSUB_SINGLETON__ = {
+      publisher: pub,
+      subscriber: sub,
+      pubsub: redisPubSub,
+    };
   }
-  ({ publisher, subscriber, pubsub } = (globalThis as any)[KEY]);
+
+  const singleton = globalRef.__REDIS_PUBSUB_SINGLETON__;
+  publisher = singleton.publisher;
+  subscriber = singleton.subscriber;
+  pubsub = singleton.pubsub;
 }
 
+/**
+ * Gibt den verwendeten PubSub-Adapter (Redis oder InMemory) zurück.
+ */
 export { pubsub, publisher, subscriber };
 
-export async function ensurePubSubReady(timeout = 3000) {
-  if (useInMemory) {
+/**
+ * Prüft, ob der Redis-PubSub-Client einsatzbereit ist.
+ */
+export async function ensurePubSubReady(timeout = 3000): Promise<boolean> {
+  if (useInMemory || !publisher) {
     return true;
   }
   return ensureReady(publisher, timeout);
 }
 
-export async function closeRedisPubSub() {
-  if (useInMemory) {
+/**
+ * Schließt die Redis-Verbindungen, wenn PubSub über Redis betrieben wird.
+ */
+export async function closeRedisPubSub(): Promise<void> {
+  if (useInMemory || !publisher || !subscriber) {
     return;
   }
   await closeClients(publisher, subscriber);

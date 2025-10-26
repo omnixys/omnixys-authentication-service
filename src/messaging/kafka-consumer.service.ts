@@ -15,18 +15,19 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // kafka-consumer.service.ts
 // ✅ Kafka Consumer Service mit Lifecycle-Management und Dispatcher-Aufruf
 
+import { MyKafkaEvent } from '../auth/models/my-kafka-event.js';
 import { createKafkaConsumer } from '../config/kafka.js';
 import { KafkaEventDispatcherService } from './kafka-event-dispatcher.service.js';
 import { getKafkaTopicsBy } from './kafka-topic.properties.js';
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+
+// TODO in utils
+function safeJsonParse<T>(text: string): T {
+  return JSON.parse(text) as T;
+}
 
 /**
  * KafkaConsumerService
@@ -47,6 +48,7 @@ export class KafkaConsumerService implements OnModuleInit, OnModuleDestroy {
 
     // 👉 mehrere Subscriptions
     await this.consumer.subscribe({
+      // TODO in env speichern
       topics: getKafkaTopicsBy(['auth']),
       fromBeginning: false,
     });
@@ -59,7 +61,7 @@ export class KafkaConsumerService implements OnModuleInit, OnModuleDestroy {
             return;
           }
 
-          const payload = JSON.parse(rawValue);
+          const payload = safeJsonParse<MyKafkaEvent>(rawValue);
 
           this.logger.log(`📩 Event erfolgreich empfangen: ${topic}`);
 
