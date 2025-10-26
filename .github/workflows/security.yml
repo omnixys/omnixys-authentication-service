@@ -23,17 +23,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: pnpm
-
       - name: ⚙️ Enable Corepack (pnpm)
         run: |
           corepack enable
           corepack prepare pnpm@latest --activate
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
 
       - name: Install dependencies
         run: npm ci
@@ -61,16 +60,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: ⚙️ Enable Corepack (pnpm)
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
-
-      - name: ⚙️ Enable Corepack (pnpm)
-        run: |
-          corepack enable
-          corepack prepare pnpm@latest --activate
 
       - name: Install dependencies
         run: npm ci

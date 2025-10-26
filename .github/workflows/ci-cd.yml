@@ -54,6 +54,12 @@ jobs:
       - name: Print tag
         run: echo "The tag is ${{ github.ref_name }}"
 
+      - name: ⚙️ Enable Corepack (pnpm)
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -67,12 +73,6 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-modules-
-      
-      - name: ⚙️ Enable Corepack (pnpm)
-        run: |
-          corepack enable
-          corepack prepare pnpm@latest --activate
-
 
       - name: Install dependencies
         run: pnpm ci
