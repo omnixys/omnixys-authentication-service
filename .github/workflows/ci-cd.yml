@@ -59,7 +59,6 @@ jobs:
           corepack enable
           corepack prepare pnpm@latest --activate
 
-
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -75,7 +74,7 @@ jobs:
             ${{ runner.os }}-node-modules-
 
       - name: Install dependencies
-        run: pnpm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build project
         run: pnpm run build
@@ -250,8 +249,6 @@ jobs:
       #     npm install -g @cyclonedx/bom
       #     BINARY_PATH="$(npm bin -g)/cyclonedx-bom"
       #     "$BINARY_PATH" -o sbom.json
-
-
 
       # - name: Cosign SBOM Attestation
       #   run: |

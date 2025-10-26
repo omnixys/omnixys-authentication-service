@@ -35,7 +35,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Run OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@75ba02d6183445fe0761d26e836bde58b1560600
@@ -65,7 +65,6 @@ jobs:
           corepack enable
           corepack prepare pnpm@latest --activate
 
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -73,7 +72,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Set up Snyk CLI
         uses: snyk/actions/setup@cdb760004ba9ea4d525f2e043745dfe85bb9077e

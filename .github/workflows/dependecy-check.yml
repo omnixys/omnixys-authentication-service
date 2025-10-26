@@ -3,7 +3,7 @@ name: Dependency Check – Authentication
 on:
   workflow_dispatch: # Manuelles Auslösen
   schedule:
-    - cron: "0 12 * * 1" # Jeden Montag um 12:00 Uhr UTC
+    - cron: '0 12 * * 1' # Jeden Montag um 12:00 Uhr UTC
 
 jobs:
   dependency-check:
@@ -21,7 +21,6 @@ jobs:
           corepack enable
           corepack prepare pnpm@latest --activate
 
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -29,7 +28,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Run pnpm audit
         run: |

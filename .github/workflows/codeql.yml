@@ -35,7 +35,6 @@ jobs:
           corepack enable
           corepack prepare pnpm@latest --activate
 
-
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -43,7 +42,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build project (falls nötig)
         run: pnpm run build || echo "No build step defined"
