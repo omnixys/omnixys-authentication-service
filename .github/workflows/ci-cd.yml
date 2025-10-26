@@ -134,10 +134,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: ⚙️ Enable Corepack (pnpm)
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: pnpm
 
       - name: Restore Node.js modules from cache
         uses: actions/cache@v4
