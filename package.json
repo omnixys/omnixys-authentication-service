@@ -7,14 +7,14 @@
     "email": "caleb@omnixys.com",
     "url": "https://omnixys.com"
   },
-      "repository": {
-      "type": "git",
-      "url": "https://github.com/omnixys/omnixys-authentication-service.git"
-    },
-    "bugs": {
-      "url": "https://github.com/omnixys/omnixys-authentication-service/issues"
-    },
-    "homepage": "https://omnixys.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/omnixys/omnixys-authentication-service.git"
+  },
+  "bugs": {
+    "url": "https://github.com/omnixys/omnixys-authentication-service/issues"
+  },
+  "homepage": "https://omnixys.com",
   "license": "GPL-3.0-or-later",
   "type": "module",
   "private": false,
@@ -112,6 +112,8 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.20.6",
+    "typedoc": "^0.28.14",
+    "typedoc-plugin-markdown": "^4.9.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   }
