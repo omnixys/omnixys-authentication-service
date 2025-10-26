@@ -15,7 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-import { getLogger } from './logger.js';
+import { getLogger } from './get-logger.js';
 import { Temporal } from '@js-temporal/polyfill';
 import {
   type CallHandler,

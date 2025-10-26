@@ -1,43 +1,35 @@
-/**
- * @license GPL-3.0-or-later
- * Copyright (C) 2025 Caleb Gyamfi - Omnixys Technologies
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * For more information, visit <https://www.gnu.org/licenses/>.
- */
-
-// TODO eslint kommentare lösen
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+// TODO eslint fehler lösen
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
+/* eslint-disable @typescript-eslint/no-base-to-string */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-// src/messaging/kafka-event-dispatcher.service.ts
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/**
+ * @license GPL-3.0-or-later
+ * Copyright (C) 2025 Caleb Gyamfi – Omnixys Technologies
+ *
+ * For full license text, see <https://www.gnu.org/licenses/>.
+ */
 
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+// src/messaging/kafka-event-dispatcher.service.ts
+// ✅ Stabiler Kafka Event Dispatcher mit Typisierung & SafeLogger
+
+import { LoggerPlus } from '../logger/logger-plus.js';
+import { TraceContextProvider } from '../trace/trace-context.provider.js';
+import { KAFKA_EVENT_METADATA, KAFKA_HANDLER } from './decorators/kafka-event.decorator.js';
+import type { KafkaEventContext, KafkaEventHandlerFn } from './interface/kafka-event.interface.js';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 
-import { KAFKA_EVENT_METADATA, KAFKA_HANDLER } from './decorators/kafka-event.decorator.js';
-import type { KafkaEventHandler } from './interface/kafka-event.interface.js';
+interface RegisteredHandler {
+  handler: object;
+  methodName: string;
+}
 
 @Injectable()
 export class KafkaEventDispatcherService implements OnModuleInit {
-  private readonly logger = new Logger(KafkaEventDispatcherService.name);
-  private readonly topicToHandler = new Map<
-    string,
-    {
-      handler: KafkaEventHandler;
-      methodName: string;
-    }
-  >();
+  private readonly logger = new LoggerPlus(KafkaEventDispatcherService.name);
+  private readonly topicToHandler = new Map<string, RegisteredHandler>();
 
   constructor(
     private readonly discoveryService: DiscoveryService,
@@ -49,8 +41,7 @@ export class KafkaEventDispatcherService implements OnModuleInit {
     const providers = this.discoveryService.getProviders();
 
     for (const wrapper of providers) {
-      const { instance } = wrapper;
-
+      const instance = wrapper.instance as object | undefined;
       if (!instance) {
         continue;
       }
@@ -60,58 +51,82 @@ export class KafkaEventDispatcherService implements OnModuleInit {
         continue;
       }
 
-      this.logger.debug(`📦 KafkaHandler erkannt: ${instance.constructor.name}`);
+      this.logger.debug('📦 KafkaHandler erkannt: %s', instance.constructor.name);
 
       const prototype = Object.getPrototypeOf(instance);
       const methodNames = this.metadataScanner.getAllMethodNames(prototype);
 
       for (const methodName of methodNames) {
-        const methodRef = prototype[methodName];
-        const metadata = this.reflector.get(KAFKA_EVENT_METADATA, methodRef);
+        const methodRef = prototype[methodName] as Function;
+        const metadata = this.reflector.get<{ topics: string[] }>(KAFKA_EVENT_METADATA, methodRef);
 
         if (!metadata) {
           continue;
         }
 
-        const { topics } = metadata;
-
-        for (const topic of topics) {
+        for (const topic of metadata.topics) {
           this.logger.debug(
-            `📩 Registriere Topic "${topic}" für ${instance.constructor.name}.${methodName}()`,
+            '📩 Registriere Topic "%s" für %s.%s()',
+            topic,
+            instance.constructor.name,
+            methodName,
           );
           this.topicToHandler.set(topic, { handler: instance, methodName });
         }
       }
     }
 
-    this.logger.debug(
-      `✅ Kafka Topics registriert: ${Array.from(this.topicToHandler.keys()).join(', ')}`,
-    );
+    const allTopics = Array.from(this.topicToHandler.keys());
+    this.logger.info('✅ Kafka Topics registriert: %s', allTopics.join(', ') || '— none —');
   }
 
-  async dispatch(topic: string, payload: any, context: any): Promise<void> {
+  /**
+   * Führt den passenden Kafka-Handler für ein Topic aus.
+   */
+  async dispatch<TPayload>(
+    topic: string,
+    payload: TPayload,
+    context: Record<string, unknown>,
+  ): Promise<void> {
     const match = this.topicToHandler.get(topic);
 
     if (!match) {
-      this.logger.warn(`⚠ Kein Kafka-Handler für Topic "${topic}" gefunden.`);
+      this.logger.warn('⚠ Kein Kafka-Handler für Topic "%s" gefunden.', topic);
       return;
     }
 
     const { handler, methodName } = match;
+    const fn = (handler as Record<string, unknown>)[methodName];
 
-    try {
-      const fn = (handler as unknown as Record<string, unknown>)[methodName];
-
-      if (typeof fn === 'function') {
-        await (fn as (...args: any[]) => any)(topic, payload, context);
-      } else {
-        this.logger.warn(
-          `⚠ Kein gültiger Handler für Topic "${topic}" (Method "${methodName}") gefunden.`,
-        );
-      }
-    } catch (err) {
-      this.logger.error(`❌ Fehler bei der Verarbeitung von Topic "${topic}"`);
-      this.logger.error(err);
+    if (typeof fn !== 'function') {
+      this.logger.warn('⚠ Ungültiger Handler für Topic "%s" → %s', topic, methodName);
+      return;
     }
+
+    // TraceContext aus Headern extrahieren
+    const headers = (context.headers ?? {}) as Record<string, string | undefined>;
+    const traceId = headers['x-trace-id'] ?? 'unknown-trace';
+    const spanId = headers['x-span-id'] ?? 'unknown-span';
+
+    // ✅ KORREKT typisiertes Context-Objekt erzeugen
+    const kafkaContext: KafkaEventContext = {
+      topic: String(context.topic ?? topic),
+      partition: Number(context.partition ?? 0),
+      offset: String(context.offset ?? '0'),
+      headers,
+      timestamp: String(context.timestamp ?? new Date().toISOString()),
+    };
+
+    await TraceContextProvider.run(
+      { traceId: traceId ?? 'unknown-trace', spanId: spanId ?? 'unknown-span' },
+      async () => {
+        try {
+          await (fn as KafkaEventHandlerFn)(topic, payload, kafkaContext);
+          this.logger.debug('✅ Topic "%s" erfolgreich verarbeitet.', topic);
+        } catch (err) {
+          this.logger.error('❌ Fehler bei der Verarbeitung von "%s" → %o', topic, err);
+        }
+      },
+    );
   }
 }

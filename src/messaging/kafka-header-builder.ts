@@ -16,20 +16,23 @@
  */
 
 import type { TraceContext } from '../trace/trace-context.util.js';
+import { randomUUID } from 'crypto';
 
-// kafka-header-builder.ts
-// ✅ Utility zur Erstellung standardisierter Kafka-Header (z.B. für Traceability, Correlation ID)
+export const KAFKA_HEADER_KEYS = {
+  TRACE_ID: 'x-trace-id',
+  EVENT_NAME: 'x-event-name',
+  EVENT_TYPE: 'x-event-type',
+  EVENT_VERSION: 'x-event-version',
+  SERVICE: 'x-service',
+  B3_TRACE_ID: 'x-b3-traceid',
+  B3_SAMPLED: 'x-b3-sampled',
+} as const;
 
-/**
- * Erstellt Kafka-kompatible Header mit standardisierten Feldern.
- * @param headers - Zusätzliche Header-Felder, die hinzugefügt werden sollen
- * @returns Kafka-kompatibles Header-Objekt (Record<string, Buffer>)
- */
 export function buildKafkaHeaders(
   headers: Record<string, string> = {},
 ): Record<string, Buffer> {
   return Object.entries({
-    'x-trace-id': generateUUID(),
+    [KAFKA_HEADER_KEYS.TRACE_ID]: randomUUID(),
     ...headers,
   }).reduce<Record<string, Buffer>>((acc, [key, value]) => {
     acc[key] = Buffer.from(value);
@@ -37,51 +40,33 @@ export function buildKafkaHeaders(
   }, {});
 }
 
-/**
- * Erzeugt eine einfache UUID (nicht RFC-konform, aber eindeutig genug für Tracing-Zwecke).
- */
-function generateUUID(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
+export type StandardKafkaHeaders = Record<string, string>;
 
 /**
  * Erzeugt standardisierte Kafka-Header für Event-Messages.
  */
 export class KafkaHeaderBuilder {
-  /**
-   * Standardheader für ein Kafka-Event.
-   *
-   * @param topic     Name des Kafka-Themas (z.B. `log-topic`)
-   * @param operation Art des Events (z.B. `log`, `create`)
-   * @param trace     TraceContext mit Trace-ID und Sampling-Info
-   * @param version   Version des Event-Schemas
-   * @param service   Ursprung des Events
-   */
   static buildStandardHeaders(
     topic: string,
     operation: string,
     trace?: TraceContext,
     version = 'v1',
     service = 'unknown-service',
-  ): Record<string, string> {
-    const headers: Record<string, string> = {
-      'x-event-name': topic,
-      'x-event-type': operation,
-      'x-event-version': version,
-      'x-service': service,
+  ): StandardKafkaHeaders {
+    const headers: StandardKafkaHeaders = {
+      [KAFKA_HEADER_KEYS.EVENT_NAME]: topic,
+      [KAFKA_HEADER_KEYS.EVENT_TYPE]: operation,
+      [KAFKA_HEADER_KEYS.EVENT_VERSION]: version,
+      [KAFKA_HEADER_KEYS.SERVICE]: service,
     };
 
     if (trace?.traceId) {
-      headers['x-trace-id'] = trace.traceId;
-      headers['x-b3-traceid'] = trace.traceId;
+      headers[KAFKA_HEADER_KEYS.TRACE_ID] = trace.traceId;
+      headers[KAFKA_HEADER_KEYS.B3_TRACE_ID] = trace.traceId;
     }
 
     if (trace?.sampled !== undefined) {
-      headers['x-b3-sampled'] = trace.sampled ? '1' : '0';
+      headers[KAFKA_HEADER_KEYS.B3_SAMPLED] = trace.sampled ? '1' : '0';
     }
 
     return headers;

@@ -11,74 +11,80 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
- *
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// kafka-producer.service.ts
-// ✅ Verwaltet den Kafka Producer als langlebige Instanz
-
-import { PhoneNumberInput } from '../auth/models/inputs/phone-number.input.js';
-import { TraceContext } from '../trace/trace-context.util.js';
-import { KafkaEnvelope } from './decorators/kafka-envelope.type.js';
+import type { PhoneNumberInput } from '../auth/models/inputs/phone-number.input.js';
+import { LoggerPlus } from '../logger/logger-plus.js';
+import { setGlobalKafkaProducer } from '../logger/logger-plus.service.js';
+import type { TraceContext } from '../trace/trace-context.util.js';
+import type { KafkaEnvelope } from './decorators/kafka-envelope.type.js';
+import { KafkaHeaderBuilder } from './kafka-header-builder.js';
 import { KafkaTopics } from './kafka-topic.properties.js';
 import { Inject, Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { Producer } from 'kafkajs';
+import type { Producer, ProducerRecord } from 'kafkajs';
 
 /**
- * KafkaProducerService
- * Bietet eine einfache API zum Versenden von Nachrichten an Kafka.
+ * Verwaltet den Kafka Producer als langlebige, wiederverwendbare Instanz.
+ * Fire-and-Forget-sicher, Trace- und Logging-fähig.
  */
 @Injectable()
 export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
-  constructor(
-    @Inject('KAFKA_PRODUCER')
-    private readonly producer: Producer,
-  ) {}
+  private readonly logger = new LoggerPlus(KafkaProducerService.name);
 
-  /**
-   * Initialisiert die Verbindung zum Kafka-Cluster beim Start.
-   */
+  constructor(@Inject('KAFKA_PRODUCER') private readonly producer: Producer) {}
+
   async onModuleInit(): Promise<void> {
-    if (!this.producer) {
-      return;
+    try {
+      await this.producer.connect();
+      setGlobalKafkaProducer(this);
+
+      this.logger.info('Kafka producer connected');
+    } catch (err) {
+      this.logger.error('Kafka producer connection failed %o', err);
+      throw err;
     }
-    await this.producer.connect();
   }
 
   /**
    * Sendet eine Nachricht an das angegebene Topic.
-   * @param topic - Kafka Topic
-   * @param message - Datenobjekt
+   * Fehler führen nicht zum Abbruch (Fire-and-Forget).
    */
-  async send<T>(topic: string, message: KafkaEnvelope<T>): Promise<void> {
-    console.debug(`send message: ${JSON.stringify(message)} of topic: ${topic}`);
-    await this.producer.send({
+  async send<T>(topic: string, message: KafkaEnvelope<T>, trace?: TraceContext): Promise<void> {
+    const headers = KafkaHeaderBuilder.buildStandardHeaders(
       topic,
-      messages: [{ value: JSON.stringify(message) }],
+      message.event,
+      trace,
+      message.version,
+      message.service,
+    );
+    const record: ProducerRecord = {
+      topic,
+      messages: [{ value: JSON.stringify(message), headers }],
+    };
+
+    // Fire-and-Forget
+    void this.producer.send(record).catch((err) => {
+      this.logger.error('Kafka send failed for topic %s → %o', topic, err);
     });
   }
 
   /**
-   * Convenience-Methode für Einladungsgenehmigung: sendet an auth.create
-   * @param payload - Nutzdaten des Benutzers
-   * @param service - Ursprungs-Service
-   * @param trace - Optionaler Tracing-Kontext
+   * Convenience-Methoden für spezifische Events.
    */
   async addUser(
     payload: { userId: string; invitationId: string },
     service: string,
     trace?: TraceContext,
   ): Promise<void> {
-    const topic = KafkaTopics.invitation.addUser;
-    const message = {
+    const envelope: KafkaEnvelope<typeof payload> = {
       event: 'addUserId',
       service,
       version: 'v1',
       trace,
       payload,
     };
-    await this.send(topic, message);
+    await this.send(KafkaTopics.invitation.addUser, envelope, trace);
   }
 
   async sendUserCredentials(
@@ -92,35 +98,22 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
     service: string,
     trace?: TraceContext,
   ): Promise<void> {
-    const topic = KafkaTopics.notification.sendCredentials;
-
-    const message: KafkaEnvelope<
-      {
-        userId: string;
-        firstName: string;
-        username: string;
-        password: string;
-        phoneNumbers?: PhoneNumberInput[];
-      },
-      TraceContext
-    > = {
+    const envelope: KafkaEnvelope<typeof payload> = {
       event: 'sendCredentials',
       service,
       version: 'v1',
       trace,
       payload,
     };
-
-    await this.send(topic, message);
+    await this.send(KafkaTopics.notification.sendCredentials, envelope, trace);
   }
 
-  /**
-   * Trennt die Verbindung zum Kafka-Cluster beim Shutdown.
-   */
   async onModuleDestroy(): Promise<void> {
-    if (!this.producer) {
-      return;
+    try {
+      await this.producer.disconnect();
+      this.logger.info('Kafka producer disconnected');
+    } catch (err) {
+      this.logger.warn('Kafka producer disconnect issue %o', err);
     }
-    await this.producer.disconnect();
   }
 }

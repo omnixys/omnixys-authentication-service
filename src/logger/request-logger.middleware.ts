@@ -15,7 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-import { getLogger } from './logger.js';
+import { getLogger } from './get-logger.js';
 import { Injectable, type NestMiddleware } from '@nestjs/common';
 import { type NextFunction, type Request, type Response } from 'express';
 

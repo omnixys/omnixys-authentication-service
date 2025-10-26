@@ -15,20 +15,28 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
+import { env } from '../config/env.js';
+import { KafkaTopics } from '../messaging/kafka-topic.properties.js';
 import type { TraceContext } from '../trace/trace-context.util.js';
-import { getLogger } from './logger.js';
-import type { SpanContext, Tracer } from '@opentelemetry/api';
-import { trace, context, SpanKind, SpanStatusCode } from '@opentelemetry/api';
+import { getLogger } from './get-logger.js';
+import { getGlobalKafkaProducer } from './logger-plus.service.js';
+import {
+  context,
+  SpanKind,
+  SpanStatusCode,
+  trace,
+  type SpanContext,
+  type Tracer,
+} from '@opentelemetry/api';
 import { format } from 'util';
 
-const LogLevel = {
+export const LogLevel = {
   TRACE: 'TRACE',
   DEBUG: 'DEBUG',
   INFO: 'INFO',
   WARN: 'WARN',
   ERROR: 'ERROR',
 } as const;
-
 export type LogLevel = (typeof LogLevel)[keyof typeof LogLevel];
 
 export interface LogEventDTO {
@@ -40,109 +48,91 @@ export interface LogEventDTO {
   timestamp: string;
 }
 
+function normalizeForLogging(arg: unknown): unknown {
+  if (arg && typeof arg === 'object') {
+    // Wandelt class-transformer-Objekte in Plain Objects um
+    return Array.isArray(arg)
+      ? arg.map(normalizeForLogging)
+      : JSON.parse(JSON.stringify(arg));
+  }
+  return arg;
+}
+
+/**
+ * LoggerPlus
+ * - schreibt nach Pino
+ * - erstellt OTEL-Spans
+ * - sendet parallel Fire-and-Forget-Kafka-Event
+ */
 export class LoggerPlus {
   private traceContext?: TraceContext;
-  readonly #context: string;
-  // readonly #kafka: KafkaProducerService;
-  // readonly #serviceName: string;
-  readonly #tracer: Tracer;
-  private readonly logger;
+  private readonly pinoLogger;
+  private readonly tracer: Tracer;
+  private readonly serviceName = `omnixys-${env.SERVICE}-service`;
 
-  constructor(
-    context: string,
-    // kafka: KafkaProducerService,
-    // serviceName: string = 'shopping-cart-service',
-  ) {
-    this.#context = context;
-    // this.#kafka = kafka;
-    // this.#serviceName = serviceName;
-    this.logger = getLogger(this.#context);
-    this.#tracer = trace.getTracer('logger-plus');
+  constructor(private readonly contextName: string) {
+    this.pinoLogger = getLogger(contextName);
+    this.tracer = trace.getTracer('logger-plus');
   }
 
-  public withContext(traceContext?: TraceContext): LoggerPlus {
+  withContext(traceContext?: TraceContext): this {
     this.traceContext = traceContext;
     return this;
   }
 
-  // private getCaller(): string {
-  //   const err = new Error();
-  //   const stack = err.stack?.split('\n') ?? [];
+  private sendLog(level: LogLevel, message: string): void {
+    const manualCtx = this.traceContext;
+    let traceCtx = manualCtx;
 
-  //   for (const line of stack) {
-  //     if (
-  //       line.includes('LoggerPlus.') === false && // rausfiltern
-  //       line.includes('at ') &&
-  //       !line.includes('node:') // optional: interne Node-Calls ausschließen
-  //     ) {
-  //       const match = line.match(/at\s+([^\s]+)\s/);
-  //       if (match) {
-  //         const fullMethod = match[1]; // z.B. InvitationWriteService.create
-  //         const methodName = fullMethod?.split('.').pop() ?? 'unknown';
-  //         return `${this.#context}#${methodName}`;
-  //       }
-  //     }
-  //   }
-
-  //   return `${this.#context}#unknown`;
-  // }
-
-  private async sendLog(
-    level: LogLevel,
-    // message: string
-  ): Promise<void> {
-    // Entscheide, ob ein manueller TraceContext gesetzt wurde
-    const isExternalTraceContext = !!this.traceContext;
-
-    let traceContext = this.traceContext;
-    if (!traceContext) {
+    if (!traceCtx) {
       const activeSpan = trace.getSpan(context.active());
       if (activeSpan) {
-        const spanContext = activeSpan.spanContext();
-        traceContext = {
-          traceId: spanContext.traceId,
-          spanId: spanContext.spanId,
-          sampled: String(spanContext.traceFlags === 1),
+        const spanCtx = activeSpan.spanContext();
+        traceCtx = {
+          traceId: spanCtx.traceId,
+          spanId: spanCtx.spanId,
+          sampled: String(spanCtx.traceFlags === 1),
         };
       }
     }
 
-    // Optionale Span-Verlinkung bei manuellem TraceContext
     const links: Array<{ context: SpanContext }> = [];
-
-    if (
-      isExternalTraceContext &&
-      traceContext?.traceId &&
-      traceContext?.spanId
-    ) {
+    if (manualCtx?.traceId && manualCtx.spanId) {
       links.push({
         context: {
-          traceId: traceContext.traceId,
-          spanId: traceContext.spanId,
-          traceFlags: traceContext.sampled ? 1 : 0,
-          // 👇 isRemote ist optional, wird aber vom SDK verstanden
+          traceId: manualCtx.traceId,
+          spanId: manualCtx.spanId,
+          traceFlags: manualCtx.sampled ? 1 : 0,
           isRemote: true,
         },
       });
     }
 
-    await this.#tracer.startActiveSpan(
+    void this.tracer.startActiveSpan(
       `logger.${level.toLowerCase()}`,
-      {
-        kind: SpanKind.INTERNAL,
-        links,
-      },
+      { kind: SpanKind.INTERNAL, links },
       async (span) => {
         try {
-          // await this.#kafka.sendEvent(
-          //     KafkaTopics.logstream.log,
-          //     'log',
-          //     logPayload,
-          //     this.#serviceName,
-          //     'v1',
-          //     traceContext,
-          // );
+          const producer = getGlobalKafkaProducer();
+          if (producer) {
+            const logPayload: LogEventDTO = {
+              level,
+              message,
+              service: this.serviceName,
+              context: this.contextName,
+              traceContext: traceCtx,
+              timestamp: new Date().toISOString(),
+            };
 
+            // Fire-and-Forget: blockiert nicht
+            void producer.send(KafkaTopics.logstream.log, {
+              event: 'log',
+              service: this.serviceName,
+              version: 'v1',
+              trace: traceCtx,
+              payload: logPayload,
+            });
+          }
           span.setStatus({ code: SpanStatusCode.OK });
         } catch (err) {
           span.recordException(err as Error);
@@ -157,46 +147,45 @@ export class LoggerPlus {
     );
   }
 
-  async debug(message: string, ...args: unknown[]): Promise<void> {
-    const msg = format(message, ...args);
-    this.logger.debug(msg);
-    // await this.sendLog(LogLevel.DEBUG, msg);
+  /** Formatierte Nachricht erzeugen – normalisiert auch [Object: null prototype] */
+  private fmt(message: string, ...args: unknown[]): string {
+    // Deep-normalize: entfernt [Object: null prototype] aus Nest/GraphQL-Objekten
+    const normalized = args.map(normalizeForLogging);
+    return format(message, ...normalized);
   }
 
-  async info(message: string, ...args: unknown[]): Promise<void> {
-    const msg = format(message, ...args);
-    this.logger.info(msg);
-    await this.sendLog(
-      LogLevel.INFO,
-      // msg
-    );
+  log(message: string, ...args: unknown[]): void {
+    const msg = this.fmt(message, ...args);
+    this.pinoLogger.debug(msg);
   }
 
-  async warn(message: string, ...args: unknown[]): Promise<void> {
-    const msg = format(message, ...args);
-    this.logger.warn(msg);
-    await this.sendLog(
-      LogLevel.WARN,
-      // msg
-    );
+  debug(message: string, ...args: unknown[]): void {
+    const msg = this.fmt(message, ...args);
+    this.pinoLogger.debug(msg);
+    this.sendLog(LogLevel.DEBUG, msg);
   }
 
-  async error(message: string, ...args: unknown[]): Promise<void> {
-    const msg = format(message, ...args);
-    this.logger.error(msg);
-    await this.sendLog(
-      LogLevel.ERROR,
-      // msg
-    );
+  info(message: string, ...args: unknown[]): void {
+    const msg = this.fmt(message, ...args);
+    this.pinoLogger.info(msg);
+    this.sendLog(LogLevel.INFO, msg);
   }
 
-  async trace(message: string, ...args: unknown[]): Promise<void> {
-    const msg = format(message, ...args);
-    this.logger.trace?.(msg); // trace ist in Pino optional
-    // await this.sendLog(LogLevel.TRACE, msg);
+  warn(message: string, ...args: unknown[]): void {
+    const msg = this.fmt(message, ...args);
+    this.pinoLogger.warn(msg);
+    this.sendLog(LogLevel.WARN, msg);
+  }
+
+  error(message: string, ...args: unknown[]): void {
+    const msg = this.fmt(message, ...args);
+    this.pinoLogger.error(msg);
+    this.sendLog(LogLevel.ERROR, msg);
+  }
+
+  trace(message: string, ...args: unknown[]): void {
+    const msg = this.fmt(message, ...args);
+    this.pinoLogger.trace?.(msg);
+    this.sendLog(LogLevel.TRACE, msg);
   }
 }
-
-// Verwendung:
-// const logger = loggerService.getLogger(MyService.name).withContext(traceContext);
-// await logger.info('myMethod', 'Meine Nachricht');

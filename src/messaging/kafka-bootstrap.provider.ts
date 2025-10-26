@@ -15,28 +15,68 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// kafka-bootstrap.provider.ts
-
 import { kafka, kafkaProducer } from '../config/kafka.js';
-import type { Provider } from '@nestjs/common';
+import { LoggerPlus } from '../logger/logger-plus.js';
+import { setGlobalKafkaProducer } from '../logger/logger-plus.service.js';
+import { KafkaProducerService } from './kafka-producer.service.js';
+import type { Provider, OnModuleDestroy } from '@nestjs/common';
+import type { Kafka, Producer } from 'kafkajs';
 
+/**
+ * Injection tokens for Kafka services.
+ */
 export const KAFKA_INSTANCE = 'KAFKA_INSTANCE';
 export const KAFKA_PRODUCER = 'KAFKA_PRODUCER';
 
-export const kafkaInstanceProvider: Provider = {
+const logger = new LoggerPlus('KafkaBootstrapProvider');
+
+/**
+ * Kafka client provider (singleton instance of KafkaJS client).
+ */
+export const kafkaInstanceProvider: Provider<Kafka> = {
   provide: KAFKA_INSTANCE,
   useValue: kafka,
 };
 
-export const kafkaProducerProvider: Provider = {
+/**
+ * Kafka producer provider.
+ * Connects once at startup and exposes a shared Producer instance.
+ */
+export const kafkaProducerProvider: Provider<Promise<Producer>> = {
   provide: KAFKA_PRODUCER,
-  useFactory: async () => {
-    await kafkaProducer.connect();
-    return kafkaProducer;
+  useFactory: async (): Promise<Producer> => {
+    try {
+      await kafkaProducer.connect();
+      logger.info('Kafka producer connected (bootstrap)');
+      const producerService = new KafkaProducerService(kafkaProducer);
+      setGlobalKafkaProducer(producerService);
+      return kafkaProducer;
+    } catch (err) {
+      logger.error('Failed to connect Kafka producer during bootstrap %o', err);
+      throw err;
+    }
   },
 };
 
+/**
+ * Optional helper class to gracefully disconnect on app shutdown.
+ */
+export class KafkaLifecycle implements OnModuleDestroy {
+  async onModuleDestroy(): Promise<void> {
+    try {
+      await kafkaProducer.disconnect();
+      logger.info('Kafka producer disconnected');
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+/**
+ * Aggregate providers for easy import into KafkaModule.
+ */
 export const kafkaBootstrapProvider: Provider[] = [
   kafkaInstanceProvider,
   kafkaProducerProvider,
+  KafkaLifecycle,
 ];

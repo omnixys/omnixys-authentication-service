@@ -17,7 +17,9 @@
 
 import { env } from './env.js';
 import { httpsOptions } from './https.js';
+import { keycloakConnectOptions } from './keycloak.js';
 import type { HttpsOptions } from '@nestjs/common/interfaces/external/https-options.interface.js';
+import type { KeycloakConnectConfig } from 'nest-keycloak-connect';
 import { hostname } from 'node:os';
 
 export interface NodeConfig {
@@ -26,9 +28,35 @@ export interface NodeConfig {
   httpsOptions: HttpsOptions | undefined;
   nodeEnv: 'development' | 'production' | 'test';
   tempo: string;
+  protocoll: boolean;
+  keysPath: string;
+  keycloak: KeycloakConnectConfig;
+  logger: LogDetail;
+  serviceName: string;
 }
 
-const { NODE_ENV, TEMPO_URI, PORT } = env;
+interface LogDetail {
+  logDefault: boolean;
+  logDir: string;
+  logFileName: string;
+  logPretty: boolean;
+  logLevel: string;
+}
+
+const {
+  NODE_ENV,
+  TEMPO_URI,
+  PORT,
+  HTTPS,
+  KEYS_PATH,
+  LOG_DEFAULT,
+  LOG_DIRECTORY,
+  LOG_FILE_DEFAULT_NAME,
+  LOG_PRETTY,
+  LOG_LEVEL,
+  SERVICE,
+} = env;
+
 /**
  * Die Konfiguration für den _Node_-basierten Server:
  * - Rechnername
@@ -44,4 +72,15 @@ export const nodeConfig: NodeConfig = {
   httpsOptions,
   nodeEnv: NODE_ENV as 'development' | 'production' | 'test',
   tempo: TEMPO_URI,
+  protocoll: HTTPS,
+  keysPath: KEYS_PATH,
+  keycloak: keycloakConnectOptions,
+  logger: {
+    logDefault: LOG_DEFAULT,
+    logDir: LOG_DIRECTORY,
+    logFileName: LOG_FILE_DEFAULT_NAME,
+    logPretty: LOG_PRETTY,
+    logLevel: LOG_LEVEL,
+  },
+  serviceName: SERVICE,
 } as const;

@@ -20,16 +20,17 @@ import { Injectable } from '@nestjs/common';
 import { readFileSync, existsSync } from 'fs';
 import { Kafka } from 'kafkajs';
 
+export interface CheckHealth {
+  self: string;
+  kafka: string;
+  tlsCertificate: string;
+  tlsKey: string;
+}
+
 const { KAFKA_BROKER, KEYS_PATH } = env;
 @Injectable()
 export class HealthService {
-  // TODO interface in /Models
-  async checkHealth(): Promise<{
-    self: string;
-    kafka: string;
-    tlsCertificate: string;
-    tlsKey: string;
-  }> {
+  async checkHealth(): Promise<CheckHealth> {
     const kafkaStatus = await this.checkKafka();
     const certStatus = this.checkCertificate(`${KEYS_PATH}/certificate.crt`);
     const keyStatus = this.checkCertificate(`${KEYS_PATH}/key.pem`);

@@ -17,7 +17,7 @@
 
 // /backend/auth/src/auth/services/keycloak-read.service.ts
 import { keycloakConnectOptions, paths } from '../../config/keycloak.js';
-import { LoggerService } from '../../logger/logger.service.js';
+import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
 import type { KeycloakTokenPayload } from '../models/dtos/kc-token.dto.js';
 import type { KeycloakUser } from '../models/dtos/kc-user.dto.js';
@@ -38,7 +38,7 @@ export class KeycloakReadService
   extends KeycloakBaseService
   implements KeycloakConnectOptionsFactory
 {
-  constructor(logger: LoggerService, trace: TraceContextProvider) {
+  constructor(logger: LoggerPlusService, trace: TraceContextProvider) {
     super(logger, trace);
   }
 

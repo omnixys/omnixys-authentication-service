@@ -24,7 +24,7 @@ import {
 } from 'nest-keycloak-connect';
 import { Agent } from 'node:https';
 
-const { KC_CLIENT_ID, KC_REALM, KC_URL, KC_CLIENT_SECRET, NODE_ENV } = env;
+const { KC_CLIENT_ID, KC_REALM, KC_URL, KC_CLIENT_SECRET } = env;
 const authServerUrl = KC_URL;
 const realm = KC_REALM;
 const clientId = KC_CLIENT_ID;
@@ -39,13 +39,6 @@ export const keycloakConnectOptions: KeycloakConnectConfig = {
   policyEnforcement: PolicyEnforcementMode.PERMISSIVE,
   tokenValidation,
 };
-if (NODE_ENV === 'development') {
-  console.debug('keycloakConnectOptions = %o', keycloakConnectOptions);
-}
-// else {
-//   const { secret, ...keycloakConnectOptionsLog } = keycloakConnectOptions;
-//   console.debug('keycloakConnectOptions = %o', keycloakConnectOptionsLog);
-// }
 
 /** Pfade für den REST-Client zu Keycloak */
 export const paths = {

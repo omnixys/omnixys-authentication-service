@@ -2,62 +2,73 @@
  * @license GPL-3.0-or-later
  * Copyright (C) 2025 Caleb Gyamfi - Omnixys Technologies
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * For more information, visit <https://www.gnu.org/licenses/>.
+ * For full license text, see <https://www.gnu.org/licenses/>.
  */
 
-import { TraceContext } from './trace-context.util.js';
+import type { TraceContext } from './trace-context.util.js';
 import { Injectable, Scope } from '@nestjs/common';
+import { AsyncLocalStorage } from 'node:async_hooks';
 
 /**
- * Kontext-Provider für Trace-Daten (z.B. aus Zipkin via x-b3-traceid).
- * Wird z.B. in LoggerPlus oder Kafka verwendet.
+ * Globale TraceContext-Verwaltung über AsyncLocalStorage.
+ * Thread-sicher für gleichzeitige Requests oder Kafka-Events.
  */
 @Injectable({ scope: Scope.DEFAULT })
 export class TraceContextProvider {
-  private context?: TraceContext;
+  private static readonly storage = new AsyncLocalStorage<TraceContext>();
 
-  #context: TraceContext | undefined;
+  /**
+   * Führt eine Funktion innerhalb eines Trace-Kontexts aus.
+   * @param ctx TraceContext
+   * @param fn  Callback
+   */
+  static run<T>(ctx: TraceContext, fn: () => T): T {
+    return this.storage.run(ctx, fn);
+  }
 
-  setContext(context: TraceContext): void {
-    this.context = context;
+  /** Gibt den aktuellen TraceContext zurück, falls vorhanden. */
+  static get(): TraceContext | undefined {
+    return this.storage.getStore();
+  }
+
+  /** Prüft, ob ein TraceContext aktiv ist. */
+  static has(): boolean {
+    return !!this.storage.getStore();
+  }
+
+  /** Setzt den aktuellen Kontext manuell (z. B. im Consumer). */
+  setContext(ctx: TraceContext): void {
+    TraceContextProvider.storage.enterWith(ctx);
+  }
+
+  /** Ruft den aktuellen Kontext ab. */
+  getContext(): TraceContext | undefined {
+    return TraceContextProvider.storage.getStore();
+  }
+
+  /** Löscht den aktiven Kontext. */
+  clear(): void {
+    TraceContextProvider.storage.disable();
+  }
+}
+
+/**
+ * Request-scoped Variante, falls du pro HTTP-Request
+ * einen eigenen TraceContext injizieren möchtest.
+ */
+@Injectable({ scope: Scope.REQUEST })
+export class TraceContextProviderHTTP {
+  private readonly local = new AsyncLocalStorage<TraceContext>();
+
+  setContext(ctx: TraceContext): void {
+    this.local.enterWith(ctx);
   }
 
   getContext(): TraceContext | undefined {
-    return this.context;
-  }
-
-  clear(): void {
-    this.#context = undefined;
+    return this.local.getStore();
   }
 
   has(): boolean {
-    return !!this.#context?.traceId;
+    return !!this.local.getStore();
   }
 }
-
-@Injectable({ scope: Scope.REQUEST })
-export class TraceContextProviderHTTP {
-  private context?: TraceContext;
-
-  setContext(context: TraceContext): void {
-    this.context = context;
-  }
-
-  getContext(): TraceContext | undefined {
-    return this.context;
-  }
-}
-
-// Verwendung z.B. im KafkaConsumer:
-// this.traceContextProvider.setContext(TraceContextUtil.fromHeaders(headers));
-// const logger = this.loggerService.getLogger(...).withContext(this.traceContextProvider.getContext());

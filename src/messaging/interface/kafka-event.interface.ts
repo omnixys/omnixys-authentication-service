@@ -2,40 +2,15 @@
  * @license GPL-3.0-or-later
  * Copyright (C) 2025 Caleb Gyamfi - Omnixys Technologies
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * For more information, visit <https://www.gnu.org/licenses/>.
+ * For full license text, see <https://www.gnu.org/licenses/>.
  */
 
 // kafka-event.interface.ts
-// ✅ Schnittstelle für alle Kafka-Event-Handler-Klassen
+// ✅ Schnittstellen für alle Kafka-Event-Handler-Klassen
 
 /**
- * KafkaEventHandler
- * Muss von allen Klassen implementiert werden, die @KafkaEvent nutzen.
+ * Kontextinformationen, die Kafka beim Event mitliefert.
  */
-export interface KafkaEventHandler {
-  /**
-   * Handle-Funktion, die beim Empfang eines Events aufgerufen wird.
-   * @param topic - Kafka Topic, von dem die Nachricht stammt
-   * @param data - Deserialisierte Nachricht
-   * @param context - Kafka-Metadaten (z.B. Header, Partition)
-   */
-  handle(
-    topic: string,
-    data: unknown,
-    context?: KafkaEventContext,
-  ): Promise<void>;
-}
-
 export interface KafkaEventContext {
   topic: string;
   partition: number;
@@ -44,10 +19,27 @@ export interface KafkaEventContext {
   timestamp: string;
 }
 
+/**
+ * Basis-Interface für Kafka-Handler.
+ * Jeder Handler, der mit @KafkaEvent annotiert ist, muss diese Signatur erfüllen.
+ */
 export interface KafkaEventHandler {
+  /**
+   * Wird beim Empfang eines Events aufgerufen.
+   * @param topic Kafka-Topic, von dem das Event stammt
+   * @param data  Deserialisierte Nutzlast
+   * @param context  Kafka-Metadaten (Header, Partition usw.)
+   */
   handle(
     topic: string,
     data: unknown,
     context: KafkaEventContext,
   ): Promise<void>;
 }
+
+/** Alternative Typalias für reine Funktionshandler */
+export type KafkaEventHandlerFn = (
+  topic: string,
+  payload: unknown,
+  context: KafkaEventContext,
+) => Promise<void> | void;

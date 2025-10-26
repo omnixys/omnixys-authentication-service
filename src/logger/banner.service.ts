@@ -21,8 +21,9 @@
  * Dieser Service gibt beim Start der Anwendung ein Banner und wichtige Anwendungsinformationen aus.
  */
 
+import { healthEnv } from '../config/env.js';
 import { nodeConfig } from '../config/node.js';
-import { getLogger } from './logger.js';
+import { getLogger } from './get-logger.js';
 import { Injectable, type OnApplicationBootstrap } from '@nestjs/common';
 import cFonts from 'cfonts';
 import chalk from 'chalk';
@@ -41,15 +42,18 @@ export class BannerService implements OnApplicationBootstrap {
   /**
    * @description Wird beim Bootstrap der Anwendung ausgeführt, um Anwendungsinformationen und ein Banner auszugeben.
    */
-  onApplicationBootstrap() {
-    const { host, nodeEnv, port, tempo } = nodeConfig;
+  onApplicationBootstrap(): void {
+    const { host, nodeEnv, port, tempo, protocoll, keysPath, keycloak, logger, serviceName } =
+      nodeConfig;
+
+    const { KEYCLOAK_HEALTH_URL, TEMPO_HEALTH_URL, PROMETHEUS_HEALTH_URL } = healthEnv;
 
     // Banner generieren und ausgeben
-    this.#generateBanner();
+    this.#generateBanner(serviceName);
 
     // Umgebungsinformationen mit Farben ausgeben
     this.#logger.info(chalk.green('=== Anwendungsinformationen ==='));
-    this.#logger.info(chalk.cyan('Anwendungsname: ') + chalk.yellow('Authentication'));
+    this.#logger.info(chalk.cyan('Anwendungsname: ') + chalk.yellow(serviceName));
     this.#logger.info(chalk.cyan('Node.js-Version: ') + chalk.yellow(process.version));
     this.#logger.info(chalk.cyan('Umgebung: ') + chalk.yellow(nodeEnv));
     this.#logger.info(chalk.cyan('Host: ') + chalk.yellow(host));
@@ -57,14 +61,34 @@ export class BannerService implements OnApplicationBootstrap {
     this.#logger.info(chalk.cyan('Betriebssystem: ') + chalk.yellow(`${type()} (${release()})`));
     this.#logger.info(chalk.cyan('Benutzer: ') + chalk.yellow(userInfo().username));
     this.#logger.info(chalk.cyan('Tempo URI: ') + chalk.yellow(tempo));
+    this.#logger.info(chalk.cyan('HTTPS: ') + chalk.yellow(protocoll));
+    this.#logger.info(chalk.cyan('Keys path: ') + chalk.yellow(keysPath));
+    this.#logger.info(chalk.green('===============LOGGER============'));
+    if (logger.logDefault) {
+      this.#logger.info(chalk.cyan('Default Logger!'));
+    } else {
+      this.#logger.info(chalk.cyan('Log Directory ') + chalk.yellow(logger.logDir));
+      this.#logger.info(chalk.cyan('Log Filename: ') + chalk.yellow(logger.logFileName));
+      this.#logger.info(chalk.cyan('Pretty Logging: ') + chalk.yellow(logger.logPretty));
+      this.#logger.info(chalk.cyan('Custom Log Level: ') + chalk.yellow(logger.logLevel));
+    }
+    this.#logger.info(chalk.green('==============KEYCLOAK==========='));
+    this.#logger.info(chalk.cyan('URI: ') + chalk.yellow(keycloak.authServerUrl));
+    this.#logger.info(chalk.cyan('Realm: ') + chalk.yellow(keycloak.realm));
+    this.#logger.info(chalk.cyan('client: ') + chalk.yellow(keycloak.clientId));
+    this.#logger.info(chalk.cyan('Keys path: ') + chalk.yellow(keysPath));
+    this.#logger.info(chalk.green('==============HEALTH==========='));
+    this.#logger.info(chalk.cyan('Kycloak Health URI') + chalk.yellow(KEYCLOAK_HEALTH_URL));
+    this.#logger.info(chalk.cyan('Tempo Health URI: ') + chalk.yellow(TEMPO_HEALTH_URL));
+    this.#logger.info(chalk.cyan('Prometheus Health URI: ') + chalk.yellow(PROMETHEUS_HEALTH_URL));
     this.#logger.info(chalk.green('===============================')); // Endmarkierung für die Anwendungsinformationen
   }
 
   /**
    * @description Banner generieren und ausgeben.
    */
-  #generateBanner() {
-    cFonts.say('Authentication', {
+  #generateBanner(serviceName: string): void {
+    cFonts.say(serviceName, {
       font: 'block', // Schriftart des Banners
       align: 'left', // Ausrichtung des Textes
       gradient: ['white', 'black'], // Farbverlauf für das Banner

@@ -15,8 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// /backend/auth/src/auth/resolvers/auth.mutation.resolver.ts
-import { getLogger } from '../../logger/logger.js';
+import { getLogger } from '../../logger/get-logger.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
 import { ChangeMyPasswordInput } from '../models/inputs/update-password.input.js';
 import { UpdateMyProfileInput } from '../models/inputs/user-update.input.js';
@@ -24,7 +23,11 @@ import { SuccessPayload } from '../models/payloads/success.payload.js';
 import { AdminWriteService } from '../services/admin-write.service.js';
 import { UserWriteService } from '../services/user-write.service.js';
 import { GqlCtx } from './auth-mutation.resolver.js';
-import { UnauthorizedException, UseInterceptors } from '@nestjs/common';
+import {
+  BadRequestException,
+  UnauthorizedException,
+  UseInterceptors,
+} from '@nestjs/common';
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 
 @Resolver()
@@ -71,8 +74,12 @@ export class UserMutationResolver {
   ): Promise<SuccessPayload> {
     const user = ctx?.req.user;
     if (!user) {
-      // TODO bessere Error
-      throw new Error();
+      this.logger.warn(
+        'sendPasswordResetEmail() aufgerufen ohne gültigen Benutzer im Kontext',
+      );
+      throw new BadRequestException(
+        'Ungültige Benutzeranfrage – kein User im Kontext',
+      );
     }
 
     if (!user?.sub) {

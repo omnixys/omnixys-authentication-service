@@ -17,7 +17,7 @@
 
 // /backend/auth/src/auth/services/keycloak-write.service.ts
 import { paths } from '../../config/keycloak.js';
-import { LoggerService } from '../../logger/logger.service.js';
+import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { KafkaProducerService } from '../../messaging/kafka-producer.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
 import { SignUpDTO } from '../models/dtos/sign-up.dto.js';
@@ -39,7 +39,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 @Injectable()
 export class UserWriteService extends KeycloakBaseService {
   constructor(
-    logger: LoggerService,
+    logger: LoggerPlusService,
     trace: TraceContextProvider,
     private readonly kafka: KafkaProducerService,
     private authService: AuthWriteService,
@@ -96,8 +96,6 @@ export class UserWriteService extends KeycloakBaseService {
         data: body,
         headers: await this.adminJsonHeaders(),
       });
-
-      // TODO SignUp Error implementieren
 
       // id ermitteln
       const userId = await this.findUserIdByUsername(username);

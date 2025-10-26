@@ -15,17 +15,33 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-import { env } from './env.js';
-import { type HttpsOptions } from '@nestjs/common/interfaces/external/https-options.interface.js';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+export interface KeycloakUserPatch {
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  attributes?: Record<string, unknown>;
+}
 
-const tlsDir = resolve(env.KEYS_PATH);
-
-// public/private keys und Zertifikat fuer TLS
-export const httpsOptions: HttpsOptions | undefined = env.HTTPS
-  ? {
-      key: readFileSync(resolve(tlsDir, 'key.pem')),
-      cert: readFileSync(resolve(tlsDir, 'certificate.crt')),
-    }
-  : undefined;
+export interface KeycloakRawOutput {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  emailVerified: boolean;
+  attributes: { roles: string[] };
+  enabled: boolean;
+  createdTimestamp: number;
+  totp: boolean;
+  disableableCredentialTypes: string[];
+  requiredActions: string[];
+  notBefore: number;
+  access: {
+    manageGroupMembership: boolean;
+    view: boolean;
+    mapRoles: boolean;
+    impersonate: boolean;
+    manage: boolean;
+  };
+}

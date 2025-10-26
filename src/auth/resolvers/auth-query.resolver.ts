@@ -15,12 +15,15 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// /backend/auth/src/auth/resolvers/auth.query.resolver.ts
-import { UnauthorizedException, UseInterceptors } from '@nestjs/common';
+import {
+  BadRequestException,
+  UnauthorizedException,
+  UseInterceptors,
+} from '@nestjs/common';
 import { Args, Context, ID, Query, Resolver } from '@nestjs/graphql';
 import { Public } from 'nest-keycloak-connect';
 
-import { getLogger } from '../../logger/logger.js';
+import { getLogger } from '../../logger/get-logger.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
 
 import { KeycloakReadService } from '../services/read.service.js';
@@ -115,8 +118,10 @@ export class AuthQueryResolver {
     const user = ctx?.req.user;
 
     if (!user) {
-      // TODO bessere Error
-      throw new Error();
+      this.logger.warn('me() aufgerufen ohne gültigen Benutzer im Kontext');
+      throw new BadRequestException(
+        'Ungültige Benutzeranfrage – kein User im Kontext',
+      );
     }
 
     this.logger.debug('user=%o', user);

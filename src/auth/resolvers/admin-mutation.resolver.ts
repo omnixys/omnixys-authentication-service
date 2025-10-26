@@ -20,7 +20,7 @@ import { UseInterceptors } from '@nestjs/common';
 import { Args, ID, Mutation, Resolver } from '@nestjs/graphql';
 import { Public } from 'nest-keycloak-connect';
 
-import { getLogger } from '../../logger/logger.js';
+import { getLogger } from '../../logger/get-logger.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
 
 import { Role } from '../models/enums/role.enum.js';

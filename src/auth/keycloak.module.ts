@@ -15,7 +15,9 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
+import { LoggerModule } from '../logger/logger.module.js';
 import { KafkaModule } from '../messaging/kafka.module.js';
+import { TraceModule } from '../trace/trace.module.js';
 import { AdminMutationResolver } from './resolvers/admin-mutation.resolver.js';
 import { AuthMutationResolver } from './resolvers/auth-mutation.resolver.js';
 import { AuthQueryResolver } from './resolvers/auth-query.resolver.js';
@@ -38,6 +40,8 @@ class ConfigModule {}
 @Module({
   imports: [
     KafkaModule,
+    LoggerModule,
+    TraceModule,
     KeycloakConnectModule.registerAsync({
       useExisting: KeycloakReadService,
       imports: [ConfigModule],

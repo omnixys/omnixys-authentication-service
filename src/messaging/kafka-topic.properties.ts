@@ -33,6 +33,9 @@ export const KafkaTopics = {
     addAttribute: 'auth.add-attribute.user',
     setAttribute: 'auth.set-attribute.user',
   },
+  logstream: {
+    log: 'logstream.log.auth',
+  },
 } as const;
 
 /**
@@ -44,14 +47,13 @@ export type KafkaTopicsType = typeof KafkaTopics;
 /**
  * Hilfsfunktion zur Auflistung aller konfigurierten Topic-Namen (z.B. für Subscriptions).
  */
-export function getAllKafkaTopics(): string[] {
+export function getAllKafkaTopics(): readonly string[] {
   const flatten = (obj: Record<string, unknown>): string[] =>
     Object.values(obj).flatMap((value) =>
       typeof value === 'string'
         ? [value]
         : flatten(value as Record<string, unknown>),
     );
-
   return flatten(KafkaTopics);
 }
 
@@ -60,17 +62,13 @@ export function getAllKafkaTopics(): string[] {
  * @param keys z.B. ['Invitation', 'Notification']
  */
 export function getKafkaTopicsBy<K extends keyof KafkaTopicsType>(
-  keys: K[],
-): string[] {
+  keys: readonly K[],
+): readonly string[] {
   const result: string[] = [];
   for (const key of keys) {
     const section = KafkaTopics[key];
     if (section && typeof section === 'object') {
-      for (const topic of Object.values(section)) {
-        if (typeof topic === 'string') {
-          result.push(topic);
-        }
-      }
+      result.push(...Object.values(section));
     }
   }
   return result;

@@ -82,6 +82,9 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
+  // const loggerService = app.get(LoggerPlusService);
+  // logger = loggerService.getLogger('Bootstrap');
+
   // ======================================================
   // 🔐 SECURITY & MIDDLEWARE
   // ======================================================

@@ -16,6 +16,7 @@
  */
 
 // src/observability/otel.ts
+import { LoggerPlus } from '../logger/logger-plus.js';
 import { env } from './env.js';
 import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
@@ -33,6 +34,7 @@ import {
 import { NodeSDK } from '@opentelemetry/sdk-node';
 
 diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
+const logger = new LoggerPlus('otel.ts');
 
 const traceExporter = new OTLPTraceExporter({
   url: env.TEMPO_URI,
@@ -44,8 +46,7 @@ const prometheusExporter = new PrometheusExporter(
     endpoint: '/metrics',
   },
   () => {
-    // TODO console log entfernen
-    console.debug(
+    logger.log(
       '✅ Prometheus exporter läuft auf http://localhost:9464/metrics',
     );
   },
@@ -74,8 +75,7 @@ export async function startOtelSDK(): Promise<void> {
   });
 
   sdk.start();
-  // TODO console log entfernen
-  console.debug(
+  logger.log(
     '✅ OpenTelemetry gestartet – mit service.name = shopping-cart-service',
   );
 }
@@ -83,8 +83,7 @@ export async function startOtelSDK(): Promise<void> {
 export async function shutdownOtelSDK(): Promise<void> {
   if (sdk) {
     await sdk.shutdown();
-    // TODO console log entfernen
-    console.debug('🛑 OpenTelemetry SDK gestoppt');
+    logger.log('🛑 OpenTelemetry SDK gestoppt');
   } else {
     console.warn('⚠️ OpenTelemetry SDK war nicht initialisiert');
   }

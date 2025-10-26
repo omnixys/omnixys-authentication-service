@@ -15,74 +15,84 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// kafka-consumer.service.ts
-// ✅ Kafka Consumer Service mit Lifecycle-Management und Dispatcher-Aufruf
-
-import { MyKafkaEvent } from '../auth/models/my-kafka-event.js';
+import type { MyKafkaEvent } from '../auth/models/my-kafka-event.js';
 import { createKafkaConsumer } from '../config/kafka.js';
+import { LoggerPlus } from '../logger/logger-plus.js';
+import { TraceContextProvider } from '../trace/trace-context.provider.js';
 import { KafkaEventDispatcherService } from './kafka-event-dispatcher.service.js';
 import { getKafkaTopicsBy } from './kafka-topic.properties.js';
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 
-// TODO in utils
-function safeJsonParse<T>(text: string): T {
-  return JSON.parse(text) as T;
-}
-
-/**
- * KafkaConsumerService
- * Verwaltet das Abonnieren und Verarbeiten von Kafka-Nachrichten
- */
 @Injectable()
 export class KafkaConsumerService implements OnModuleInit, OnModuleDestroy {
-  private readonly logger = new Logger(KafkaConsumerService.name);
-  private readonly consumer = createKafkaConsumer('checkpoint-auth');
+  private readonly logger = new LoggerPlus(KafkaConsumerService.name);
+  private readonly consumer = createKafkaConsumer();
+  private isConnected = false;
 
   constructor(private readonly dispatcher: KafkaEventDispatcherService) {}
 
-  /**
-   * Startet den Kafka-Consumer bei Anwendungsstart.
-   */
   async onModuleInit(): Promise<void> {
-    await this.consumer.connect();
+    try {
+      await this.consumer.connect();
+      this.isConnected = true;
+      this.logger.info('Kafka consumer connected');
 
-    // 👉 mehrere Subscriptions
-    await this.consumer.subscribe({
-      // TODO in env speichern
-      topics: getKafkaTopicsBy(['auth']),
-      fromBeginning: false,
-    });
+      const topics = getKafkaTopicsBy(['auth']).slice();
+      await this.consumer.subscribe({ topics, fromBeginning: false });
+      this.logger.info('Subscribed to topics: %o', topics);
 
-    await this.consumer.run({
-      eachMessage: async ({ topic, partition, message }) => {
-        try {
+      await this.consumer.run({
+        eachMessage: async ({ topic, partition, message }) => {
           const rawValue = message.value?.toString();
           if (!rawValue) {
             return;
           }
 
-          const payload = safeJsonParse<MyKafkaEvent>(rawValue);
+          try {
+            const payload = JSON.parse(rawValue) as MyKafkaEvent<unknown>;
 
-          this.logger.log(`📩 Event erfolgreich empfangen: ${topic}`);
+            // TraceContext aus Headern extrahieren
+            const traceId = message.headers?.['x-trace-id']?.toString();
+            const spanId = message.headers?.['x-span-id']?.toString();
 
-          await this.dispatcher.dispatch(topic, payload, {
-            topic,
-            partition,
-            offset: message.offset,
-            headers: message.headers,
-            timestamp: message.timestamp,
-          });
-        } catch (err) {
-          this.logger.error('Fehler beim Verarbeiten der Kafka-Nachricht', err);
-        }
-      },
-    });
+            void TraceContextProvider.run(
+              { traceId: traceId ?? 'unknown-trace', spanId: spanId ?? 'unknown-span' },
+              async () => {
+                this.logger.info('📩 Received Kafka event on topic: %s', topic);
+                await this.dispatcher.dispatch(topic, payload, {
+                  topic,
+                  partition,
+                  offset: message.offset,
+                  headers: Object.fromEntries(
+                    Object.entries(message.headers ?? {}).map(([k, v]) => [k, v?.toString() ?? '']),
+                  ),
+                  timestamp: message.timestamp,
+                });
+              },
+            );
+          } catch (err) {
+            this.logger.error('Error while processing Kafka message on %s → %o', topic, err);
+          }
+        },
+      });
+
+      this.logger.info('Kafka consumer started and running');
+    } catch (err) {
+      this.logger.error('Kafka consumer initialization failed %o', err);
+      throw err;
+    }
   }
 
-  /**
-   * Trenne Verbindung beim Shutdown
-   */
   async onModuleDestroy(): Promise<void> {
-    await this.consumer.disconnect();
+    if (!this.isConnected) {
+      return;
+    }
+    try {
+      await this.consumer.disconnect();
+      this.isConnected = false;
+      this.logger.info('Kafka consumer disconnected');
+    } catch (err) {
+      this.logger.warn('Kafka consumer disconnect failed %o', err);
+    }
   }
 }

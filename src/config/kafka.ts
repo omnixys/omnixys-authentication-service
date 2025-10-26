@@ -18,16 +18,19 @@
 // kafka.ts (früher kafka.config.ts)
 // ✅ Zentrale Kafka-Instanz mit korrektem Partitioner und Timeouts
 
+import { env } from './env.js';
 import type { Consumer } from 'kafkajs';
 import { Kafka, Partitioners, logLevel } from 'kafkajs';
+
+const { SERVICE, KAFKA_BROKER } = env;
 
 /**
  * Kafka-Konfiguration für den Microservice.
  * Diese Instanz wird als Singleton verwendet.
  */
 export const kafka = new Kafka({
-  clientId: 'checkpoint-auth',
-  brokers: ['localhost:9092'],
+  clientId: `omnixys-${SERVICE}`,
+  brokers: [KAFKA_BROKER],
   logLevel: logLevel.INFO,
   connectionTimeout: 10000,
   requestTimeout: 30000,
@@ -44,9 +47,9 @@ export const kafkaProducer = kafka.producer({
  * KafkaJS Consumer Factory
  * @param groupId - ConsumerGroup-ID
  */
-export const createKafkaConsumer = (groupId: string): Consumer =>
+export const createKafkaConsumer = (): Consumer =>
   kafka.consumer({
-    groupId,
+    groupId: `omnixys-${SERVICE}-group`,
     sessionTimeout: 30000,
     heartbeatInterval: 3000,
   });

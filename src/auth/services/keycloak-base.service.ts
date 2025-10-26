@@ -15,10 +15,9 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// /backend/auth/src/auth/services/keycloak-base.service.ts
 import { keycloakConnectOptions, paths } from '../../config/keycloak.js';
 import type { LoggerPlus } from '../../logger/logger-plus.js';
-import type { LoggerService } from '../../logger/logger.service.js';
+import type { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import type { TraceContextProvider } from '../../trace/trace-context.provider.js';
 import type { User } from '../models/entitys/user.entity.js';
 import { PhoneKind } from '../models/enums/phone-kind.enum.js';
@@ -30,6 +29,8 @@ import { context as otelContext, trace } from '@opentelemetry/api';
 import type { AxiosError, AxiosInstance, AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios';
 import axios from 'axios';
 import * as jose from 'jose';
+
+export type RemoteJwkSet = ReturnType<typeof jose.createRemoteJWKSet>;
 
 /**
  * @file Gemeinsame Basisklasse für Keycloak-Read/Write-Services:
@@ -48,8 +49,8 @@ export abstract class KeycloakBaseService {
   protected readonly loginHeaders: RawAxiosRequestHeaders;
 
   protected readonly tracer: Tracer;
-  protected readonly loggerService: LoggerService;
-  protected readonly logger: LoggerPlus;
+  protected readonly loggerService: LoggerPlusService;
+  protected readonly logger: LoggerPlus | Console;
   protected readonly traceContext: TraceContextProvider;
 
   /** JWKS-Cache pro Issuer */
@@ -57,7 +58,10 @@ export abstract class KeycloakBaseService {
   /** Admin-Token Cache (Token + Ablaufzeitpunkt, ms) */
   #adminToken?: { token: string; expiresAt: number };
 
-  protected constructor(loggerService: LoggerService, traceContextProvider: TraceContextProvider) {
+  protected constructor(
+    loggerService: LoggerPlusService,
+    traceContextProvider: TraceContextProvider,
+  ) {
     const { authServerUrl, clientId, secret } = keycloakConnectOptions;
 
     // Basic Auth für client credentials / logout / refresh
@@ -71,7 +75,7 @@ export abstract class KeycloakBaseService {
 
     this.tracer = trace.getTracer(this.constructor.name);
     this.loggerService = loggerService;
-    this.logger = this.loggerService.getLogger(this.constructor.name);
+    this.logger = loggerService ? loggerService.getLogger(this.constructor.name) : console;
     this.traceContext = traceContextProvider;
   }
 
@@ -368,6 +372,3 @@ export abstract class KeycloakBaseService {
     return jwks;
   }
 }
-
-// TODO type in /models
-export type RemoteJwkSet = ReturnType<typeof jose.createRemoteJWKSet>;

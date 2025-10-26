@@ -17,7 +17,7 @@
 
 // /backend/auth/src/auth/services/keycloak-write.service.ts
 import { keycloakConnectOptions, paths } from '../../config/keycloak.js';
-import { LoggerService } from '../../logger/logger.service.js';
+import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
 import type { KeycloakToken } from '../models/dtos/kc-token.dto.js';
 import type { LogInInput } from '../models/inputs/log-in.input.js';
@@ -35,7 +35,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
  */
 @Injectable()
 export class AuthWriteService extends KeycloakBaseService {
-  constructor(logger: LoggerService, trace: TraceContextProvider) {
+  constructor(logger: LoggerPlusService, trace: TraceContextProvider) {
     super(logger, trace);
   }
 

@@ -18,77 +18,55 @@
 import { env } from './env.js';
 import { nodeConfig } from './node.js';
 import { resolve } from 'node:path';
+import pino, { type Logger } from 'pino';
 import type { DestinationStream } from 'pino';
-import pino, { type Logger, type TransportMultiOptions } from 'pino';
 import { type PrettyOptions } from 'pino-pretty';
 
 /**
- * Dynamische Logger-Konfiguration.
- * Unterstützt:
- * - Datei-Logging (pino/file)
- * - Konsolen-Logging mit pino-pretty
- * - Umschaltung über ENV-Variablen
+ * Dynamische Logger-Konfiguration für Omnixys-Microservices.
+ * Unterstützt Datei-Logging und farbige Console-Ausgabe.
  */
 const { nodeEnv } = nodeConfig;
+const {
+  LOG_DEFAULT,
+  LOG_DIRECTORY,
+  LOG_FILE_DEFAULT_NAME,
+  LOG_PRETTY,
+  LOG_LEVEL,
+} = env;
 
-export const loggerDefaultValue = env.LOG_DEFAULT;
-const logDir = env.LOG_DIRECTORY;
-const logFileNameDefault = env.LOG_FILE_DEFAULT_NAME;
+const logFile = resolve(LOG_DIRECTORY, LOG_FILE_DEFAULT_NAME);
+const isProd = nodeEnv === 'production';
+const pretty = LOG_PRETTY && !isProd;
 
-const logFile = resolve(logDir, logFileNameDefault);
-const pretty = env.LOG_PRETTY;
+/** Standard-LogLevel */
+const logLevel = isProd ? 'info' : LOG_LEVEL;
 
-// Log-Levels: fatal, error, warn, info, debug, trace
-/** Log-Level bestimmen */
-let logLevel = 'info';
-if (logLevel === 'debug' && nodeEnv !== 'production' && !loggerDefaultValue) {
-  logLevel = 'debug';
-}
-
-/** Debug-Ausgabe nur bei aktivem DEV */
-if (!loggerDefaultValue && nodeEnv !== 'production') {
-  console.debug(
-    `logger config: logLevel=${logLevel}, logFile=${logFile}, pretty=${pretty}, loggerDefaultValue=${loggerDefaultValue}`,
-  );
-}
-
-/** Datei-Transport für persistentes Logging */
-const fileOptions = {
+/** Datei-Transport */
+const fileTarget = {
   level: logLevel,
   target: 'pino/file',
   options: { destination: logFile, mkdir: true },
 };
 
-/** Pretty-Print-Transport für Entwicklungsmodus */
-const prettyOptions: PrettyOptions = {
-  translateTime: 'SYS:standard',
-  singleLine: true,
-  colorize: true,
-  ignore: 'pid,hostname',
-};
-
-const prettyTransportOptions = {
+/** Pretty-Transport */
+const prettyTarget = {
   level: logLevel,
   target: 'pino-pretty',
-  options: prettyOptions,
-  redact: ['name', 'kunde', 'id'],
+  options: {
+    translateTime: 'SYS:standard',
+    singleLine: true,
+    colorize: true,
+    ignore: 'pid,hostname',
+  } satisfies PrettyOptions,
 };
 
-/** Zusammenstellung der Logger-Optionen */
-const options: TransportMultiOptions = pretty
-  ? { targets: [fileOptions, prettyTransportOptions] }
-  : { targets: [fileOptions] };
-
-/** Transport für Pino erzeugen */
+/** Multi-Transport */
 const transports = pino.transport<Record<string, unknown>>(
-  options,
+  pretty ? { targets: [fileTarget, prettyTarget] } : { targets: [fileTarget] },
 ) as unknown as DestinationStream;
 
-/**
- * Haupt-Logger-Instanz für die Anwendung.
- * - Standard: Pino mit Transporten (Datei + optional pretty)
- * - Falls LOG_DEFAULT aktiv ist → einfacher Datei-Logger
- */
-export const parentLogger: Logger = loggerDefaultValue
+/** Haupt-Logger-Instanz */
+export const parentLogger: Logger = LOG_DEFAULT
   ? pino(pino.destination(logFile))
   : pino({ level: logLevel }, transports);

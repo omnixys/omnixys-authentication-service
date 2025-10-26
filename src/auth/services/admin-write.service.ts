@@ -15,9 +15,8 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// /backend/auth/src/auth/services/keycloak-write.service.ts
 import { paths } from '../../config/keycloak.js';
-import { LoggerService } from '../../logger/logger.service.js';
+import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
 import {
   isKcAttributeKey,
@@ -25,6 +24,7 @@ import {
   KcAttributeKey,
   normalizeAttributeValue,
 } from '../models/attributes/user.attributes.js';
+import { KeycloakRawOutput, KeycloakUserPatch } from '../models/dtos/keycloak.dto.js';
 import { User } from '../models/entitys/user.entity.js';
 import { PhoneKind } from '../models/enums/phone-kind.enum.js';
 import { Role } from '../models/enums/role.enum.js';
@@ -36,38 +36,6 @@ import { KeycloakBaseService } from './keycloak-base.service.js';
 import { KeycloakReadService } from './read.service.js';
 import { Injectable } from '@nestjs/common';
 
-// TODO interfaces in /models
-interface KeycloakUserPatch {
-  username: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  attributes?: Record<string, unknown>;
-}
-
-interface KcRaw {
-  id: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  emailVerified: boolean;
-  attributes: { roles: string[] };
-  enabled: boolean;
-  createdTimestamp: number;
-  totp: boolean;
-  disableableCredentialTypes: string[];
-  requiredActions: string[];
-  notBefore: number;
-  access: {
-    manageGroupMembership: boolean;
-    view: boolean;
-    mapRoles: boolean;
-    impersonate: boolean;
-    manage: boolean;
-  };
-}
-
 /**
  * @file Mutierende Operationen gegen Keycloak (Auth-Flows & User-Mutationen).
  *  - login/refresh/logout
@@ -78,7 +46,7 @@ interface KcRaw {
 @Injectable()
 export class AdminWriteService extends KeycloakBaseService {
   constructor(
-    logger: LoggerService,
+    logger: LoggerPlusService,
     trace: TraceContextProvider,
     private authService: AuthWriteService,
     private readonly readService: KeycloakReadService,
@@ -162,7 +130,7 @@ export class AdminWriteService extends KeycloakBaseService {
     const mode = input.mode ?? 'set';
 
     // 1) Aktuellen KC-User (RAW) laden
-    const kcRaw: KcRaw = await this.kcRequest<KcRaw>(
+    const kcRaw = await this.kcRequest<KeycloakRawOutput>(
       'get',
       `${paths.users}/${encodeURIComponent(userId)}`,
       {

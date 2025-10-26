@@ -21,7 +21,7 @@ import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import type { CookieOptions, Request, Response } from 'express';
 import { Public } from 'nest-keycloak-connect';
 
-import { getLogger } from '../../logger/logger.js';
+import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
 
 import { KeycloakTokenPayload } from '../models/dtos/kc-token.dto.js';
@@ -109,12 +109,15 @@ function clearCookieSafe(res: Response | undefined, name: string): void {
 @Resolver()
 @UseInterceptors(ResponseTimeInterceptor)
 export class AuthMutationResolver {
-  private readonly logger = getLogger(AuthMutationResolver.name);
+  private readonly logger;
 
   constructor(
+    private readonly loggerService: LoggerPlusService,
     private readonly authService: AuthWriteService,
     private readonly adminService: AdminWriteService,
-  ) {}
+  ) {
+    this.logger = this.loggerService.getLogger(AuthMutationResolver.name);
+  }
 
   /**
    * Passwort-Login (ROPC). Setzt `kc_access_token` & `kc_refresh_token` als

@@ -13,6 +13,8 @@
  * Eine Kopie der GNU GPL v3 finden Sie unter <https://www.gnu.org/licenses/>.
  */
 import 'dotenv/config';
+import fs from 'node:fs';
+import path from 'node:path';
 import process from 'node:process';
 
 /**
@@ -37,16 +39,11 @@ export const env = {
 
   /** Standard-Log-Level (z. B. info, debug, warn, error) */
   LOG_DEFAULT: process.env.LOG_DEFAULT === 'true',
-
   /** Standard-Log-Level (z. B. info, debug, warn, error) */
   LOG_DIRECTORY: process.env.LOG_DIRECTORY ?? 'log',
-
   LOG_FILE_DEFAULT_NAME: process.env.LOG_FILE_DEFAULT_NAME ?? 'server.log',
   LOG_PRETTY: process.env.LOG_PRETTY === 'true',
   LOG_LEVEL: process.env.LOG_LEVEL ?? 'info',
-
-  /** Startet optional einen eingebetteten DB-Server (true/false) */
-  START_DB_SERVER: process.env.START_DB_SERVER === 'true',
 
   /** Aktiviert HTTPS (true/false) */
   HTTPS: process.env.HTTPS === 'true',
@@ -66,21 +63,22 @@ export const env = {
   KC_REALM: process.env.KC_REALM ?? 'camunda-platform',
   KC_CLIENT_ID: process.env.KC_CLIENT_ID ?? 'camunda-identity',
   KAFKA_BROKER: process.env.KAFKA_BROKER ?? '9092',
+  SERVICE: process.env.SERVICE ?? '',
 } as const;
+
+// Wenn vorhanden, lade zusätzlich .health.env
+const healthEnvPath = path.resolve(process.cwd(), '.health.env');
+if (fs.existsSync(healthEnvPath)) {
+  const result = await import('dotenv').then((dotenv) =>
+    dotenv.config({ path: healthEnvPath }),
+  );
+  if (result.error) {
+    console.warn('⚠️ Konnte .health.env nicht laden:', result.error);
+  }
+}
 
 export const healthEnv = {
   KEYCLOAK_HEALTH_URL: process.env.KEYCLOAK_HEALTH_URL ?? '',
   TEMPO_HEALTH_URL: process.env.TEMPO_HEALTH_URL ?? '',
   PROMETHEUS_HEALTH_URL: process.env.PROMETHEUS_HEALTH_URL ?? '',
 } as const;
-/**
- * Debug-Ausgabe (nur in Entwicklung)
- */
-if (env.NODE_ENV !== 'production') {
-  console.debug('🌍 Environment configuration:');
-  console.debug('  NODE_ENV        =', env.NODE_ENV);
-  console.debug('  LOG_DEFAULT     =', env.LOG_DEFAULT);
-  console.debug('  START_DB_SERVER =', env.START_DB_SERVER);
-  console.debug('  HTTPS           =', env.HTTPS);
-  console.debug('  PORT            =', env.PORT);
-}
