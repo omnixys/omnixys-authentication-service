@@ -71,8 +71,6 @@
     "class-validator": "^0.14.2",
     "depcheck": "^1.4.7",
     "dotenv": "^17.2.3",
-    "fastify": "^5.6.1",
-    "fastify\n": "link:@as-integrations/fastify\n",
     "graphql": "^16.11.0",
     "graphql-redis-subscriptions": "^2.7.0",
     "graphql-subscriptions": "^3.0.0",
