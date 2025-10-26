@@ -35,7 +35,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm ci
 
       - name: Run OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@75ba02d6183445fe0761d26e836bde58b1560600
@@ -73,7 +73,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm ci
 
       - name: Set up Snyk CLI
         uses: snyk/actions/setup@cdb760004ba9ea4d525f2e043745dfe85bb9077e
@@ -92,7 +92,7 @@ jobs:
         continue-on-error: true
 
       - name: Install snyk-to-html
-        run: npm install snyk-to-html -g
+        run: pnpm install snyk-to-html -g
 
       - name: Generate HTML Report
         run: |

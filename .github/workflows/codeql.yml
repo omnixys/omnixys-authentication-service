@@ -43,7 +43,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm ci
 
       - name: Build project (falls nötig)
         run: pnpm run build || echo "No build step defined"

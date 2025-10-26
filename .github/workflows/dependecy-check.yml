@@ -29,17 +29,17 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm ci
 
-      - name: Run npm audit
+      - name: Run pnpm audit
         run: |
           mkdir -p reports
-          npm audit --json > reports/audit-report.json
+          pnpm audit --json > reports/audit-report.json
           jq '.' reports/audit-report.json > reports/audit-report-pretty.json
 
       - name: Check outdated packages
         run: |
-          npm outdated --json > reports/outdated.json || true
+          pnpm outdated --json > reports/outdated.json || true
           jq '.' reports/outdated.json > reports/outdated-pretty.json || true
 
       - name: Upload Reports
