@@ -1,0 +1,9 @@
+contact_links:
+  - name: 🔐 Authentication Service Docs
+    url: https://github.com/omnixys/auth-service#readme
+    about: Read the documentation before creating an issue.
+  - name: 💬 Omnixys Discussion Board
+    url: https://github.com/orgs/omnixys/discussions
+    about: Ask questions, share ideas, and get help from the community.
+
+blank_issues_enabled: false

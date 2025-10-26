@@ -1,0 +1,35 @@
+name: 🆘 Authentication Service Support Request
+description: Get help with setup, configuration, or usage of the Authentication Service
+labels: [support, question, auth]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please use this form to ask for help or troubleshooting advice.
+
+  - type: input
+    id: topic
+    attributes:
+      label: Topic
+      placeholder: e.g., Keycloak setup, GraphQL login mutation, Redis connection, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      placeholder: Describe what you need help with, including relevant logs or configs.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: env
+    attributes:
+      label: Environment
+      options:
+        - Local Development
+        - Docker Compose
+        - Production Deployment
+    validations:
+      required: false

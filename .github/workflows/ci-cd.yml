@@ -34,13 +34,13 @@ env:
 
 jobs:
   build:
-    name: 🔨 Build & Test (Maven)
+    name: 🔨 Build & Test (Node)
     runs-on: ubuntu-latest
     outputs:
       CURRENT_DATE: ${{ steps.set_date.outputs.CURRENT_DATE }}
     strategy:
       matrix:
-        node-version: [23.10.0]
+        node-version: [24.10.0]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
