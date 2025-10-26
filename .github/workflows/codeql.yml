@@ -1,27 +1,27 @@
-name: "CodeQL Advanced"
+name: 'CodeQL Advanced'
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
   schedule:
-    - cron: '16 22 * * 0'  # Wöchentliche Scans am Sonntag um 22:16 UTC
+    - cron: '16 22 * * 0' # Wöchentliche Scans am Sonntag um 22:16 UTC
 
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
     permissions:
-      security-events: write  # Erforderlich für Code Scanning Berichte
-      packages: read  # Falls private Abhängigkeiten verwendet werden
+      security-events: write # Erforderlich für Code Scanning Berichte
+      packages: read # Falls private Abhängigkeiten verwendet werden
       actions: read
       contents: read
 
     strategy:
       fail-fast: false
       matrix:
-        node-version: [23.10.0]
+        node-version: [24.10.0]
         include:
           - language: javascript
           - language: typescript
@@ -51,4 +51,4 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:${{ matrix.language }}"
+          category: '/language:${{ matrix.language }}'

@@ -1,4 +1,4 @@
-name: Dependency Check – Order
+name: Dependency Check – Authentication
 
 on:
   workflow_dispatch: # Manuelles Auslösen
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [23]
+        node-version: [24.10.0]
 
     steps:
       - name: Check out repository

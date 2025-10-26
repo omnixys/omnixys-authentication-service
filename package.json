@@ -7,6 +7,14 @@
     "email": "caleb@omnixys.com",
     "url": "https://omnixys.com"
   },
+      "repository": {
+      "type": "git",
+      "url": "https://github.com/omnixys/omnixys-authentication-service.git"
+    },
+    "bugs": {
+      "url": "https://github.com/omnixys/omnixys-authentication-service/issues"
+    },
+    "homepage": "https://omnixys.com",
   "license": "GPL-3.0-or-later",
   "type": "module",
   "private": false,
@@ -106,30 +114,5 @@
     "tsx": "^4.20.6",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node",
-    "repository": {
-      "type": "git",
-      "url": "https://github.com/omnixys/auth-service.git"
-    },
-    "bugs": {
-      "url": "https://github.com/omnixys/auth-service/issues"
-    },
-    "homepage": "https://omnixys.com"
   }
 }

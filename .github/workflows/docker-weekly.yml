@@ -2,67 +2,66 @@ name: Weekly Docker Push to GHCR
 
 on:
   schedule:
-    - cron: '0 3 * * 1'  # Jeden Montag um 03:00 UTC
-  workflow_dispatch:  # Manuelles Triggern möglich
+    - cron: '0 3 * * 1' # Jeden Montag um 03:00 UTC
+  workflow_dispatch: # Manuelles Triggern möglich
 
 permissions:
   contents: read
   id-token: write # ← WICHTIG für Cosign ohne Schlüssel (keyless signing)
-  packages: write  # Notwendig für GHCR Push
+  packages: write # Notwendig für GHCR Push
 
 env:
-    COSIGN_EXPERIMENTAL: "true"
-    IMAGE_NAME: ${{ secrets.DOCKER_USER }}/${{ secrets.SERVICE }}-service
-    IMAGE_NAME_REPOSITORY: ghcr.io/${{ github.repository }}
-    # IMAGE_NAME: ${{ secrets.DOCKER_USER }}/${{ github.event.repository.name }}
+  COSIGN_EXPERIMENTAL: 'true'
+  IMAGE_NAME: ${{ secrets.DOCKER_USER }}/${{ secrets.SERVICE }}-service
+  IMAGE_NAME_REPOSITORY: ghcr.io/${{ github.repository }}
+  # IMAGE_NAME: ${{ secrets.DOCKER_USER }}/${{ github.event.repository.name }}
 jobs:
   sync-current-date:
-        outputs:
-            current_date: ${{ steps.set_date.outputs.CURRENT_DATE }}
-        name: Sync CURRENT_DATE in GitHub Org
-        runs-on: ubuntu-latest
-        permissions:
-          contents: read
-        steps:
+    outputs:
+      current_date: ${{ steps.set_date.outputs.CURRENT_DATE }}
+    name: Sync CURRENT_DATE in GitHub Org
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Set CURRENT_DATE
+        id: set_date
+        run: |
+          DATE=$(date +'%Y-%m-%d')
+          echo "CURRENT_DATE=$DATE" >> $GITHUB_OUTPUT
 
-          - name: Set CURRENT_DATE
-            id: set_date
-            run: |
-              DATE=$(date +'%Y-%m-%d')
-              echo "CURRENT_DATE=$DATE" >> $GITHUB_OUTPUT
+      - name: Update CURRENT_DATE in org variable
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }} # Classic PAT mit org:admin
+        run: |
+          CURRENT_DATE="${{ steps.set_date.outputs.CURRENT_DATE }}"
 
-          - name: Update CURRENT_DATE in org variable
-            env:
-              GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # Classic PAT mit org:admin
-            run: |
-              CURRENT_DATE="${{ steps.set_date.outputs.CURRENT_DATE }}"
+          if [ -z "$CURRENT_DATE" ]; then
+            echo "❌ CURRENT_DATE ist leer!"
+            exit 1
+          fi
 
-              if [ -z "$CURRENT_DATE" ]; then
-                echo "❌ CURRENT_DATE ist leer!"
-                exit 1
-              fi
+          ORG_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f1)
+          VAR_NAME="CURRENT_DATE"
 
-              ORG_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f1)
-              VAR_NAME="CURRENT_DATE"
+          echo "📅 Neuer Wert für $VAR_NAME: $CURRENT_DATE"
 
-              echo "📅 Neuer Wert für $VAR_NAME: $CURRENT_DATE"
+          EXISTING=$(curl -s \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/orgs/$ORG_NAME/actions/variables/$VAR_NAME \
+            | jq -r '.value')
 
-              EXISTING=$(curl -s \
-                -H "Authorization: Bearer $GH_TOKEN" \
-                -H "Accept: application/vnd.github+json" \
-                https://api.github.com/orgs/$ORG_NAME/actions/variables/$VAR_NAME \
-                | jq -r '.value')
-
-              if [ "$EXISTING" != "$CURRENT_DATE" ]; then
-                echo "🔁 Aktualisiere $VAR_NAME von $EXISTING auf $CURRENT_DATE"
-                curl -s -X PATCH \
-                  -H "Authorization: Bearer $GH_TOKEN" \
-                  -H "Accept: application/vnd.github+json" \
-                  https://api.github.com/orgs/$ORG_NAME/actions/variables/$VAR_NAME \
-                  -d "{\"value\": \"${CURRENT_DATE}\"}"
-              else
-                echo "✅ CURRENT_DATE ist bereits aktuell: $CURRENT_DATE"
-              fi
+          if [ "$EXISTING" != "$CURRENT_DATE" ]; then
+            echo "🔁 Aktualisiere $VAR_NAME von $EXISTING auf $CURRENT_DATE"
+            curl -s -X PATCH \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              https://api.github.com/orgs/$ORG_NAME/actions/variables/$VAR_NAME \
+              -d "{\"value\": \"${CURRENT_DATE}\"}"
+          else
+            echo "✅ CURRENT_DATE ist bereits aktuell: $CURRENT_DATE"
+          fi
 
   docker:
     name: 🐳 Docker Build & Push
@@ -70,14 +69,13 @@ jobs:
     needs: sync-current-date
     strategy:
       matrix:
-        node-version: [23.10.0]
+        node-version: [24.10.0]
     env:
       CURRENT_DATE: ${{ needs.sync-current-date.outputs.current_date }}
     # if: github.actor == 'caleb-script' && github.event_name == 'push'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -118,11 +116,10 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
-
       - name: Install cosign
         uses: sigstore/cosign-installer@v3
 
       - name: Sign Docker Image with cosign (OIDC/GitHub)
         run: |
-            cosign sign --yes --recursive ${{ env.IMAGE_NAME_REPOSITORY }}:${{ env.CURRENT_DATE }}
-            cosign sign --yes --recursive ${{ env.IMAGE_NAME_REPOSITORY }}:latest
+          cosign sign --yes --recursive ${{ env.IMAGE_NAME_REPOSITORY }}:${{ env.CURRENT_DATE }}
+          cosign sign --yes --recursive ${{ env.IMAGE_NAME_REPOSITORY }}:latest
