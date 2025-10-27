@@ -15,7 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// import { graphQlModuleOptions } from './config/graphql.js';
+import { AdminModule } from './admin/admin.module.js';
 import { KeycloakModule } from './auth/keycloak.module.js';
 import { HealthModule } from './health/health.module.js';
 import { LoggerModule } from './logger/logger.module.js';
@@ -29,6 +29,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 
 @Module({
   imports: [
+    AdminModule,
     HealthModule,
     KeycloakModule,
     LoggerModule,

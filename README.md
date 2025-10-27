@@ -26,37 +26,41 @@
 ## 📖 Table of Contents
 
 - [🇬🇧 English Version](#-english-version)
-  - [Overview](#overview)
-  - [Features](#features)
-  - [Tech Stack](#tech-stack)
-  - [Folder Structure](#folder-structure)
-  - [Environment Variables](#environment-variables)
-  - [Setup & Installation](#setup--installation)
-  - [Running the Server](#running-the-server)
-  - [GraphQL Example](#graphql-example)
-  - [Troubleshooting](#troubleshooting)
-  - [Development Commands](#development-commands)
-  - [Contributing](#contributing)a
-  - [License & Contact](#license--contact)
+  - [🔎 Overview](#🔎-overview)
+  - [✨ Features](#✨-features)
+  - [🧩 Tech Stack](#🧩-tech-stack)
+  - [📂 Folder Structure](#📂-folder-structure)
+  - [⚙️ Environment Variables](#⚙️-environment-variables)
+  - [🚀 Setup & Installation](#🚀-setup--installation)
+  - [🏃Running the Server](#🏃-running-the-server)
+  - [🧠GraphQL Example](#🧠-graphql-example)
+  - [🧰 Troubleshooting](#🧰-troubleshooting)
+  - [💬 Development Commands](#💬-development-commands)
+  - [💬 Community & Feedback](#💬-community--feedbackg)
+  - [🧭 Contribution Guidelines](#🧭-contributing-guidelines)
+  - [🤝Contributing](#🤝-contributing)
+  - [🧾 License & Contact](#🧾-license--contact)
 - [🇩🇪 Deutsche Version](#-deutsche-version)
-  - [Übersicht](#übersicht)
-  - [Funktionen](#funktionen)
-  - [Technologie-Stack](#technologie-stack)
-  - [Projektstruktur](#projektstruktur)
-  - [Umgebungsvariablen](#umgebungsvariablen)
-  - [Installation & Setup](#installation--setup)
-  - [Server Starten](#server-starten)
-  - [GraphQL Beispiel](#graphql-beispiel)
-  - [Fehlerbehebung](#fehlerbehebung)
-  - [Entwicklungsbefehle](#entwicklungsbefehle)
-  - [Mitwirken](#mitwirken)
-  - [Lizenz & Kontakt](#lizenz--kontakt)
+  - [🔎 -Übersicht](#🔎-übersicht)
+  - [✨Funktionen](#✨-funktionen)
+  - [🧩Technologie-Stack](#🧩-technologie-stack)
+  - [📂 Projektstruktur](#📂-projektstruktur)
+  - [⚙️ Umgebungsvariablen](#⚙️-umgebungsvariablen)
+  - [🚀 Installation & Setup](#🚀-installation--setup)
+  - [🏃 Server Starten](#🏃-server-starten)
+  - [🧠 GraphQL Beispiel](#🧠-graphql-beispiel)
+  - [🧩 Fehlerbehebung](#🧩-fehlerbehebung)
+  - [🧰 Entwicklungsbefehle](#🧰-entwicklungsbefehle)
+  - [💬 Community & Feedback](#💬-community--feedback)
+  - [🧭 Mitwirkungsrichtlinien](#🧭-mitwirkungsrichtlinien)
+  - [🤝 Mitwirken](#🤝-mitwirken)
+  - [🧾 Lizenz & Kontakt](#🧾-lizenz--kontakt)
 
 ---
 
 ## 🇬🇧 English Version
 
-### Overview
+### 🔎 Overview
 The **Omnixys Auth Service** is a secure authentication and authorization microservice built with **NestJS** and integrated with **Keycloak**, **Kafka**, **Redis**, and **Apollo Federation**.  
 It manages user identities, token validation, and inter-service authentication across the Omnixys ecosystem.
 
@@ -92,37 +96,117 @@ It manages user identities, token validation, and inter-service authentication a
 
 ### 📂 Folder Structure
 
-```
+```text
 auth/
+├── __tests__/                 # E2E & integration tests (Jest)
+│   └── jest-e2e.json
+│
+├── public/                    # Public assets (logo, favicon, theme)
+│   ├── favicon/
+│   ├── favicon.ico
+│   ├── logo.png
+│   └── theme.css
+│
 ├── src/
-│   ├── auth/              # Keycloak integration, guards, and strategies
-│   ├── config/            # Environment and Keycloak configuration
-│   ├── handlers/          # Domain event handlers
-│   ├── health/            # Health check endpoint
-│   ├── kafka/             # Kafka event modules
-│   ├── logger/            # Logger setup and middleware
-│   ├── redis/             # Redis connection module
-│   ├── main.ts            # Application bootstrap
-│   └── app.module.ts      # Root module
-├── .env.example           # Example environment file
-├── docker-compose.yml     # Docker services
-├── package.json
-└── tsconfig.json
+│   ├── admin/                 # Admin module (shutdown, restart, etc.)
+│   ├── auth/                  # Keycloak integration, guards, and strategies
+│   ├── config/                # Environment and Keycloak configuration
+│   ├── handlers/              # Domain event handlers
+│   ├── health/                # Health check and readiness endpoints
+│   ├── logger/                # Logger setup and Pino middleware
+│   ├── messaging/             # Kafka event modules (KafkaJS)
+│   ├── redis/                 # Redis connection and caching module
+│   ├── security/              # Security and TLS certificate handling
+│   ├── trace/                 # Tempo tracing and telemetry module
+│   ├── main.ts                # Application bootstrap entry
+│   └── app.module.ts          # Root NestJS module
+│
+├── log/                       # Runtime log output
+│   └── server.log
+│
+├── .env                       # Main environment configuration
+├── .env.example               # Example environment file
+├── .health.env                # Health check configuration (Keycloak, Tempo, Prometheus)
+│
+├── Dockerfile                 # Production Docker image definition
+├── docker-bake.hcl            # Docker build configuration
+├── eslint.config.mjs          # ESLint configuration (TypeScript)
+├── nest-cli.json              # NestJS CLI configuration
+├── package.json               # Project metadata and scripts
+├── pnpm-lock.yaml             # Package lock file (pnpm)
+├── pnpm-workspace.yaml        # pnpm monorepo workspace config
+├── tsconfig.json              # TypeScript compiler configuration
+├── tsconfig.build.json        # TypeScript build configuration
+├── typedoc.cjs                # TypeDoc documentation configuration
+└── README.md                  # Project documentation
 ```
 
 ---
 
 ### ⚙️ Environment Variables
+The following environment variables configure the **Omnixys Authentication Service**.
+All values can be defined in a local `.env` file or injected via Docker Compose or Kubernetes secrets.
 
-| Variable | Description | Default |
-|-----------|-------------|----------|
-| `NODE_ENV` | Environment mode (`development`, `production`) | `development` |
-| `PORT` | Server port | `7501` |
-| `KC_URL` | Keycloak base URL | `http://localhost:18080/auth` |
-| `KC_REALM` | Keycloak realm | `camunda-platform` |
-| `KC_CLIENT_ID` | Client ID | `camunda-identity` |
-| `KC_CLIENT_SECRET` | Client secret | – |
-| `REDIS_URL` | Redis connection URL | `redis://localhost:6379` |
+---
+| Variable             | Description                                            | Default                           |
+| -------------------- | ------------------------------------------------------ | --------------------------------- |
+| `NODE_ENV`           | Environment mode (`development`, `production`, `test`) | `development`                     |
+| `SERVICE`            | Logical name of the service (used in logs/tracing)     | `authentication`                  |
+| `PORT`               | Server port for the NestJS application                 | `7501`                            |
+| `GRAPHQL_PLAYGROUND` | Enables GraphQL Playground for development             | `true`                            |
+| `HTTPS`              | Enables HTTPS mode (`true` / `false`)                  | `false`                           |
+| `KEYS_PATH`          | Path to SSL/TLS certificate key files                  | `../../keys`                      |
+| `KAFKA_BROKER`       | Kafka broker connection (host:port)                    | `localhost:9092`                  |
+| `TEMPO_URI`          | Tempo tracing collector endpoint                       | `http://localhost:4318/v1/traces` |
+
+---
+#### 🧾 Logging Configuration
+
+| Variable                | Description                                      | Default      |
+| ----------------------- | ------------------------------------------------ | ------------ |
+| `LOG_LEVEL`             | Logging level (`debug`, `info`, `warn`, `error`) | `debug`      |
+| `LOG_PRETTY`            | Pretty-print logs (for local development)        | `true`       |
+| `LOG_DEFAULT`           | Enables default logger output                    | `false`      |
+| `LOG_DIRECTORY`         | Directory where log files are stored             | `log`        |
+| `LOG_FILE_DEFAULT_NAME` | Default log file name                            | `server.log` |
+
+---
+
+#### 🔑 Keycloak Configuration
+
+| Variable           | Description                      | Default                       |
+| ------------------ | -------------------------------- | ----------------------------- |
+| `KC_URL`           | Base URL of the Keycloak server  | `http://localhost:18080/auth` |
+| `KC_REALM`         | Keycloak realm name              | `camunda-platform`            |
+| `KC_CLIENT_ID`     | Client ID registered in Keycloak | `camunda-identity`            |
+| `KC_CLIENT_SECRET` | Client secret for secure access  | *(none)*                      |
+| `KC_ADMIN_USER`    | Keycloak admin username          | `admin`                       |
+| `KC_ADMIN_PASS`    | Keycloak admin password          | `admin`                       |
+
+---
+
+#### 💾 Redis Configuration
+
+| Variable         | Description                                | Default                                        |
+| ---------------- | ------------------------------------------ | ---------------------------------------------- |
+| `REDIS_HOST`     | Redis hostname                             | `127.0.0.1`                                    |
+| `REDIS_PORT`     | Redis port                                 | `6379`                                         |
+| `REDIS_USERNAME` | Redis username (optional)                  | *(empty)*                                      |
+| `REDIS_PASSWORD` | Redis password (optional)                  | `strongPassword123`                            |
+| `REDIS_URL`      | Full Redis connection URI                  | `redis://:${REDIS_PASSWORD}@localhost:6379`    |
+| `PC_JWE_KEY`     | Symmetric encryption key for cached tokens | `KyzH+ACxa2z97O1o647pl3IehIZTVPQ2nZd9TPqmb8o=` |
+| `PC_TTL_SEC`     | Time-to-live for token cache (seconds)     | `2592000`                                      |
+
+---
+
+#### 📊 Health Check Configuration (.health.env)
+You can define a separate `.health.env` file for external monitoring and service probes:
+
+| Variable                | Description                           | Default                         |
+| ----------------------- | ------------------------------------- | ------------------------------- |
+| `KEYCLOAK_HEALTH_URL`   | Keycloak health endpoint              | `http://localhost:18080/health` |
+| `TEMPO_HEALTH_URL`      | Tempo tracing health/metrics endpoint | `http://localhost:3200/metrics` |
+| `PROMETHEUS_HEALTH_URL` | Prometheus metrics target endpoint    | `http://localhost:9090/targets` |
 
 ---
 
@@ -199,6 +283,33 @@ pnpm run test
 
 ---
 
+### 💬 Community & Feedback
+
+Join the Omnixys developer community to discuss ideas, report issues, or request support for the **Authentication Service**.
+
+| Purpose | How to Participate |
+|----------|--------------------|
+| 💡 **Propose a Feature** | [Start a Feature Discussion](https://github.com/omnixys/omnixys-authentication-service/discussions/new?category=ideas--suggestions) |
+| 🧪 **Discuss Implementation Details** | [Join an Architecture Thread](https://github.com/omnixys/omnixys-authentication-service/discussions/new?category=implementation-details) |
+| ❓ **Ask a Question or Get Support** | [Open a Question](https://github.com/omnixys/omnixys-authentication-service/discussions/new?category=questions--support) |
+| 🧵 **General Feedback / Meta** | [Start a General Discussion](https://github.com/omnixys/omnixys-authentication-service/discussions/new?category=general) |
+| 🐛 **Report a Bug** | [Create a Bug Report](https://github.com/omnixys/omnixys-authentication-service/issues/new?template=auth_bug_report.yml) |
+| 🔒 **Report a Security Issue** | [Submit Security Report](https://github.com/omnixys/omnixys-authentication-service/security/policy) |
+| 🆘 **Need Help with Setup?** | [Use the Support Template](https://github.com/omnixys/omnixys-authentication-service/issues/new?template=auth_support_request.yml) |
+
+---
+
+### 🧭 Contribution Guidelines
+
+Before contributing, please review:
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md) for code style and PR workflow  
+- [`SECURITY.md`](./SECURITY.md) for responsible vulnerability disclosure  
+- [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) *(if present)*  
+
+All contributions, feedback, and discussions are welcome in **English** to maintain international collaboration.
+
+---
+
 ### 🤝 Contributing
 
 1. Fork the repository  
@@ -219,7 +330,7 @@ Licensed under **GPL-3.0-or-later**
 
 ## 🇩🇪 Deutsche Version
 
-### Übersicht
+### 🔎 Übersicht
 Der **Omnixys Auth Service** ist ein sicherer Authentifizierungs- und Autorisierungs-Mikroservice auf Basis von **NestJS**, integriert mit **Keycloak**, **Kafka**, **Redis** und **Apollo Federation**.  
 Er verwaltet Benutzeridentitäten, Token und Kommunikationssicherheit im gesamten Omnixys-Ökosystem.
 
@@ -238,17 +349,17 @@ Er verwaltet Benutzeridentitäten, Token und Kommunikationssicherheit im gesamte
 ---
 
 ### 🧩 Technologie-Stack
-(siehe englische Version)
+[(siehe englische Version)](#🧩-tech-stack)
 
 ---
 
 ### 📁 Projektstruktur
-(siehe Struktur oben)
+[(siehe Struktur oben)](#📂-folder-structure)
 
 ---
 
 ### ⚙️ Umgebungsvariablen
-(siehe Tabelle oben)
+[(siehe Tabelle oben)](#⚙️-environment-variables)
 
 ---
 
@@ -312,6 +423,33 @@ pnpm run lint
 pnpm run format
 pnpm run test
 ```
+
+---
+
+# 💬 Community & Feedback
+
+Tritt der Omnixys-Entwicklercommunity bei, um Ideen zu diskutieren, Probleme zu melden oder Unterstützung für den **Authentication Service** zu erhalten.
+
+| Zweck | Teilnahme |
+|-------|------------|
+| 💡 **Feature-Vorschlag einreichen** | [Neue Funktionsdiskussion starten](https://github.com/omnixys/omnixys-authentication-service/discussions/new?category=ideas--suggestions) |
+| 🧪 **Implementierungsdetails diskutieren** | [Architektur-Thread beitreten](https://github.com/omnixys/omnixys-authentication-service/discussions/new?category=implementation-details) |
+| ❓ **Fragen oder Hilfe anfordern** | [Neue Frage stellen](https://github.com/omnixys/omnixys-authentication-service/discussions/new?category=questions--support) |
+| 🧵 **Allgemeines Feedback / Meta** | [Allgemeine Diskussion starten](https://github.com/omnixys/omnixys-authentication-service/discussions/new?category=general) |
+| 🐛 **Fehler melden** | [Bug Report erstellen](https://github.com/omnixys/omnixys-authentication-service/issues/new?template=auth_bug_report.yml) |
+| 🔒 **Sicherheitsproblem melden** | [Sicherheitsbericht einreichen](https://github.com/omnixys/omnixys-authentication-service/security/policy) |
+| 🆘 **Hilfe beim Setup** | [Support-Vorlage verwenden](https://github.com/omnixys/omnixys-authentication-service/issues/new?template=auth_support_request.yml) |
+
+---
+
+## 🧭 Mitwirkungsrichtlinien
+
+Bevor du mitwirkst, lies bitte:
+- [`CONTRIBUTING.md`](./.github/CONTRIBUTING.md) für Stil- und PR-Richtlinien  
+- [`SECURITY.md`](./.github/SECURITY.md) für verantwortungsbewusste Sicherheitsmeldungen  
+- [`CODE_OF_CONDUCT.md`](./.github/CODE_OF_CONDUCT.md) *(falls vorhanden)*  
+
+Alle Beiträge, Diskussionen und Rückmeldungen sind in **Englisch** erwünscht, um eine internationale Zusammenarbeit zu fördern.
 
 ---
 

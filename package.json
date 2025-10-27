@@ -27,7 +27,7 @@
     "build": "pnpm run clean && nest build",
     "format": "prettier --cache --write \"src/**/*.{ts,js,json,prisma,md,yaml}\" \"test/**/*.ts\"",
     "format:check": "prettier --cache --check \"src/**/*.{ts,js,json,prisma,md,yaml,yml}\" \"test/**/*.ts\"",
-    "start": "nest start",
+    "start": "pnpm run clean && nest start",
     "start:dev": "pnpm run clean && nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
