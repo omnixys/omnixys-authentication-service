@@ -69,11 +69,7 @@ export class AdminHandler implements KafkaEventHandler {
     KafkaTopics.admin.allShutdown,
     KafkaTopics.admin.allRestart,
   )
-  async handle(
-    topic: string,
-    data: any,
-    context: KafkaEventContext,
-  ): Promise<void> {
+  async handle(topic: string, context: KafkaEventContext): Promise<void> {
     this.logger.warn(`Admin command received: ${topic}`);
     this.logger.debug('Kafka context: %o', context);
 
