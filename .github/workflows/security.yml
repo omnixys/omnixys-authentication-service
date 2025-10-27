@@ -91,13 +91,12 @@ jobs:
         continue-on-error: true
 
       - name: Install snyk-to-html
-        run: pnpm install snyk-to-html -g
+        run: pnpm add snyk-to-html --workspace-root
 
       - name: Generate HTML Report
         run: |
-          snyk-to-html -i snyk-report.json -o snyk-report.html
           mkdir -p reports
-          mv snyk-report.html reports/
+          pnpm snyk-to-html -i snyk-report.json -o reports/snyk-report.html
 
       - name: Upload Snyk Report
         uses: actions/upload-artifact@v4
