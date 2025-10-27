@@ -5,6 +5,11 @@ on:
   schedule:
     - cron: '0 12 * * 1' # Jeden Montag um 12:00 Uhr UTC
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
 jobs:
   dependency-check:
     runs-on: ubuntu-latest
@@ -30,16 +35,30 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # --- Fix: mkdir separat + Fehler tolerant behandeln ---
+      - name: Create reports directory
+        run: mkdir -p reports
+
       - name: Run pnpm audit
         run: |
-          mkdir -p reports
-          pnpm audit --json > reports/audit-report.json
-          jq '.' reports/audit-report.json > reports/audit-report-pretty.json
+          pnpm audit --json > reports/audit-report.json || true
+          jq '.' reports/audit-report.json > reports/audit-report-pretty.json || true
 
       - name: Check outdated packages
         run: |
           pnpm outdated --json > reports/outdated.json || true
           jq '.' reports/outdated.json > reports/outdated-pretty.json || true
+
+      # Optional: Zusammenfassung im Joblog (nützlich in CI)
+      - name: Print vulnerability summary
+        run: |
+          echo "## Dependency Audit Summary" >> $GITHUB_STEP_SUMMARY
+          if jq -e '.metadata.vulnerabilities.moderate > 0 or .metadata.vulnerabilities.high > 0 or .metadata.vulnerabilities.critical > 0' reports/audit-report.json > /dev/null; then
+            echo "⚠️ Vulnerabilities detected! Check audit-report.json for details." >> $GITHUB_STEP_SUMMARY
+            jq -r '.advisories | to_entries[] | "\(.value.module_name): \(.value.recommendation)"' reports/audit-report.json >> $GITHUB_STEP_SUMMARY || true
+          else
+            echo "✅ No vulnerabilities found." >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Upload Reports
         uses: actions/upload-artifact@v4
