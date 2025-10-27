@@ -302,11 +302,12 @@ Join the Omnixys developer community to discuss ideas, report issues, or request
 ### 🧭 Contribution Guidelines
 
 Before contributing, please review:
-- [`CONTRIBUTING.md`](./CONTRIBUTING.md) for code style and PR workflow  
-- [`SECURITY.md`](./SECURITY.md) for responsible vulnerability disclosure  
-- [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md) *(if present)*  
 
-All contributions, feedback, and discussions are welcome in **English** to maintain international collaboration.
+* [`CONTRIBUTING.md`](./.github/CONTRIBUTING.md) – Code style, branching, and PR workflow
+* [`SECURITY.md`](./.github/SECURITY.md) – Responsible vulnerability disclosure
+* [`CODE_OF_CONDUCT.md`](./.github/CODE_OF_CONDUCT.md) – Contributor expectations and community standards
+
+All contributions, feedback, and discussions are welcome in **English** to maintain international collaboration and consistency across all Omnixys projects.
 
 ---
 
@@ -442,14 +443,16 @@ Tritt der Omnixys-Entwicklercommunity bei, um Ideen zu diskutieren, Probleme zu 
 
 ---
 
-## 🧭 Mitwirkungsrichtlinien
+### 🧭 Beitragsrichtlinien
 
-Bevor du mitwirkst, lies bitte:
-- [`CONTRIBUTING.md`](./.github/CONTRIBUTING.md) für Stil- und PR-Richtlinien  
-- [`SECURITY.md`](./.github/SECURITY.md) für verantwortungsbewusste Sicherheitsmeldungen  
-- [`CODE_OF_CONDUCT.md`](./.github/CODE_OF_CONDUCT.md) *(falls vorhanden)*  
+Bevor du Änderungen einreichst, lies bitte die folgenden Dokumente:
 
-Alle Beiträge, Diskussionen und Rückmeldungen sind in **Englisch** erwünscht, um eine internationale Zusammenarbeit zu fördern.
+* [`CONTRIBUTING.md`](./.github/CONTRIBUTING.md) – Code-Style, Branching-Strategie und Pull-Request-Workflow
+* [`SECURITY.md`](./.github/SECURITY.md) – Verantwortungsvolle Meldung von Sicherheitslücken
+* [`CODE_OF_CONDUCT.md`](./.github/CODE_OF_CONDUCT.md) – Erwartungen an Mitwirkende und Verhaltensregeln innerhalb der Community
+
+Alle Beiträge, Rückmeldungen und Diskussionen sind in **englischer Sprache** willkommen,
+um eine einheitliche und internationale Zusammenarbeit in allen Omnixys-Projekten sicherzustellen.
 
 ---
 
