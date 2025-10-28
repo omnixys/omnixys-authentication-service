@@ -16,8 +16,8 @@
 name: 🧪 E2E Authentication Tests
 
 on:
-  # push:
-  #   branches: [main, dev]
+  push:
+    branches: [main, dev]
   # pull_request:
   #   branches: [main, dev]
   workflow_dispatch:
@@ -84,7 +84,7 @@ jobs:
           --health-retries=10
 
       kafka:
-        image: bitnami/kafka:latest
+        image: wurstmeister/kafka:3.7.0
         env:
           KAFKA_CFG_LISTENERS: PLAINTEXT://:9092
           KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
