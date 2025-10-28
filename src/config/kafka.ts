@@ -15,7 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// kafka.ts (früher kafka.config.ts)
+// TODO Übersetzen
 // ✅ Zentrale Kafka-Instanz mit korrektem Partitioner und Timeouts
 
 import { env } from './env.js';

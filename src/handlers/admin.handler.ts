@@ -22,7 +22,7 @@ import {
   KafkaHandler,
 } from '../messaging/decorators/kafka-event.decorator.js';
 import {
-  KafkaEventContext,
+  type KafkaEventContext,
   KafkaEventHandler,
 } from '../messaging/interface/kafka-event.interface.js';
 import { KafkaTopics } from '../messaging/kafka-topic.properties.js';
@@ -69,7 +69,11 @@ export class AdminHandler implements KafkaEventHandler {
     KafkaTopics.admin.allShutdown,
     KafkaTopics.admin.allRestart,
   )
-  async handle(topic: string, context: KafkaEventContext): Promise<void> {
+  async handle(
+    topic: string,
+    _data: unknown,
+    context: KafkaEventContext,
+  ): Promise<void> {
     this.logger.warn(`Admin command received: ${topic}`);
     this.logger.debug('Kafka context: %o', context);
 

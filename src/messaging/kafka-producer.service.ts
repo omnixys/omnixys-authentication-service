@@ -108,12 +108,18 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
     await this.send(KafkaTopics.notification.sendCredentials, envelope, trace);
   }
 
-  async onModuleDestroy(): Promise<void> {
-    try {
+  async disconnect() {
+    if (this.producer) {
       await this.producer.disconnect();
-      this.logger.info('Kafka producer disconnected');
-    } catch (err) {
-      this.logger.warn('Kafka producer disconnect issue %o', err);
+      console.log('[KafkaProducerService] 🧹 Disconnected cleanly');
     }
+  }
+
+  async onModuleDestroy() {
+    await this.disconnect();
+  }
+
+  async onApplicationShutdown() {
+    await this.disconnect();
   }
 }

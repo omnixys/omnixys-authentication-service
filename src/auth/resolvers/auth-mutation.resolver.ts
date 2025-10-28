@@ -232,7 +232,7 @@ export class AuthMutationResolver {
 
   @Mutation(() => TokenPayload, { name: 'adminSignUp' })
   @Public()
-  async adminSignIn(
+  async adminSignUp(
     @Args('input', { type: () => SignUpInput0 }) input: SignUpInput0,
     @Context() ctx: GqlCtx,
   ): Promise<TokenPayload> {

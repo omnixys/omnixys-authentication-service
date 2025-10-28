@@ -15,42 +15,71 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// TODO eslint kommentare lösen
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-// src/infra/redis/redis.client.ts
+/**
+ * Factory for creating Redis clients with unified logging and options.
+ *
+ * This utility builds either a URL-based or option-based `ioredis` client
+ * and automatically attaches standard event listeners for connection health.
+ *
+ * @category Infrastructure
+ */
+
+import { LoggerPlus } from '../logger/logger-plus.js';
 import { isRedisUrl, makeRedisOptions } from './redis.config.js';
 import type { RedisClient, RedisConstructor } from './redis.types.js';
 import { createRequire } from 'node:module';
 
+export function safeErrorMessage(err: unknown): string {
+  if (err instanceof Error) {
+    return err.message;
+  }
+  if (typeof err === 'string' || typeof err === 'number') {
+    return String(err);
+  }
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return 'Unknown error';
+  }
+}
+
+// Use createRequire for ESM compatibility
 const require = createRequire(import.meta.url);
 const Redis = require('ioredis') as RedisConstructor;
 
+/**
+ * Builds a configured Redis client for pub/sub/app usage.
+ *
+ * @param label - A label identifying the client instance (pub | sub | app)
+ * @returns A ready-to-use Redis client instance
+ */
 export function makeRedisClient(label: 'pub' | 'sub' | 'app'): RedisClient {
+  const logger = new LoggerPlus(`RedisClient:${label}`);
   const opts = makeRedisOptions();
-  const client: RedisClient = isRedisUrl()
-    ? new (Redis as any)(process.env.REDIS_URL)
-    : new (Redis as any)(opts);
 
-  client.on(
-    'ready',
-    () =>
-      process.env.NODE_ENV !== 'test' && console.log(`[redis:${label}] ready`),
-  );
-  client.on(
-    'reconnecting',
-    () =>
-      process.env.NODE_ENV !== 'test' &&
-      console.warn(`[redis:${label}] reconnecting…`),
-  );
-  client.on(
-    'error',
-    (e) =>
-      process.env.NODE_ENV !== 'test' &&
-      console.error(`[redis:${label}] error:`, e?.message ?? e),
-  );
+  // Create either URL- or config-based client safely
+  const client: RedisClient = isRedisUrl()
+    ? new Redis(String(process.env.REDIS_URL))
+    : new Redis(opts);
+
+  // Attach listeners with consistent logging
+  client.on('ready', () => {
+    if (process.env.NODE_ENV !== 'test') {
+      logger.log(`[redis:${label}] ready`);
+    }
+  });
+
+  client.on('reconnecting', () => {
+    if (process.env.NODE_ENV !== 'test') {
+      logger.warn(`[redis:${label}] reconnecting…`);
+    }
+  });
+
+  client.on('error', (e: unknown) => {
+    if (process.env.NODE_ENV !== 'test') {
+      logger.error(`[redis:${label}] error: ${safeErrorMessage(e)}`);
+    }
+  });
 
   return client;
 }

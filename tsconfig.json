@@ -33,6 +33,8 @@
     "removeComments": true,
     "forceConsistentCasingInFileNames": true,
 
+    /* ──────────────── 🧪 Tests ──────────────── */
+    // "isolatedModules": true,
     /* ──────────────── ⚙️ ESM & Decorators ──────────────── */
     "moduleResolution": "NodeNext",
     "esModuleInterop": true,

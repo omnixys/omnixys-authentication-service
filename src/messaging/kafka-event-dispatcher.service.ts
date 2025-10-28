@@ -1,23 +1,24 @@
-// TODO eslint fehler lösen
-/* eslint-disable @typescript-eslint/no-unsafe-function-type */
-/* eslint-disable @typescript-eslint/no-base-to-string */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /**
  * @license GPL-3.0-or-later
- * Copyright (C) 2025 Caleb Gyamfi – Omnixys Technologies
+ * Copyright (C) 2025 Caleb Gyamfi - Omnixys Technologies
  *
- * For full license text, see <https://www.gnu.org/licenses/>.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// src/messaging/kafka-event-dispatcher.service.ts
-// ✅ Stabiler Kafka Event Dispatcher mit Typisierung & SafeLogger
-
-import { LoggerPlus } from '../logger/logger-plus.js';
+import { LoggerPlusService } from '../logger/logger-plus.service.js';
 import { TraceContextProvider } from '../trace/trace-context.provider.js';
 import { KAFKA_EVENT_METADATA, KAFKA_HANDLER } from './decorators/kafka-event.decorator.js';
-import type { KafkaEventContext, KafkaEventHandlerFn } from './interface/kafka-event.interface.js';
+import { type KafkaEventContext, KafkaEventHandlerFn } from './interface/kafka-event.interface.js';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 
@@ -26,16 +27,29 @@ interface RegisteredHandler {
   methodName: string;
 }
 
+export function safeString(value: unknown, fallback = ''): string {
+  return typeof value === 'string' || typeof value === 'number' ? String(value) : fallback;
+}
+
+/**
+ * Kafka Event Dispatcher.
+ * Scans for all classes annotated with `@KafkaHandler`
+ * and automatically wires their `@KafkaEvent`-decorated methods.
+ */
+
 @Injectable()
 export class KafkaEventDispatcherService implements OnModuleInit {
-  private readonly logger = new LoggerPlus(KafkaEventDispatcherService.name);
+  private readonly logger;
   private readonly topicToHandler = new Map<string, RegisteredHandler>();
 
   constructor(
     private readonly discoveryService: DiscoveryService,
     private readonly metadataScanner: MetadataScanner,
     private readonly reflector: Reflector,
-  ) {}
+    private readonly loggerService: LoggerPlusService,
+  ) {
+    this.logger = this.loggerService.getLogger(KafkaEventDispatcherService.name);
+  }
 
   onModuleInit(): void {
     const providers = this.discoveryService.getProviders();
@@ -53,11 +67,13 @@ export class KafkaEventDispatcherService implements OnModuleInit {
 
       this.logger.debug('📦 KafkaHandler erkannt: %s', instance.constructor.name);
 
-      const prototype = Object.getPrototypeOf(instance);
+      // explicitly cast to a generic object prototype
+      const prototype = Object.getPrototypeOf(instance) as Record<string, unknown>;
+
       const methodNames = this.metadataScanner.getAllMethodNames(prototype);
 
       for (const methodName of methodNames) {
-        const methodRef = prototype[methodName] as Function;
+        const methodRef = prototype[methodName] as (...args: unknown[]) => unknown;
         const metadata = this.reflector.get<{ topics: string[] }>(KAFKA_EVENT_METADATA, methodRef);
 
         if (!metadata) {
@@ -110,21 +126,37 @@ export class KafkaEventDispatcherService implements OnModuleInit {
 
     // ✅ KORREKT typisiertes Context-Objekt erzeugen
     const kafkaContext: KafkaEventContext = {
-      topic: String(context.topic ?? topic),
+      topic: safeString(context.topic, topic),
       partition: Number(context.partition ?? 0),
-      offset: String(context.offset ?? '0'),
+      offset: safeString(context.offset, '0'),
       headers,
-      timestamp: String(context.timestamp ?? new Date().toISOString()),
+      timestamp: safeString(context.timestamp, new Date().toISOString()),
     };
+
+    const method = (handler as Record<string, KafkaEventHandlerFn>)[methodName];
+
+    if (typeof method !== 'function') {
+      this.logger.warn('⚠ Ungültiger Handler für Topic "%s" → %s', topic, methodName);
+      return;
+    }
+
+    // ✅ bind(this) damit "this" im Handler (AdminHandler) korrekt bleibt
+    const boundFn = method.bind(handler);
 
     await TraceContextProvider.run(
       { traceId: traceId ?? 'unknown-trace', spanId: spanId ?? 'unknown-span' },
       async () => {
         try {
-          await (fn as KafkaEventHandlerFn)(topic, payload, kafkaContext);
+          await boundFn(topic, payload, kafkaContext);
           this.logger.debug('✅ Topic "%s" erfolgreich verarbeitet.', topic);
-        } catch (err) {
-          this.logger.error('❌ Fehler bei der Verarbeitung von "%s" → %o', topic, err);
+        } catch (err: unknown) {
+          const message =
+            err instanceof Error
+              ? `${err.name}: ${err.message}`
+              : err
+                ? JSON.stringify(err)
+                : 'Unknown error or empty rejection';
+          this.logger.error('❌ Fehler bei der Verarbeitung von "%s" → %s', topic, message);
         }
       },
     );

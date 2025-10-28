@@ -81,6 +81,30 @@ export class KeycloakReadService
     return user;
   }
 
+  async findByUsername(username: string): Promise<User> {
+    this.logger.debug('findByUsername: username=%s', username);
+
+    const rawList = await this.kcRequest<KeycloakUser[]>('get', paths.users, {
+      params: { username, exact: true },
+    });
+
+    if (!Array.isArray(rawList) || rawList.length === 0) {
+      this.logger.debug('findByUsername: no result for %s', username);
+      throw new NotFoundException(`User '${username}' nicht gefunden.`);
+    }
+
+    const raw = rawList[0];
+    // this.logger.debug('findByUsername: raw=%o', raw);
+
+    if (raw?.username !== username) {
+      throw new NotFoundException(`User '${username}' nicht gefunden.`);
+    }
+
+    const user = toUser(raw);
+    this.logger.debug('findByUsername: user=%o', user);
+    return user;
+  }
+
   /**
    * Benutzerinfo aus verifiziertem JWT.
    */

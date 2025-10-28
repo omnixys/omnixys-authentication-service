@@ -22,7 +22,7 @@ import { UpdateMyProfileInput } from '../models/inputs/user-update.input.js';
 import { SuccessPayload } from '../models/payloads/success.payload.js';
 import { AdminWriteService } from '../services/admin-write.service.js';
 import { UserWriteService } from '../services/user-write.service.js';
-import { GqlCtx } from './auth-mutation.resolver.js';
+import { type GqlCtx } from './auth-mutation.resolver.js';
 import {
   BadRequestException,
   UnauthorizedException,
@@ -52,10 +52,10 @@ export class UserMutationResolver {
       throw new UnauthorizedException('Not authenticated');
     }
 
-    const username = user?.username ?? '';
+    const username = user?.username ?? user?.preferred_username;
     this.logger.debug('changeMyPassword: sub=%s', user?.sub);
 
-    this.logger.debug('changeMyPassword: user=%o', user);
+    // this.logger.debug('changeMyPassword: user=%o', user);
 
     await this.userService.changePassword({
       userId: user.sub,
@@ -86,7 +86,7 @@ export class UserMutationResolver {
       // Kein authentifizierter Nutzer im Kontext
       throw new UnauthorizedException('Not authenticated');
     }
-    await this.userService.sendPasswordResetNotification(user.sub);
+    // await this.userService.sendPasswordResetNotification(user.sub);
     return { ok: true };
   }
 

@@ -16,27 +16,16 @@
  */
 
 /* eslint-disable no-process-exit */
-import { Injectable, Logger } from '@nestjs/common';
+import { LoggerPlusService } from '../logger/logger-plus.service.js';
+import { Injectable } from '@nestjs/common';
 
-/**
- * Service responsible for executing administrative system-level operations
- * such as restarting or shutting down the current service instance.
- *
- * This service is typically triggered either:
- * - via REST endpoints in {@link AdminController}, or
- * - via Kafka commands handled by {@link AdminHandler}.
- *
- * @remarks
- * The service is designed to operate safely in containerized environments
- * (e.g., Docker or Kubernetes). It triggers controlled process exits which
- * allow the container supervisor to restart the service automatically.
- *
- * @category Administration
- * @since 1.0.0
- */
 @Injectable()
 export class AdminService {
-  private readonly logger = new Logger(AdminService.name);
+  private readonly logger;
+
+  constructor(private readonly loggerService: LoggerPlusService) {
+    this.logger = this.loggerService.getLogger(AdminService.name);
+  }
 
   /**
    * Initiates a controlled application shutdown.

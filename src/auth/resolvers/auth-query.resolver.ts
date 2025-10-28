@@ -30,7 +30,10 @@ import { KeycloakReadService } from '../services/read.service.js';
 import { BadUserInputError } from '../utils/error.util.js';
 
 import { User } from '../models/entitys/user.entity.js';
-import { GqlCtx, readAccessTokenFromCookie } from './auth-mutation.resolver.js';
+import {
+  type GqlCtx,
+  readAccessTokenFromCookie,
+} from './auth-mutation.resolver.js';
 
 /**
  * @file GraphQL-Resolver für **lesende** Auth-Abfragen (ME/USERS).
@@ -152,5 +155,14 @@ export class AuthQueryResolver {
   async getById(@Args('id', { type: () => ID }) id: string): Promise<User> {
     this.logger.debug('getById: id=%s', id);
     return this.read.findById(id);
+  }
+
+  @Query(() => User, { name: 'getByUsername' })
+  @Public()
+  async getByUsername(
+    @Args('username', { type: () => String }) username: string,
+  ): Promise<User> {
+    this.logger.debug('getByUsername: username=%s', username);
+    return this.read.findByUsername(username);
   }
 }

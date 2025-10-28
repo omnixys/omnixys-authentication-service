@@ -17,6 +17,7 @@
 
 import { AdminModule } from './admin/admin.module.js';
 import { KeycloakModule } from './auth/keycloak.module.js';
+import { HandlerModule } from './handlers/handler.module.js';
 import { HealthModule } from './health/health.module.js';
 import { LoggerModule } from './logger/logger.module.js';
 import { RequestLoggerMiddleware } from './logger/request-logger.middleware.js';
@@ -30,6 +31,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 @Module({
   imports: [
     AdminModule,
+    HandlerModule,
     HealthModule,
     KeycloakModule,
     LoggerModule,

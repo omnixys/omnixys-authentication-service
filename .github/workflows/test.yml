@@ -1,0 +1,168 @@
+# @license GPL-3.0-or-later
+# Copyright (C) 2025 Caleb Gyamfi - Omnixys Technologies
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# For more information, visit <https://www.gnu.org/licenses/>.
+
+name: 🧪 E2E Auth Tests
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+env:
+  COSIGN_EXPERIMENTAL: 'true'
+  IMAGE_NAME: ${{ secrets.DOCKER_USER }}/${{ secrets.SERVICE }}-service
+
+  ACTIVE_PROFILE: ${{ secrets.ACTIVE_PROFILE }}
+  HTTPS: ${{ secrets.HTTPS }}
+
+  NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+  SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  KC_SERVICE_SECRET: ${{ secrets.KC_SERVICE_SECRET }}
+
+  KAFKA_HOST: ${{ secrets.KAFKA_HOST }}
+  TEMPO_HOST: ${{ secrets.TEMPO_HOST }}
+  KEYS_PATH: ${{ secrets.KEYS_PATH }}
+
+jobs:
+  e2e:
+    name: Run Auth E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: auth
+          POSTGRES_PASSWORD: auth
+          POSTGRES_DB: authdb
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U auth"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+      zookeeper:
+        image: bitnami/zookeeper:3.9
+        env:
+          ALLOW_ANONYMOUS_LOGIN: yes
+        ports:
+          - 2181:2181
+        options: >-
+          --health-cmd "echo ruok | nc localhost 2181 | grep imok"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+      kafka:
+        image: bitnami/kafka:3.7
+        env:
+          KAFKA_CFG_LISTENERS: PLAINTEXT://:9092
+          KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+          ALLOW_PLAINTEXT_LISTENER: yes
+        ports:
+          - 9092:9092
+        options: >-
+          --health-cmd "bash -c 'kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+      keycloak:
+        image: quay.io/keycloak/keycloak:25.0
+        ports:
+          - 18080:8080
+        env:
+          KEYCLOAK_ADMIN: admin
+          KEYCLOAK_ADMIN_PASSWORD: admin
+        options: >-
+          --entrypoint "/opt/keycloak/bin/kc.sh"
+          --command "start-dev --import-realm"
+          --health-cmd "curl -f http://localhost:8080/auth/ || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+        volumes:
+          - ./__tests__/keycloak/realm.json:/opt/keycloak/data/import/realm.json:ro
+
+    steps:
+      - name: 🛎️ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Enable Corepack (pnpm)
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: 📦 Install dependencies
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+
+      - name: 🕐 Wait for services to be ready
+        run: |
+          echo "⏳ Waiting for services..."
+          for i in {1..40}; do
+            nc -z localhost 5433 && \
+            nc -z localhost 6379 && \
+            nc -z localhost 2181 && \
+            nc -z localhost 9092 && \
+            curl -s http://localhost:18080/auth/ > /dev/null && \
+            echo "✅ All services are healthy" && break
+            echo "Services not ready yet ($i/40)..."
+            sleep 5
+          done
+
+      - name: 🧪 Run E2E Auth Tests
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgres://auth:auth@localhost:5433/authdb
+          REDIS_URL: redis://localhost:6379
+          KAFKA_BROKER: localhost:9092
+          KC_URL: http://localhost:18080/auth
+          KC_REALM: camunda-platform
+          KC_CLIENT_ID: camunda-identity
+          KC_CLIENT_SECRET: dummy
+          KEYCLOAK_ADMIN_USERNAME: admin
+          KEYCLOAK_ADMIN_PASSWORD: admin
+          TEST_EMAIL_DOMAIN: omnixys.com
+        run: |
+          echo "🔧 Loading CI environment variables"
+          export $(grep -v '^#' __tests__/.env.ci | xargs)
+          pnpm run build
+          pnpm run test:e2e:auth

@@ -1,22 +1,26 @@
 /**
  * @license GPL-3.0-or-later
- * Copyright (C) 2025 Caleb Gyamfi – Omnixys Technologies.
+ * Copyright (C) 2025 Caleb Gyamfi - Omnixys Technologies
  *
- * Dieses Programm ist freie Software: Sie können es unter den Bedingungen
- * der GNU General Public License, Version 3 oder später, verbreiten und/oder
- * modifizieren.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * Dieses Programm wird in der Hoffnung bereitgestellt, dass es nützlich ist,
- * jedoch OHNE JEDE GEWÄHRLEISTUNG – sogar ohne die implizite Gewährleistung
- * der MARKTGÄNGIGKEIT oder der EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
  *
- * Eine Kopie der GNU GPL v3 finden Sie unter <https://www.gnu.org/licenses/>.
+ * For more information, visit <https://www.gnu.org/licenses/>.
  */
+
 import 'dotenv/config';
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
+// TODO auf englisch Übersetzen
 /**
  * Umgebungsvariablen-Konfiguration für den Node-basierten Server.
  *

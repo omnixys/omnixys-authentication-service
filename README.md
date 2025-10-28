@@ -4,6 +4,7 @@
 <!-- ![Backend Test](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/test-backend.yml/badge.svg) -->
 ![security-backend](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/security.yml/badge.svg)
 ![Build Status](https://img.shields.io/github/actions/workflow/status/omnixys/omnixys-authentication-service/ci-cd.yml)
+![E2E Tests](https://img.shields.io/github/actions/workflow/status/omnixys/omnixys-authentication-service/test.yml)
 
 ![Last Commit](https://img.shields.io/github/last-commit/omnixys/omnixys-authentication-service)
 ![Issues](https://img.shields.io/github/issues/omnixys/omnixys-authentication-service)
@@ -34,8 +35,8 @@
   - [🚀 Setup & Installation](#🚀-setup--installation)
   - [🏃Running the Server](#🏃-running-the-server)
   - [🧠GraphQL Example](#🧠-graphql-example)
-  - [🧰 Troubleshooting](#🧰-troubleshooting)
-  - [💬 Development Commands](#💬-development-commands)
+  - [🛠️ Troubleshooting](#🛠️-troubleshooting)
+  - [🧰 Development Commands](#🧰-development-commands)
   - [💬 Community & Feedback](#💬-community--feedbackg)
   - [🧭 Contribution Guidelines](#🧭-contributing-guidelines)
   - [🤝Contributing](#🤝-contributing)
@@ -49,7 +50,7 @@
   - [🚀 Installation & Setup](#🚀-installation--setup)
   - [🏃 Server Starten](#🏃-server-starten)
   - [🧠 GraphQL Beispiel](#🧠-graphql-beispiel)
-  - [🧩 Fehlerbehebung](#🧩-fehlerbehebung)
+  - [🛠️ Fehlerbehebung](#🛠️-fehlerbehebung)
   - [🧰 Entwicklungsbefehle](#🧰-entwicklungsbefehle)
   - [💬 Community & Feedback](#💬-community--feedback)
   - [🧭 Mitwirkungsrichtlinien](#🧭-mitwirkungsrichtlinien)
@@ -98,47 +99,88 @@ It manages user identities, token validation, and inter-service authentication a
 
 ```text
 auth/
-├── __tests__/                 # E2E & integration tests (Jest)
-│   └── jest-e2e.json
+├── .github/                               # GitHub configuration and automation
+│   ├── workflows/                         # CI/CD & security pipelines
+│   │   ├── test.yml                       # 🧪 E2E Auth Tests (Keycloak, Redis, Kafka, Postgres)
+│   │   ├── ci-cd.yml                      # Build & deploy pipeline
+│   │   ├── codeql.yml                     # CodeQL security scanning
+│   │   ├── security.yml                   # Dependency vulnerability checks
+│   │   └── release.yml                    # Automated versioning & release tagging
+│   │
+│   ├── ISSUE_TEMPLATE/                    # Structured GitHub issue templates
+│   │   ├── auth_bug_report.yml
+│   │   ├── auth_feature_request.yml
+│   │   ├── auth_security_vulnerability.yml
+│   │   └── task.yml
+│   │
+│   ├── DISCUSSION_TEMPLATE/               # GitHub Discussions templates
+│   │   ├── auth_question.yml
+│   │   ├── auth_idea.yml
+│   │   └── auth_implementation.yml
+│   │
+│   ├── CODEOWNERS                         # Maintainer ownership
+│   ├── CODE_OF_CONDUCT.md                 # Contributor behavior guidelines
+│   ├── CONTRIBUTING.md                    # Contribution setup & pull request rules
+│   ├── SECURITY.md                        # Responsible disclosure policy
+│   ├── LICENSE                            # GPL-3.0-or-later license file
+│   └── dependabot.yml                     # Automated dependency update rules
 │
-├── public/                    # Public assets (logo, favicon, theme)
+├── __tests__/                             # Automated test suite
+│   ├── e2e/                               # End-to-End test layer
+│   │   ├── auth/
+│   │   │   ├── auth.login.e2e-spec.ts     # Login / Refresh / Logout
+│   │   │   ├── auth.signup.e2e-spec.ts    # User & Admin registration (SignUp flow)
+│   │   │   ├── auth.user.e2e-spec.ts      # Me / Update profile / Change password / Send mail
+│   │   │   └── auth.admin.e2e-spec.ts     # Admin operations (roles, update, delete)
+│   │   ├── graphql-client.ts              # Request helper (cookies, retries)
+│   │   ├── setup-e2e.ts                   # Bootstraps Nest test app with real Keycloak
+│   │   ├── jest-e2e.json                  # Jest configuration for E2E tests
+│   │   └── tsconfig.spec.json             # TypeScript config for test compilation
+│   │
+│   └── keycloak/
+│       ├── ci.env                         # Keycloak credentials used in CI runs
+│       └── realm.json                     # Imported test realm for CI Keycloak instance
+│
+├── src/                                   # NestJS source code
+│   ├── admin/                             # Admin module (shutdown, restart, maintenance)
+│   ├── auth/                              # Authentication & Keycloak integration layer
+│   ├── config/                            # Environment & system configuration
+│   ├── handlers/                          # Kafka event & domain logic handlers
+│   ├── health/                            # Liveness & readiness probes
+│   ├── logger/                            # Pino logger setup & response interceptors
+│   ├── messaging/                         # KafkaJS producer / consumer abstraction
+│   ├── redis/                             # Redis client, cache & pub/sub
+│   ├── security/                          # HTTP headers, CORS & helmet middleware
+│   ├── trace/                             # Tempo tracing / OpenTelemetry integration
+│   ├── app.module.ts                      # Root NestJS application module
+│   └── main.ts                            # Application bootstrap entrypoint
+│
+├── public/                                # Static assets
 │   ├── favicon/
 │   ├── favicon.ico
 │   ├── logo.png
 │   └── theme.css
 │
-├── src/
-│   ├── admin/                 # Admin module (shutdown, restart, etc.)
-│   ├── auth/                  # Keycloak integration, guards, and strategies
-│   ├── config/                # Environment and Keycloak configuration
-│   ├── handlers/              # Domain event handlers
-│   ├── health/                # Health check and readiness endpoints
-│   ├── logger/                # Logger setup and Pino middleware
-│   ├── messaging/             # Kafka event modules (KafkaJS)
-│   ├── redis/                 # Redis connection and caching module
-│   ├── security/              # Security and TLS certificate handling
-│   ├── trace/                 # Tempo tracing and telemetry module
-│   ├── main.ts                # Application bootstrap entry
-│   └── app.module.ts          # Root NestJS module
-│
-├── log/                       # Runtime log output
+├── log/                                   # Runtime log output
 │   └── server.log
 │
-├── .env                       # Main environment configuration
-├── .env.example               # Example environment file
-├── .health.env                # Health check configuration (Keycloak, Tempo, Prometheus)
+├── .env                                   # Main environment configuration
+├── .env.example                           # Example environment for developers
+├── .health.env                            # Health probe endpoints (Keycloak, Tempo)
 │
-├── Dockerfile                 # Production Docker image definition
-├── docker-bake.hcl            # Docker build configuration
-├── eslint.config.mjs          # ESLint configuration (TypeScript)
-├── nest-cli.json              # NestJS CLI configuration
-├── package.json               # Project metadata and scripts
-├── pnpm-lock.yaml             # Package lock file (pnpm)
-├── pnpm-workspace.yaml        # pnpm monorepo workspace config
-├── tsconfig.json              # TypeScript compiler configuration
-├── tsconfig.build.json        # TypeScript build configuration
-├── typedoc.cjs                # TypeDoc documentation configuration
-└── README.md                  # Project documentation
+├── Dockerfile                             # Production Docker image
+├── docker-bake.hcl                        # Multi-stage build setup for Docker Bake
+│
+├── eslint.config.mjs                      # ESLint configuration (TypeScript + Prettier)
+├── nest-cli.json                          # NestJS CLI settings
+├── package.json                           # Project metadata & scripts
+├── pnpm-lock.yaml                         # pnpm dependency lockfile
+├── pnpm-workspace.yaml                    # Monorepo workspace setup
+├── tsconfig.json                          # Root TypeScript configuration
+├── tsconfig.build.json                    # Build-only TypeScript config
+├── typedoc.cjs                            # TypeDoc configuration for API docs
+└── README.md                              # Main project documentation
+
 ```
 
 ---
@@ -257,7 +299,7 @@ mutation Login {
 
 ---
 
-### 🧩 Troubleshooting
+### 🛠️ Troubleshooting
 
 | Problem | Solution |
 |----------|-----------|
@@ -406,7 +448,7 @@ mutation Login {
 
 ---
 
-### 🧩 Fehlerbehebung
+### 🛠️ Fehlerbehebung
 
 | Problem | Lösung |
 |----------|---------|

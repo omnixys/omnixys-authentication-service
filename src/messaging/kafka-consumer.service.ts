@@ -21,78 +21,108 @@ import { LoggerPlus } from '../logger/logger-plus.js';
 import { TraceContextProvider } from '../trace/trace-context.provider.js';
 import { KafkaEventDispatcherService } from './kafka-event-dispatcher.service.js';
 import { getKafkaTopicsBy } from './kafka-topic.properties.js';
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy, OnApplicationShutdown } from '@nestjs/common';
 
 @Injectable()
-export class KafkaConsumerService implements OnModuleInit, OnModuleDestroy {
+export class KafkaConsumerService implements OnModuleInit, OnModuleDestroy, OnApplicationShutdown {
   private readonly logger = new LoggerPlus(KafkaConsumerService.name);
   private readonly consumer = createKafkaConsumer();
-  private isConnected = false;
+  private isRunning = false;
+  private shutdownRequested = false;
 
   constructor(private readonly dispatcher: KafkaEventDispatcherService) {}
 
   async onModuleInit(): Promise<void> {
     try {
       await this.consumer.connect();
-      this.isConnected = true;
-      this.logger.info('Kafka consumer connected');
-
-      const topics = getKafkaTopicsBy(['auth']).slice();
+      const topics = [...getKafkaTopicsBy(['auth', 'admin'])];
       await this.consumer.subscribe({ topics, fromBeginning: false });
-      this.logger.info('Subscribed to topics: %o', topics);
 
-      await this.consumer.run({
-        eachMessage: async ({ topic, partition, message }) => {
-          const rawValue = message.value?.toString();
-          if (!rawValue) {
-            return;
-          }
+      this.logger.info('✅ Kafka consumer connected & subscribed: %o', topics);
 
-          try {
-            const payload = JSON.parse(rawValue) as MyKafkaEvent<unknown>;
+      this.isRunning = true;
 
-            // TraceContext aus Headern extrahieren
-            const traceId = message.headers?.['x-trace-id']?.toString();
-            const spanId = message.headers?.['x-span-id']?.toString();
+      // 🎯 Start consuming in a safe loop
+      void this.consumer
+        .run({
+          eachMessage: async ({ topic, partition, message }) => {
+            if (this.shutdownRequested) {
+              return;
+            }
 
-            void TraceContextProvider.run(
-              { traceId: traceId ?? 'unknown-trace', spanId: spanId ?? 'unknown-span' },
-              async () => {
-                this.logger.info('📩 Received Kafka event on topic: %s', topic);
-                await this.dispatcher.dispatch(topic, payload, {
-                  topic,
-                  partition,
-                  offset: message.offset,
-                  headers: Object.fromEntries(
-                    Object.entries(message.headers ?? {}).map(([k, v]) => [k, v?.toString() ?? '']),
-                  ),
-                  timestamp: message.timestamp,
-                });
-              },
-            );
-          } catch (err) {
-            this.logger.error('Error while processing Kafka message on %s → %o', topic, err);
-          }
-        },
-      });
+            const rawValue = message.value?.toString();
+            if (!rawValue) {
+              return;
+            }
 
-      this.logger.info('Kafka consumer started and running');
+            try {
+              const payload = JSON.parse(rawValue) as MyKafkaEvent<unknown>;
+              const traceId = message.headers?.['x-trace-id']?.toString();
+              const spanId = message.headers?.['x-span-id']?.toString();
+
+              await TraceContextProvider.run(
+                { traceId: traceId ?? 'unknown-trace', spanId: spanId ?? 'unknown-span' },
+                async () => {
+                  this.logger.debug('📩 Kafka event on topic %s', topic);
+                  await this.dispatcher.dispatch(topic, payload, {
+                    topic,
+                    partition,
+                    offset: message.offset,
+                    headers: Object.fromEntries(
+                      Object.entries(message.headers ?? {}).map(([k, v]) => [
+                        k,
+                        v?.toString() ?? '',
+                      ]),
+                    ),
+                    timestamp: message.timestamp,
+                  });
+                },
+              );
+            } catch (err) {
+              this.logger.error('Kafka message processing error on %s → %o', topic, err);
+            }
+          },
+        })
+        .then(() => this.logger.info('Kafka consumer run loop exited.'))
+        .catch((err) => this.logger.error('Kafka consumer run loop error %o', err));
+
+      this.logger.info('Kafka consumer started.');
     } catch (err) {
-      this.logger.error('Kafka consumer initialization failed %o', err);
+      this.logger.error('Kafka consumer init failed %o', err);
       throw err;
     }
   }
 
-  async onModuleDestroy(): Promise<void> {
-    if (!this.isConnected) {
+  // 🧹 Clean shutdown
+  async disconnect(): Promise<void> {
+    if (!this.isRunning) {
       return;
     }
+    this.shutdownRequested = true;
+
     try {
+      this.logger.info('🔻 Stopping Kafka consumer...');
+      await this.consumer.stop();
       await this.consumer.disconnect();
-      this.isConnected = false;
-      this.logger.info('Kafka consumer disconnected');
+
+      this.isRunning = false;
+      this.logger.info('[KafkaConsumerService] 🧹 Disconnected cleanly');
     } catch (err) {
-      this.logger.warn('Kafka consumer disconnect failed %o', err);
+      this.logger.error('[KafkaConsumerService] Error during disconnect', err);
+    } finally {
+      // forcefully clear timers (KafkaJS sometimes leaves one active)
+      for (const timer of Object.values(setTimeout)) {
+        clearTimeout(timer as NodeJS.Timeout);
+      }
     }
+  }
+
+  async onModuleDestroy(): Promise<void> {
+    await this.disconnect();
+  }
+
+  async onApplicationShutdown(signal?: string): Promise<void> {
+    this.logger.debug(`🔻 onApplicationShutdown (${signal ?? 'no-signal'})`);
+    await this.disconnect();
   }
 }

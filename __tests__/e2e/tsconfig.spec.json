@@ -15,13 +15,15 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-import { AdminModule } from '../admin/admin.module.js';
-import { AdminHandler } from './admin.handler.js';
-import { Module } from '@nestjs/common';
-
-@Module({
-  imports: [AdminModule],
-  providers: [AdminHandler],
-  exports: [AdminHandler],
-})
-export class HandlerModule {}
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "target": "ES2022",
+    "isolatedModules": true,
+    "types": ["node"],
+    "rootDir": "../",
+    "outDir": "../dist-tests"
+  },
+  "include": ["__tests__/**/*.ts", "src/**/*.spec.ts"]
+}

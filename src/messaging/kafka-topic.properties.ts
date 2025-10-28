@@ -37,10 +37,10 @@ export const KafkaTopics = {
     log: 'logstream.log.auth',
   },
   admin: {
-    restart: '',
-    shutdown: '',
-    allRestart: '',
-    allShutdown: '',
+    restart: 'auth.restart.admin',
+    shutdown: 'auth.shutdown.admin',
+    allRestart: 'all.restart.admin',
+    allShutdown: 'all.shutdown.admin',
   },
 } as const;
 
