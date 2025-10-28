@@ -74,7 +74,7 @@ jobs:
         ports:
           - 9092:9092
         options: >-
-          --health-cmd "bash -c nc -z localhost 9092"
+          --health-cmd "bash -c nc --bootstrap-server localhost:9092 --list || exit 1'"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
