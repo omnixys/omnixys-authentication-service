@@ -112,7 +112,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
         volumes:
-          - ${{ github.workspace }}/__tests__/keycloak:/opt/keycloak/data/import
+          - ${{ github.workspace }}/__tests__/keycloak/realm-config.json:/opt/keycloak/data/import/realm-config.json:ro
 
     steps:
       - name: 🛎️ Checkout repository
