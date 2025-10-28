@@ -30,19 +30,19 @@ jobs:
     timeout-minutes: 25
 
     services:
-      # postgres:
-      #   image: postgres:16
-      #   env:
-      #     POSTGRES_USER: auth
-      #     POSTGRES_PASSWORD: auth
-      #     POSTGRES_DB: authdb
-      #   ports:
-      #     - 5433:5432
-      #   options: >-
-      #     --health-cmd "pg_isready -U auth"
-      #     --health-interval 5s
-      #     --health-timeout 3s
-      #     --health-retries 10
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: auth
+          POSTGRES_PASSWORD: auth
+          POSTGRES_DB: authdb
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U auth"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
 
       redis:
         image: redis:7
@@ -118,7 +118,7 @@ jobs:
         run: |
           echo "⏳ Waiting for services..."
           for i in {1..40}; do
-            # nc -z localhost 5433 && \
+            nc -z localhost 5433 && \
             nc -z localhost 6379 && \
             # nc -z localhost 2181 && \
             nc -z localhost 9092 && \
