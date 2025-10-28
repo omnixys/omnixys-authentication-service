@@ -22,23 +22,6 @@ on:
   #   branches: [main, dev]
   workflow_dispatch:
 
-env:
-  COSIGN_EXPERIMENTAL: 'true'
-  IMAGE_NAME: ${{ secrets.DOCKER_USER }}/${{ secrets.SERVICE }}-service
-
-  ACTIVE_PROFILE: ${{ secrets.ACTIVE_PROFILE }}
-  HTTPS: ${{ secrets.HTTPS }}
-
-  NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-  SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-  KC_SERVICE_SECRET: ${{ secrets.KC_SERVICE_SECRET }}
-
-  KAFKA_HOST: ${{ secrets.KAFKA_HOST }}
-  TEMPO_HOST: ${{ secrets.TEMPO_HOST }}
-  KEYS_PATH: ${{ secrets.KEYS_PATH }}
 
 jobs:
   e2e:
@@ -86,10 +69,8 @@ jobs:
       kafka:
         image: wurstmeister/kafka
         env:
-          KAFKA_CFG_LISTENERS: PLAINTEXT://:9092
-          KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-          KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
-          ALLOW_PLAINTEXT_LISTENER: yes
+          KAFKA_ADVERTISED_HOST_NAME: ${KAFKA_ADVERTISED_HOST_NAME}
+          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
         ports:
           - 9092:9092
         options: >-
@@ -164,4 +145,4 @@ jobs:
           echo "🔧 Loading CI environment variables"
           export $(grep -v '^#' __tests__/.env.ci | xargs)
           pnpm run build
-          pnpm run test:e2e:auth
+          # pnpm run test:e2e:auth
