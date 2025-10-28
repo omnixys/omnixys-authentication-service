@@ -70,7 +70,7 @@ jobs:
        image: wurstmeister/kafka
        env:
          KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
-         KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+         KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
        ports:
@@ -130,7 +130,7 @@ jobs:
             nc -z localhost 6379 && \
             nc -z localhost 2181 && \
             nc -z localhost 9092 && \
-            curl -s http://localhost:18080/auth/ > /dev/null && \
+            curl -s http://localhost:18080/ > /dev/null && \
             echo "✅ All services are healthy" && break
             echo "Services not ready yet ($i/40)..."
             sleep 5
@@ -151,6 +151,9 @@ jobs:
           TEST_EMAIL_DOMAIN: omnixys.com
         run: |
           echo "🔧 Loading CI environment variables"
-          export $(grep -v '^#' __tests__/.env.ci | xargs)
+          # Kopiere .env.ci als aktive .env für Build & Tests
+          cp __tests__/.ci.env .env
+          echo "✅ .env.ci → .env erfolgreich kopiert"
+
           pnpm run build
           pnpm run test:e2e:auth
