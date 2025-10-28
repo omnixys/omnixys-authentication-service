@@ -91,12 +91,16 @@ jobs:
           KEYCLOAK_ADMIN: admin
           KEYCLOAK_ADMIN_PASSWORD: admin
         options: >-
-          --health-cmd "curl -f http://localhost:8080/auth/ || exit 1"
+          --pull always
+          --entrypoint ""
+          bash -c "/opt/keycloak/bin/kc.sh start-dev --http-port=8080 --import-realm"
+          --health-cmd "curl -f http://localhost:8080/ || exit 1"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 20
+          --health-start-period 20s
         volumes:
-          - ${{ github.workspace }}/__tests__/keycloak/realm-config.json:/opt/keycloak/data/import/realm-config.json:ro
+          - ${{ github.workspace }}/__tests__/keycloak/realm.json:/opt/keycloak/data/import/realm.json:ro
 
     steps:
       - name: 🛎️ Checkout repository
