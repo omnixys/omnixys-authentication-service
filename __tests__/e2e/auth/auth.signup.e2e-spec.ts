@@ -24,12 +24,14 @@ import { createTestApp } from '../setup-e2e.js';
 import type { INestApplication } from '@nestjs/common';
 
 /**
- * 💡 E2E-Test für den vollständigen Benutzer-Onboarding-Flow:
- * - AdminSignUp (Neuer User)
- * - Login mit neuem Benutzer
- * - GetByUsername + GetById
- * - UpdateMyProfile
- * - ChangeMyPassword
+ * 💡 Vollständiger User-Onboarding-Flow (inkl. Delete):
+ * 1️⃣ AdminSignUp (neuer User)
+ * 2️⃣ Login mit neuem Benutzer
+ * 3️⃣ getByUsername + getById
+ * 4️⃣ updateMyProfile
+ * 5️⃣ changeMyPassword
+ * 6️⃣ Login mit neuem Passwort
+ * 7️⃣ deleteUser
  */
 describe('👑 Auth E2E - User SignUp Flow (Full Lifecycle)', () => {
   let app: INestApplication;
