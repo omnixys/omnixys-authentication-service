@@ -47,32 +47,32 @@ jobs:
     timeout-minutes: 25
 
     services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: auth
-          POSTGRES_PASSWORD: auth
-          POSTGRES_DB: authdb
-        ports:
-          - 5433:5432
-        options: >-
-          --health-cmd "pg_isready -U auth"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 10
+      # postgres:
+      #   image: postgres:16
+      #   env:
+      #     POSTGRES_USER: auth
+      #     POSTGRES_PASSWORD: auth
+      #     POSTGRES_DB: authdb
+      #   ports:
+      #     - 5433:5432
+      #   options: >-
+      #     --health-cmd "pg_isready -U auth"
+      #     --health-interval 5s
+      #     --health-timeout 3s
+      #     --health-retries 10
 
-      redis:
-        image: redis:7
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 10
+      # redis:
+      #   image: redis:7
+      #   ports:
+      #     - 6379:6379
+      #   options: >-
+      #     --health-cmd "redis-cli ping"
+      #     --health-interval 5s
+      #     --health-timeout 3s
+      #     --health-retries 10
 
       zookeeper:
-        image: zookeeper:3.9
+        image: wurstmeister/zookeeper
         ports:
           - 2181:2181
         env:
@@ -98,20 +98,20 @@ jobs:
           --health-timeout 5s
           --health-retries 10
 
-      keycloak:
-        image: quay.io/keycloak/keycloak:25.0
-        ports:
-          - 18080:8080
-        env:
-          KEYCLOAK_ADMIN: admin
-          KEYCLOAK_ADMIN_PASSWORD: admin
-        options: >-
-          --health-cmd "curl -f http://localhost:8080/auth/ || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 20
-        volumes:
-          - ${{ github.workspace }}/__tests__/keycloak/realm-config.json:/opt/keycloak/data/import/realm-config.json:ro
+      # keycloak:
+      #   image: quay.io/keycloak/keycloak:25.0
+      #   ports:
+      #     - 18080:8080
+      #   env:
+      #     KEYCLOAK_ADMIN: admin
+      #     KEYCLOAK_ADMIN_PASSWORD: admin
+      #   options: >-
+      #     --health-cmd "curl -f http://localhost:8080/auth/ || exit 1"
+      #     --health-interval 10s
+      #     --health-timeout 5s
+      #     --health-retries 20
+      #   volumes:
+      #     - ${{ github.workspace }}/__tests__/keycloak/realm-config.json:/opt/keycloak/data/import/realm-config.json:ro
 
     steps:
       - name: 🛎️ Checkout repository
@@ -137,9 +137,9 @@ jobs:
         run: |
           echo "⏳ Waiting for services..."
           for i in {1..40}; do
-            nc -z localhost 5433 && \
-            nc -z localhost 6379 && \
-            nc -z localhost 2181 && \
+            # nc -z localhost 5433 && \
+            # nc -z localhost 6379 && \
+            # nc -z localhost 2181 && \
             nc -z localhost 9092 && \
             curl -s http://localhost:18080/auth/ > /dev/null && \
             echo "✅ All services are healthy" && break
