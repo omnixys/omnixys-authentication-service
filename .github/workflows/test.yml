@@ -18,10 +18,7 @@ name: 🧪 E2E Authentication Tests
 on:
   push:
     branches: [main, dev]
-  # pull_request:
-  #   branches: [main, dev]
   workflow_dispatch:
-
 
 jobs:
   e2e:
@@ -61,27 +58,27 @@ jobs:
         env:
           ALLOW_ANONYMOUS_LOGIN: yes
         options: >-
-          --health-cmd="echo ruok | nc localhost 2181 | grep imok"
-          --health-interval=5s
-          --health-timeout=3s
-          --health-retries=10
+          --health-cmd "echo ruok | nc localhost 2181 | grep imok"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
 
       kafka:
-       image: wurstmeister/kafka
-       env:
-         KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
-         KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-         KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-         KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-       ports:
-         - 9092:9092
-       options: >-
-         --hostname kafka
-         --health-cmd "bash -c 'nc -z localhost 9092 || exit 1'"
-         --health-interval 10s
-         --health-timeout 5s
-         --health-retries 15
-         --health-start-period 20s
+        image: wurstmeister/kafka
+        env:
+          KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        ports:
+          - 9092:9092
+        options: >-
+          --hostname kafka
+          --health-cmd "bash -c 'nc -z localhost 9092 || exit 1'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 15
+          --health-start-period 20s
 
       keycloak:
         image: quay.io/keycloak/keycloak:25.0
@@ -92,8 +89,8 @@ jobs:
           KEYCLOAK_ADMIN_PASSWORD: admin
         options: >-
           --pull always
-          --entrypoint /opt/keycloak/bin/kc.sh
-          start-dev --http-port=8080 --import-realm
+          --entrypoint ""
+          bash -c "/opt/keycloak/bin/kc.sh start-dev --http-port=8080 --import-realm"
           --health-cmd "curl -f http://localhost:8080/realms/master || exit 1"
           --health-interval 10s
           --health-timeout 5s
@@ -126,10 +123,10 @@ jobs:
         run: |
           echo "⏳ Waiting for services..."
           for i in {1..120}; do
-            nc -z localhost 5433  &&
-            nc -z localhost 6379  &&
-            nc -z localhost 2181  &&
-            nc -z localhost 9092  &&
+            nc -z localhost 5433 &&
+            nc -z localhost 6379 &&
+            nc -z localhost 2181 &&
+            nc -z localhost 9092 &&
             curl -fs http://localhost:18080/realms/master > /dev/null 2>&1 &&
             echo "✅ All services healthy (after $i checks)" && break
             echo "Services not ready yet ($i/120)..."
@@ -137,8 +134,8 @@ jobs:
           done
 
           if [ $i -eq 120 ]; then
-            echo "❌ Keycloak not ready after 10 minutes. Dumping last 50 log lines:"
-            docker logs --tail 50 $(docker ps -q --filter "ancestor=quay.io/keycloak/keycloak") || true
+            echo "❌ Keycloak not ready after 10 minutes. Dumping logs:"
+            docker logs $(docker ps -q --filter "ancestor=quay.io/keycloak/keycloak") || true
             exit 1
           fi
 
@@ -164,7 +161,6 @@ jobs:
           TEST_EMAIL_DOMAIN: omnixys.com
         run: |
           echo "🔧 Loading CI environment variables"
-          # Kopiere .env.ci als aktive .env für Build & Tests
           cp __tests__/.ci.env .env
           echo "✅ .env.ci → .env erfolgreich kopiert"
 
