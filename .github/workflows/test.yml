@@ -128,7 +128,7 @@ jobs:
           for i in {1..40}; do
             nc -z localhost 5433 && \
             nc -z localhost 6379 && \
-            # nc -z localhost 2181 && \
+            nc -z localhost 2181 && \
             nc -z localhost 9092 && \
             curl -s http://localhost:18080/auth/ > /dev/null && \
             echo "✅ All services are healthy" && break
@@ -145,7 +145,7 @@ jobs:
           KC_URL: http://localhost:18080/auth
           KC_REALM: camunda-platform
           KC_CLIENT_ID: camunda-identity
-          KC_CLIENT_SECRET: dummy
+          KC_CLIENT_SECRET: b5qpOgD5Z6wB4PjtL4NP0rPcwZ6rK7gG
           KEYCLOAK_ADMIN_USERNAME: admin
           KEYCLOAK_ADMIN_PASSWORD: admin
           TEST_EMAIL_DOMAIN: omnixys.com
@@ -153,4 +153,4 @@ jobs:
           echo "🔧 Loading CI environment variables"
           export $(grep -v '^#' __tests__/.env.ci | xargs)
           pnpm run build
-          # pnpm run test:e2e:auth
+          pnpm run test:e2e:auth
