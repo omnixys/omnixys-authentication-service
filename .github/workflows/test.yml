@@ -83,20 +83,20 @@ jobs:
          --health-retries 15
          --health-start-period 20s
 
-      # keycloak:
-      #   image: quay.io/keycloak/keycloak:25.0
-      #   ports:
-      #     - 18080:8080
-      #   env:
-      #     KEYCLOAK_ADMIN: admin
-      #     KEYCLOAK_ADMIN_PASSWORD: admin
-      #   options: >-
-      #     --health-cmd "curl -f http://localhost:8080/auth/ || exit 1"
-      #     --health-interval 10s
-      #     --health-timeout 5s
-      #     --health-retries 20
-      #   volumes:
-      #     - ${{ github.workspace }}/__tests__/keycloak/realm-config.json:/opt/keycloak/data/import/realm-config.json:ro
+      keycloak:
+        image: quay.io/keycloak/keycloak:25.0
+        ports:
+          - 18080:8080
+        env:
+          KEYCLOAK_ADMIN: admin
+          KEYCLOAK_ADMIN_PASSWORD: admin
+        options: >-
+          --health-cmd "curl -f http://localhost:8080/auth/ || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+        volumes:
+          - ${{ github.workspace }}/__tests__/keycloak/realm-config.json:/opt/keycloak/data/import/realm-config.json:ro
 
     steps:
       - name: 🛎️ Checkout repository
