@@ -84,7 +84,7 @@ jobs:
           --health-retries=10
 
       kafka:
-        image: wurstmeister/kafka:3.7.0
+        image: wurstmeister/kafka
         env:
           KAFKA_CFG_LISTENERS: PLAINTEXT://:9092
           KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
