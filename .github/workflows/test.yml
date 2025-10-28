@@ -67,17 +67,21 @@ jobs:
           --health-retries=10
 
       kafka:
-        image: wurstmeister/kafka
-        env:
-          KAFKA_ADVERTISED_HOST_NAME: kafka
-          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-        ports:
-          - 9092:9092
-        options: >-
-          --health-cmd "bash -c nc --bootstrap-server localhost:9092 --list || exit 1'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
+       image: wurstmeister/kafka
+       env:
+         KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+         KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+         KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+         KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+       ports:
+         - 9092:9092
+       options: >-
+         --hostname kafka
+         --health-cmd "bash -c 'nc -z localhost 9092 || exit 1'"
+         --health-interval 10s
+         --health-timeout 5s
+         --health-retries 15
+         --health-start-period 20s
 
       # keycloak:
       #   image: quay.io/keycloak/keycloak:25.0
