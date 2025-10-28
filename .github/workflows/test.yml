@@ -13,13 +13,14 @@
 #
 # For more information, visit <https://www.gnu.org/licenses/>.
 
-name: 🧪 E2E Auth Tests
+name: 🧪 E2E Authentication Tests
 
 on:
-  push:
-    branches: [main, dev]
-  pull_request:
-    branches: [main, dev]
+  # push:
+  #   branches: [main, dev]
+  # pull_request:
+  #   branches: [main, dev]
+  workflow_dispatch:
 
 env:
   COSIGN_EXPERIMENTAL: 'true'
