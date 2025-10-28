@@ -69,7 +69,7 @@ jobs:
       kafka:
         image: wurstmeister/kafka
         env:
-          KAFKA_ADVERTISED_HOST_NAME: localhost
+          KAFKA_ADVERTISED_HOST_NAME: kafka
           KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
         ports:
           - 9092:9092
@@ -106,7 +106,7 @@ jobs:
       - name: ⚙️ Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24.10.0
           cache: 'pnpm'
 
       - name: 📦 Install dependencies
