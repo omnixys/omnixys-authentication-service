@@ -92,8 +92,8 @@ jobs:
           KEYCLOAK_ADMIN_PASSWORD: admin
         options: >-
           --pull always
-          --entrypoint ""
-          /opt/keycloak/bin/kc.sh start-dev --http-port=8080 --import-realm
+          --entrypoint /opt/keycloak/bin/kc.sh
+          start-dev --http-port=8080 --import-realm
           --health-cmd "curl -f http://localhost:8080/realms/master || exit 1"
           --health-interval 10s
           --health-timeout 5s
