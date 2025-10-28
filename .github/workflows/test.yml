@@ -106,7 +106,8 @@ jobs:
           KEYCLOAK_ADMIN: admin
           KEYCLOAK_ADMIN_PASSWORD: admin
         options: >-
-          --command "start-dev --import-realm"
+          --pull always
+          /opt/keycloak/bin/kc.sh start-dev --import-realm
           --health-cmd "curl -f http://localhost:8080/auth/ || exit 1"
           --health-interval 10s
           --health-timeout 5s
