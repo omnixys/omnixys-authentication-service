@@ -69,7 +69,7 @@ jobs:
       kafka:
         image: wurstmeister/kafka
         env:
-          KAFKA_ADVERTISED_HOST_NAME: ${KAFKA_ADVERTISED_HOST_NAME}
+          KAFKA_ADVERTISED_HOST_NAME: localhost
           KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
         ports:
           - 9092:9092
