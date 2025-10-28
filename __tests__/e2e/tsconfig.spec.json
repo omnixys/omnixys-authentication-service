@@ -22,8 +22,8 @@
     "target": "ES2022",
     "isolatedModules": true,
     "types": ["node"],
-    "rootDir": "../",
-    "outDir": "../dist-tests"
+    "rootDir": "../../",
+    "outDir": "../../dist-tests"
   },
   "include": ["__tests__/**/*.ts", "src/**/*.spec.ts"]
 }
