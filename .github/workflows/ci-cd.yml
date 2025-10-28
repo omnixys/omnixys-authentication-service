@@ -16,14 +16,15 @@
 name: CI/CD Pipeline – Omnixys Authentication Service
 
 on:
-  pull_request:
-    branches:
-      - '**'
-  push:
-    branches:
-      - main
-    tags:
-      - 'v*' # Nur für Versionstags (z.B. v1.0.0)
+  # pull_request:
+  #   branches:
+  #     - '**'
+  # push:
+  #   branches:
+  #     - main
+  #   tags:
+  #     - 'v*' # Nur für Versionstags (z.B. v1.0.0)
+ workflow_dispatch:
 
 permissions:
   contents: read

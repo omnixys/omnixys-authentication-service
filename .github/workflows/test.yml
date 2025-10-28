@@ -72,19 +72,19 @@ jobs:
           --health-retries 10
 
       zookeeper:
-        image: bitnami/zookeeper:3.9
-        env:
-          ALLOW_ANONYMOUS_LOGIN: yes
+        image: bitnami/zookeeper:latest
         ports:
           - 2181:2181
+        env:
+          ALLOW_ANONYMOUS_LOGIN: yes
         options: >-
-          --health-cmd "echo ruok | nc localhost 2181 | grep imok"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 10
+          --health-cmd="echo ruok | nc localhost 2181 | grep imok"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=10
 
       kafka:
-        image: bitnami/kafka:3.7
+        image: bitnami/kafka:latest
         env:
           KAFKA_CFG_LISTENERS: PLAINTEXT://:9092
           KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
