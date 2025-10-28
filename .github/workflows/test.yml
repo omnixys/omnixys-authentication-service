@@ -72,7 +72,7 @@ jobs:
           --health-retries 10
 
       zookeeper:
-        image: zookeeper:3.9
+        image: wurstmeister/zookeeper
         ports:
           - 2181:2181
         env:
