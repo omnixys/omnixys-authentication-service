@@ -132,11 +132,11 @@ jobs:
               nc -z localhost 9092 && \
               curl -fs http://localhost:18080/ > /dev/null && \
               echo "✅ All services healthy" && break
-            
+
               echo "Services not ready yet ($i/60)..."
               sleep 5
             done
-            
+
             # 🧠 Zusätzlicher Kafka readiness check
             echo "Waiting for Kafka to finish leader election..."
             for i in {1..10}; do
@@ -151,7 +151,7 @@ jobs:
           DATABASE_URL: postgres://auth:auth@localhost:5433/authdb
           REDIS_URL: redis://localhost:6379
           KAFKA_BROKER: localhost:9092
-          KC_URL: http://localhost:18080/auth
+          KC_URL: http://localhost:18080
           KC_REALM: camunda-platform
           KC_CLIENT_ID: camunda-identity
           KC_CLIENT_SECRET: b5qpOgD5Z6wB4PjtL4NP0rPcwZ6rK7gG
