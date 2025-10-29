@@ -112,7 +112,7 @@ jobs:
           for i in {1..60}; do
             status=$(curl -s -o /dev/null -w "%{http_code}" \
               -H "Accept: application/json" \
-              http://localhost:18080/realms/camunda-platform || echo 000)
+              http://localhost:18080/auth/realms/camunda-platform || echo 000)
 
             if [ "$status" = "200" ]; then
               echo "✅ Realm 'camunda-platform' reachable (HTTP $status after $i tries)"
