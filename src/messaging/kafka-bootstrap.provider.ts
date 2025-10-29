@@ -16,8 +16,10 @@
  */
 
 import { kafka, kafkaProducer } from '../config/kafka.js';
-import { LoggerPlus } from '../logger/logger-plus.js';
-import { setGlobalKafkaProducer } from '../logger/logger-plus.service.js';
+import {
+  LoggerPlusService,
+  setGlobalKafkaProducer,
+} from '../logger/logger-plus.service.js';
 import { KafkaProducerService } from './kafka-producer.service.js';
 import type { Provider, OnModuleDestroy } from '@nestjs/common';
 import type { Kafka, Producer } from 'kafkajs';
@@ -28,7 +30,8 @@ import type { Kafka, Producer } from 'kafkajs';
 export const KAFKA_INSTANCE = 'KAFKA_INSTANCE';
 export const KAFKA_PRODUCER = 'KAFKA_PRODUCER';
 
-const logger = new LoggerPlus('KafkaBootstrapProvider');
+const loggerPlusService = new LoggerPlusService();
+const logger = loggerPlusService.getLogger('KafkaBootstrapProvider');
 
 /**
  * Kafka client provider (singleton instance of KafkaJS client).
@@ -48,7 +51,10 @@ export const kafkaProducerProvider: Provider<Promise<Producer>> = {
     try {
       await kafkaProducer.connect();
       logger.info('Kafka producer connected (bootstrap)');
-      const producerService = new KafkaProducerService(kafkaProducer);
+      const producerService = new KafkaProducerService(
+        kafkaProducer,
+        loggerPlusService,
+      );
       setGlobalKafkaProducer(producerService);
       return kafkaProducer;
     } catch (err) {
