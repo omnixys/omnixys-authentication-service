@@ -94,7 +94,7 @@ jobs:
           docker run -d --name keycloak -p 18080:8080 \
            -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
            -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
-           -v "$(pwd)/__tests__/keycloak/realm-clean.json:/opt/keycloak/data/import/realm.json:ro" \
+           -v "$(pwd)/__tests__/keycloak/camunda-platform-realm.json:/opt/keycloak/data/import/camunda-platform-realm.json:ro" \
            --tmpfs /opt/keycloak/data:rw,size=200m \
            quay.io/keycloak/keycloak:26.3.2 \
            start-dev --import-realm --http-port=8080
