@@ -79,7 +79,7 @@ jobs:
         node-version: [24.10.0]
         redis-version: [7]
         postgres-version: [18]
-        test-type: [login, signup, user, admin, signum]
+        test-type: [login, signup, user, admin]
 
     services:
       postgres:

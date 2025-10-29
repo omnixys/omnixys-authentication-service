@@ -8,6 +8,13 @@
       {
         "useESM": true,
         "tsconfig": "__tests__/e2e/tsconfig.spec.json"
+      },
+      "babel-jest",
+      {
+        "presets": [
+          ["@babel/preset-env", { "targets": { "node": "current" } }]
+        ],
+        "plugins": ["babel-plugin-istanbul"]
       }
     ]
   },
@@ -30,7 +37,7 @@
       }
     }
   },
-  "setupFilesAfterEnv": ["<rootDir>/setup-e2e.ts"],
+  "setupFilesAfterEnv": ["<rootDir>/__tests__/e2e/setup-e2e.ts"],
   "testEnvironmentOptions": {
     "url": "http://localhost/"
   },
@@ -42,8 +49,9 @@
     "!**/node_modules/**",
     "!**/dist/**"
   ],
-  "coverageDirectory": "../reports/e2e/coverage",
+  "coverageDirectory": "./__tests__/reports/coverage",
   "coverageReporters": ["text-summary", "lcov", "html"],
+    "coverageProvider": "babel",
 
   "reporters": [
     "default",
@@ -56,4 +64,5 @@
       }
     ]
   ]
+
 }
