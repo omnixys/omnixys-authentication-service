@@ -17,6 +17,7 @@
 
 import { AdminModule } from './admin/admin.module.js';
 import { KeycloakModule } from './auth/keycloak.module.js';
+import { env } from './config/env.js';
 import { HandlerModule } from './handlers/handler.module.js';
 import { HealthModule } from './health/health.module.js';
 import { LoggerModule } from './logger/logger.module.js';
@@ -27,6 +28,8 @@ import { ApolloFederationDriver, ApolloFederationDriverConfig } from '@nestjs/ap
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
+
+const { SCHEMA_TARGET } = env;
 
 @Module({
   imports: [
@@ -46,9 +49,9 @@ import { GraphQLModule } from '@nestjs/graphql';
       useFactory: (cfg: ConfigService) => ({
         // autoSchemaFile: join(process.cwd(), 'dist/schema.gql'),
         autoSchemaFile:
-          process.env.SCHEMA_TARGET === 'tmp'
+          SCHEMA_TARGET === 'tmp'
             ? { path: '/tmp/schema.gql', federation: 2 }
-            : process.env.SCHEMA_TARGET === 'false'
+            : SCHEMA_TARGET === 'false'
               ? false
               : { path: 'dist/schema.gql', federation: 2 },
         sortSchema: true,

@@ -15,6 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
+import { env } from '../../config/env.js';
 import { keycloakConnectOptions, paths } from '../../config/keycloak.js';
 import type { LoggerPlus } from '../../logger/logger-plus.js';
 import type { LoggerPlusService } from '../../logger/logger-plus.service.js';
@@ -32,6 +33,7 @@ import * as jose from 'jose';
 
 export type RemoteJwkSet = ReturnType<typeof jose.createRemoteJWKSet>;
 
+const { KC_ADMIN_PASSWORD, KC_ADMIN_USERNAME } = env;
 /**
  * @file Gemeinsame Basisklasse für Keycloak-Read/Write-Services:
  *  - Einheitlicher Axios-Request mit Admin-Auth & Fehler-Mapping
@@ -177,11 +179,8 @@ export abstract class KeycloakBaseService {
       return this.#adminToken.token;
     }
 
-    const username = process.env.KC_ADMIN_USER;
-    const password = process.env.KC_ADMIN_PASS;
-    if (!username || !password) {
-      throw new UnauthorizedException('KC_ADMIN_USER / KC_ADMIN_PASS fehlen');
-    }
+    const username = KC_ADMIN_USERNAME;
+    const password = KC_ADMIN_PASSWORD;
 
     const params = new URLSearchParams({
       grant_type: 'password',

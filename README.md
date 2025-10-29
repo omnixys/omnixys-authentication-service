@@ -245,7 +245,7 @@ Required for authentication, authorization, and token issuance.
 | `KC_REALM`         | Keycloak realm name                       | `camunda-platform`            |
 | `KC_CLIENT_ID`     | Registered Keycloak client ID             | `camunda-identity`            |
 | `KC_CLIENT_SECRET` | Secret for the configured Keycloak client | *(none)*                      |
-| `KC_ADMIN_USER`    | Keycloak admin username                   | `admin`                       |
+| `KC_ADMIN_USERNAME`| Keycloak admin username                   | `admin`                       |
 | `KC_ADMIN_PASS`    | Keycloak admin password                   | `change-me`                   |
 
 ---
@@ -254,14 +254,15 @@ Required for authentication, authorization, and token issuance.
 
 Defines the in-memory data store used for token caching, rate limiting, and user sessions.
 
-| Variable           | Description                                    | Default             |
-| ------------------ | ---------------------------------------------- | ------------------- |
-| `REDIS_HOST`       | Redis hostname                                 | `127.0.0.1`         |
-| `REDIS_PORT`       | Redis port                                     | `6379`              |
-| `REDIS_USERNAME`   | Redis username (optional)                      | *(empty)*           |
-| `REDIS_PASSWORD`   | Redis password (optional)                      | *(empty)*           |
-| `REDIS_PC_JWE_KEY` | Encryption key used for token caching (Base64) | `your-jwe-key`      |
-| `REDIS_PC_TTL_SEC` | Token cache time-to-live (seconds)             | `2592000` (30 days) |
+| Variable           | Description                                    | Default                                        |
+| ------------------ | ---------------------------------------------- | ---------------------------------------------- |
+| `REDIS_HOST`       | Redis hostname                                 | `127.0.0.1`                                    |
+| `REDIS_PORT`       | Redis port                                     | `6379`                                         |
+| `REDIS_USERNAME`   | Redis username (optional)                      | *(empty)*                                      |
+| `REDIS_PASSWORD`   | Redis password (optional)                      | *(empty)*                                      |
+| `REDIS_URL`        | Full Redis connection URI                      | `redis://:${REDIS_PASSWORD}@localhost:6379`    |
+| `REDIS_PC_JWE_KEY` | Encryption key used for token caching (Base64) | `your-jwe-key`                                 |
+| `REDIS_PC_TTL_SEC` | Token cache time-to-live (seconds)             | `2592000` (30 days)                            |
 
 ---
 

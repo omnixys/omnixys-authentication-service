@@ -19,6 +19,7 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
+import { env } from '../../env.js';
 import { gqlRequest } from '../graphql-client.js';
 import { createTestApp } from '../setup-e2e.js';
 import type { INestApplication } from '@nestjs/common';
@@ -40,8 +41,8 @@ describe('👤 Auth E2E - User Operations', () => {
     const q = `
       mutation {
         login(input: {
-          username: "${process.env.OMNIXYS_USER_USERNAME ?? 'user'}",
-          password: "${process.env.OMNIXYS_USER_PASSWORD ?? 'p'}"
+          username: "${env.OMNIXYS_USER_USERNAME}",
+          password: "${env.OMNIXYS_USER_PASSWORD}"
         }) { accessToken }
       }
     `;

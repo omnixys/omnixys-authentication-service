@@ -33,6 +33,7 @@ export interface NodeConfig {
   keycloak: KeycloakConnectConfig;
   logger: LogDetail;
   serviceName: string;
+  kafkaUri: string;
 }
 
 interface LogDetail {
@@ -55,6 +56,7 @@ const {
   LOG_PRETTY,
   LOG_LEVEL,
   SERVICE,
+  KAFKA_URI,
 } = env;
 
 /**
@@ -83,4 +85,5 @@ export const nodeConfig: NodeConfig = {
     logLevel: LOG_LEVEL,
   },
   serviceName: SERVICE,
+  kafkaUri: KAFKA_URI,
 } as const;

@@ -17,6 +17,7 @@
 
 /* eslint-disable no-console */
 import { AppModule } from '../../src/app.module.js';
+import { env } from '../env.js';
 import { type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import axios, { type AxiosError } from 'axios';
@@ -36,12 +37,8 @@ console.log(`[setup-e2e] loaded env from ${envPath}`);
 // =====================================================
 
 async function verifyKeycloak(): Promise<void> {
-  const base = process.env.KC_TEST_URL?.replace(/\/$/, '');
-  const realm = process.env.KC_REALM;
-  if (!base || !realm) {
-    console.warn('[Keycloak] ⚠️ KC_URL or KC_REALM not set — skipping check.');
-    return;
-  }
+  const base = env.KC_TEST_URL;
+  const realm = env.KC_REALM;
 
   const url = `${base}/realms/${realm}`;
 
@@ -66,9 +63,7 @@ async function verifyKeycloak(): Promise<void> {
 // =====================================================
 
 export async function createTestApp(): Promise<{ app: INestApplication }> {
-  if (process.env.TEST_MODE === 'live') {
-    await verifyKeycloak();
-  }
+  await verifyKeycloak();
 
   const moduleRef = await Test.createTestingModule({
     imports: [AppModule],
@@ -107,11 +102,5 @@ afterAll(async () => {
     console.log('[setup-e2e] ✅ All modules closed cleanly.');
   } catch (e) {
     console.warn('[setup-e2e] ⚠️ Error during app.close()', e);
-  } finally {
-    if (process.env.NODE_ENV === 'test') {
-      console.log('[setup-e2e] 🧨 Forcing process exit (safety fallback).');
-      // eslint-disable-next-line no-process-exit
-      setTimeout(() => process.exit(0), 300);
-    }
   }
 });

@@ -19,14 +19,16 @@ import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { PubSub } from 'graphql-subscriptions';
 import type { Redis } from 'ioredis';
 
+import { env } from '../config/env.js';
 import { makeRedisClient } from './redis.client.js';
 import { ensureReady, closeClients } from './redis.health.js';
 export { TRIGGER } from './redis-triggers.js';
 
+const { GQL_PUBSUB_INMEMORY } = env;
 /**
  * Wenn GQL_PUBSUB_INMEMORY=1 gesetzt ist, wird stattdessen der einfache In-Memory PubSub verwendet.
  */
-const useInMemory = process.env.GQL_PUBSUB_INMEMORY === '1';
+const useInMemory = GQL_PUBSUB_INMEMORY;
 
 interface RedisPubSubSingleton {
   publisher: Redis;

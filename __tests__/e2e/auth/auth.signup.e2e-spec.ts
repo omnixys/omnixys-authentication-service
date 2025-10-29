@@ -19,6 +19,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable no-console */
 
+import { env } from '../../env.js';
 import { gqlRequest } from '../graphql-client.js';
 import { createTestApp } from '../setup-e2e.js';
 import type { INestApplication } from '@nestjs/common';
@@ -238,8 +239,8 @@ describe('👑 Auth E2E - User SignUp Flow (Full Lifecycle)', () => {
     const adminLoginQuery = `
       mutation {
         login(input: {
-          username: "${process.env.OMNIXYS_ADMIN_USERNAME ?? 'admin'}",
-          password: "${process.env.OMNIXYS_ADMIN_PASSWORD ?? 'p'}"
+          username: "${env.OMNIXYS_ADMIN_USERNAME}",
+          password: "${env.OMNIXYS_ADMIN_PASSWORD}"
         }) { accessToken }
       }
     `;

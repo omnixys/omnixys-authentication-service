@@ -19,6 +19,7 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
+import { env } from '../../env.js';
 import { gqlRequest } from '../graphql-client.js';
 import { createTestApp } from '../setup-e2e.js';
 import type { INestApplication } from '@nestjs/common';
@@ -52,8 +53,8 @@ describe('🛡️ Auth E2E - Admin Operations (Full Flow)', () => {
     const loginQ = `
       mutation {
         login(input: {
-          username: "${process.env.OMNIXYS_ADMIN_USERNAME ?? 'admin'}",
-          password: "${process.env.OMNIXYS_ADMIN_PASSWORD ?? 'p'}"
+          username: "${env.OMNIXYS_ADMIN_USERNAME ?? 'admin'}",
+          password: "${env.OMNIXYS_ADMIN_PASSWORD ?? 'p'}"
         }) { accessToken }
       }
     `;
@@ -66,8 +67,7 @@ describe('🛡️ Auth E2E - Admin Operations (Full Flow)', () => {
     log('✅ Admin logged in successfully');
   });
 
-  afterAll(async () => {
-  });
+  afterAll(async () => {});
 
   // -----------------------------------------------------
   // 🔹 ADMIN SIGN-UP (neuer Benutzer)

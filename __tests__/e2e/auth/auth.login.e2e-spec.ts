@@ -18,6 +18,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { env } from '../../env.js';
 import { gqlRequest } from '../graphql-client.js';
 import { createTestApp } from '../setup-e2e.js';
 import type { INestApplication } from '@nestjs/common';
@@ -41,8 +42,8 @@ describe('🔐 Auth E2E - Login/Refresh/Logout', () => {
   afterAll(async () => {});
 
   it('should login successfully', async () => {
-    const username = process.env.OMNIXYS_ADMIN_USERNAME ?? 'admin';
-    const password = process.env.OMNIXYS_ADMIN_PASSWORD ?? 'p';
+    const username = env.OMNIXYS_ADMIN_USERNAME;
+    const password = env.OMNIXYS_ADMIN_PASSWORD;
 
     const query = `
       mutation {

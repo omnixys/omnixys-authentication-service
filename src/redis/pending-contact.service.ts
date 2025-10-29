@@ -17,11 +17,13 @@
 
 // src/service/pending-contact.service.ts
 import { PendingContact } from '../auth/models/dtos/pending-contact.dto.js';
+import { env } from '../config/env.js';
 import { RedisService } from './redis.service.js';
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import * as jose from 'jose';
 
+const { REDIS_PC_JWE_KEY, REDIS_PC_TTL_SEC } = env;
 @Injectable()
 export class PendingContactService {
   constructor(private readonly redis: RedisService) {} // ← statt Inject('REDIS')
@@ -31,8 +33,8 @@ export class PendingContactService {
   }
 
   private getKeyMaterial(): Uint8Array {
-    const raw = process.env.REDIS_PC_JWE_KEY;
-    if (!raw) {
+    const raw = REDIS_PC_JWE_KEY;
+    if (!raw || raw === '') {
       throw new Error('REDIS_PC_JWE_KEY missing (32 bytes base64 recommended)');
     }
     // base64 oder utf8 zulassen
@@ -49,7 +51,7 @@ export class PendingContactService {
 
   async put(
     input: Omit<PendingContact, 'id' | 'createdAt'>,
-    ttlSec = Number(process.env.REDIS_PC_TTL_SEC ?? 60 * 60 * 24 * 30),
+    ttlSec = REDIS_PC_TTL_SEC,
   ): Promise<string> {
     const id = randomUUID();
     const payload: PendingContact = { ...input, id, createdAt: Date.now() };

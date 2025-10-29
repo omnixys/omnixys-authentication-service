@@ -24,11 +24,13 @@
  * @category Infrastructure
  */
 
+import { env } from '../config/env.js';
 import { LoggerPlus } from '../logger/logger-plus.js';
 import { isRedisUrl, makeRedisOptions } from './redis.config.js';
 import type { RedisClient, RedisConstructor } from './redis.types.js';
 import { createRequire } from 'node:module';
 
+const { REDIS_URL, NODE_ENV } = env;
 export function safeErrorMessage(err: unknown): string {
   if (err instanceof Error) {
     return err.message;
@@ -59,24 +61,24 @@ export function makeRedisClient(label: 'pub' | 'sub' | 'app'): RedisClient {
 
   // Create either URL- or config-based client safely
   const client: RedisClient = isRedisUrl()
-    ? new Redis(String(process.env.REDIS_URL))
+    ? new Redis(String(REDIS_URL))
     : new Redis(opts);
 
   // Attach listeners with consistent logging
   client.on('ready', () => {
-    if (process.env.NODE_ENV !== 'test') {
+    if (NODE_ENV !== 'test') {
       logger.log(`[redis:${label}] ready`);
     }
   });
 
   client.on('reconnecting', () => {
-    if (process.env.NODE_ENV !== 'test') {
+    if (NODE_ENV !== 'test') {
       logger.warn(`[redis:${label}] reconnecting…`);
     }
   });
 
   client.on('error', (e: unknown) => {
-    if (process.env.NODE_ENV !== 'test') {
+    if (NODE_ENV !== 'test') {
       logger.error(`[redis:${label}] error: ${safeErrorMessage(e)}`);
     }
   });

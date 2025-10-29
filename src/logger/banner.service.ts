@@ -21,7 +21,7 @@
  * Dieser Service gibt beim Start der Anwendung ein Banner und wichtige Anwendungsinformationen aus.
  */
 
-import { healthEnv } from '../config/env.js';
+import { env } from '../config/env.js';
 import { nodeConfig } from '../config/node.js';
 import { getLogger } from './get-logger.js';
 import { Injectable, type OnApplicationBootstrap } from '@nestjs/common';
@@ -43,10 +43,20 @@ export class BannerService implements OnApplicationBootstrap {
    * @description Wird beim Bootstrap der Anwendung ausgeführt, um Anwendungsinformationen und ein Banner auszugeben.
    */
   onApplicationBootstrap(): void {
-    const { host, nodeEnv, port, tempo, protocoll, keysPath, keycloak, logger, serviceName } =
-      nodeConfig;
+    const {
+      host,
+      nodeEnv,
+      port,
+      tempo,
+      protocoll,
+      keysPath,
+      keycloak,
+      logger,
+      serviceName,
+      kafkaUri,
+    } = nodeConfig;
 
-    const { KEYCLOAK_HEALTH_URL, TEMPO_HEALTH_URL, PROMETHEUS_HEALTH_URL } = healthEnv;
+    const { KEYCLOAK_HEALTH_URL, TEMPO_HEALTH_URL, PROMETHEUS_HEALTH_URL } = env;
 
     // Banner generieren und ausgeben
     this.#generateBanner(serviceName);
@@ -60,7 +70,6 @@ export class BannerService implements OnApplicationBootstrap {
     this.#logger.info(chalk.cyan('Port: ') + chalk.yellow(port.toString()));
     this.#logger.info(chalk.cyan('Betriebssystem: ') + chalk.yellow(`${type()} (${release()})`));
     this.#logger.info(chalk.cyan('Benutzer: ') + chalk.yellow(userInfo().username));
-    this.#logger.info(chalk.cyan('Tempo URI: ') + chalk.yellow(tempo));
     this.#logger.info(chalk.cyan('HTTPS: ') + chalk.yellow(protocoll));
     this.#logger.info(chalk.cyan('Keys path: ') + chalk.yellow(keysPath));
     this.#logger.info(chalk.green('===============LOGGER============'));
@@ -81,6 +90,10 @@ export class BannerService implements OnApplicationBootstrap {
     this.#logger.info(chalk.cyan('Kycloak Health URI') + chalk.yellow(KEYCLOAK_HEALTH_URL));
     this.#logger.info(chalk.cyan('Tempo Health URI: ') + chalk.yellow(TEMPO_HEALTH_URL));
     this.#logger.info(chalk.cyan('Prometheus Health URI: ') + chalk.yellow(PROMETHEUS_HEALTH_URL));
+    this.#logger.info(chalk.green('==============KAFKA==========='));
+    this.#logger.info(chalk.cyan('Kafka Broker URI: ') + chalk.yellow(kafkaUri));
+    this.#logger.info(chalk.green('==============OBSERVABILITY==========='));
+    this.#logger.info(chalk.cyan('Tempo URI: ') + chalk.yellow(tempo));
     this.#logger.info(chalk.green('===============================')); // Endmarkierung für die Anwendungsinformationen
   }
 

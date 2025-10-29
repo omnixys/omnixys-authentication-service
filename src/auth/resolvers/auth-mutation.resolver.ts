@@ -24,6 +24,7 @@ import { Public } from 'nest-keycloak-connect';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
 
+import { env } from '../../config/env.js';
 import { KeycloakTokenPayload } from '../models/dtos/kc-token.dto.js';
 import { LogInInput } from '../models/inputs/log-in.input.js';
 import { SignUpInput0 } from '../models/inputs/sign-up.input.js';
@@ -78,10 +79,12 @@ export function readAccessTokenFromCookie(ctx: GqlCtx): string | undefined {
  * solltest du die Mutationen nach Bedarf mit Rollen absichern.
  */
 
+const { NODE_ENV } = env;
+
 const cookieOpts = (maxAgeMs?: number): CookieOptions => ({
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'lax',
+  secure: NODE_ENV === 'production',
+  sameSite: NODE_ENV === 'production' ? 'lax' : 'lax',
   path: '/',
   maxAge: maxAgeMs ?? undefined, // ms
 });

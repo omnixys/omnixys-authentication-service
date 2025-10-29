@@ -15,18 +15,17 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
+import { env } from '../config/env.js';
 import type { RedisOptions } from 'ioredis';
 
-/**
- * Zugriff auf Redis-bezogene Umgebungsvariablen.
- */
-export const redisEnv: Record<string, string | undefined> = process.env;
+const { REDIS_URL, REDIS_PORT, REDIS_HOST, REDIS_USERNAME, REDIS_PASSWORD } =
+  env;
 
 /**
  * Prüft, ob eine REDIS_URL gesetzt ist.
  */
 export function isRedisUrl(): boolean {
-  const url = redisEnv.REDIS_URL;
+  const url = REDIS_URL;
   return typeof url === 'string' && url.trim().length > 0;
 }
 
@@ -34,13 +33,13 @@ export function isRedisUrl(): boolean {
  * Erzeugt ein standardisiertes RedisOptions-Objekt für ioredis.
  */
 export function makeRedisOptions(): RedisOptions {
-  const port = Number(redisEnv.REDIS_PORT ?? 6379);
+  const port = Number(REDIS_PORT ?? 6379);
 
   return {
-    host: redisEnv.REDIS_HOST ?? '127.0.0.1',
+    host: REDIS_HOST,
     port: Number.isFinite(port) ? port : 6379,
-    username: redisEnv.REDIS_USERNAME ?? undefined,
-    password: redisEnv.REDIS_PASSWORD ?? undefined,
+    username: REDIS_USERNAME,
+    password: REDIS_PASSWORD,
     retryStrategy: (times: number): number =>
       Math.min(100 + times * 200, 5_000),
     reconnectOnError: (err: Error): boolean =>

@@ -15,6 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
+import { env } from './env.js';
 import type { ApolloFederationDriverConfig } from '@nestjs/apollo';
 import {
   ApolloDriver,
@@ -23,9 +24,11 @@ import {
 } from '@nestjs/apollo';
 import { join } from 'node:path';
 
+const { SCHEMA_TARGET } = env;
+
 // Utility zur sicheren Pfadwahl
 function getSafeSchemaPath(): string | false {
-  const target = process.env.SCHEMA_TARGET ?? 'dist';
+  const target = SCHEMA_TARGET;
   if (target === 'false') {
     return false;
   }
@@ -51,9 +54,9 @@ export const graphQlModuleOptions: ApolloDriverConfig = {
  */
 export const graphQlModuleOptions2: ApolloFederationDriverConfig = {
   autoSchemaFile:
-    process.env.SCHEMA_TARGET === 'tmp'
+    SCHEMA_TARGET === 'tmp'
       ? { path: '/tmp/schema.gql', federation: 2 }
-      : process.env.SCHEMA_TARGET === 'false'
+      : SCHEMA_TARGET === 'false'
         ? false
         : { path: 'dist/schema.gql', federation: 2 },
   driver: ApolloFederationDriver,

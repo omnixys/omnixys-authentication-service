@@ -15,7 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-import { healthEnv } from '../config/env.js';
+import { env } from '../config/env.js';
 import { KafkaIndicator } from './kafka.indicator.js';
 import { Controller, Get } from '@nestjs/common';
 import {
@@ -26,7 +26,7 @@ import {
 } from '@nestjs/terminus';
 import { Public } from 'nest-keycloak-connect';
 
-const { KEYCLOAK_HEALTH_URL, TEMPO_HEALTH_URL, PROMETHEUS_HEALTH_URL } = healthEnv;
+const { KEYCLOAK_HEALTH_URL, TEMPO_HEALTH_URL, PROMETHEUS_HEALTH_URL } = env;
 @Controller('health')
 export class HealthController {
   readonly #health: HealthCheckService;
