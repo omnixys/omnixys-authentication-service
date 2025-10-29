@@ -79,7 +79,7 @@ jobs:
         node-version: [24.10.0]
         redis-version: [7]
         postgres-version: [18]
-        test-type: [login, signup, user, admin]
+        # test-type: [login, signup, user, admin]
 
     services:
       postgres:
@@ -207,8 +207,8 @@ jobs:
       - name: 🧪 Run E2E Auth Tests
         run: |
           pnpm run build
-          pnpm run test:e2e:auth:${{ matrix.test-type }}
-
+          pnpm run test:e2e:auth
+  
       - name: 🧾 Upload Test Logs (on failure)
         if: failure()
         uses: actions/upload-artifact@v4
@@ -227,7 +227,7 @@ jobs:
         if: always()
         run: |
           echo "### 🧪 E2E Test Summary – ${{ matrix.test-type }}" >> $GITHUB_STEP_SUMMARY
-          if [ -d "__tests__/reports/e2e/coverage" ]; then
+          if [ -d "./__tests__/reports/e2e/coverage" ]; then
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
             npx jest --coverage --coverageReporters=text-summary | tee -a $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
@@ -238,10 +238,13 @@ jobs:
       - name: 🪶 Generate Coverage Badge
         if: always()
         run: |
-          npx make-coverage-badge --input __tests__/reports/e2e/coverage/lcov.info --output coverage.svg
+          npm install -g genbadge
+          genbadge coverage -i ./__tests__/reports/e2e/coverage/lcov.info -o coverage.svg
         continue-on-error: true
 
+
       - name: 📤 Upload Coverage Badge
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-badge

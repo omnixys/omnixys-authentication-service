@@ -50,7 +50,7 @@
     "!**/dist/**"
   ],
   "coverageDirectory": "./__tests__/reports/e2e/coverage",
-  "coverageReporters": ["text-summary", "lcov", "html"],
+  "coverageReporters": ["text-summary", "lcov", "html", "json-summary"],
   "coverageProvider": "babel",
 
   "reporters": [
