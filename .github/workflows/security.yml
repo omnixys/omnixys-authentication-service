@@ -13,7 +13,7 @@
  #
  # For more information, visit <https://www.gnu.org/licenses/>.
  
-name: Security Node
+name: Security Check Node
 
 on:
   schedule:

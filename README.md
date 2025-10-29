@@ -1,35 +1,65 @@
-![Auto Assign](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/auto-assign.yml/badge.svg)
-![Proof HTML](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/proof-html.yml/badge.svg)
-
-<!-- ![Backend Test](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/test-backend.yml/badge.svg) -->
-![security-backend](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/security.yml/badge.svg)
-![Build Status](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/ci-cd.yml/badge.svg)
-![Build Status](https://img.shields.io/github/actions/workflow/status/omnixys/omnixys-authentication-service/ci-cd.yml)
-
-![E2E Tests](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/test.yml/badge.svg)
-![E2E Test Coverage](./.extras/badges/coverage.svg)
-
-![Last Commit](https://img.shields.io/github/last-commit/omnixys/omnixys-authentication-service)
-![Issues](https://img.shields.io/github/issues/omnixys/omnixys-authentication-service)
-![Pull Requests](https://img.shields.io/github/issues-pr/omnixys/omnixys-authentication-service)
-![Activity](https://img.shields.io/github/commit-activity/m/omnixys/omnixys-authentication-service)
-![Code Size](https://img.shields.io/github/languages/code-size/omnixys/omnixys-authentication-service)
-![Primary Language](https://img.shields.io/github/languages/top/omnixys/omnixys-authentication-service)
-
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE.md)
-[![Security Policy](https://img.shields.io/badge/security-policy-blue)](./SECURITY.md)
-[![Made with ❤ by Omnixys](https://img.shields.io/badge/made%20with-%E2%9D%A4-ff69b4)](https://omnixys.com)
-![Node](https://img.shields.io/badge/node-24.10.0-green)
-
-# 🛡️ Omnixys Authentication Service
+<h1 align="center">🛡️ Omnixys Authentication Service</h1>
 
 <p align="center">
-  <img src="https://omnixys.com/assets/logo.png" width="150" alt="Omnixys Logo" />
+  <picture>
+    <!-- Dark-Mode Logo-Background -->
+    <!-- <source media="(prefers-color-scheme: dark)" srcset="https://svg.omnixys-cdn.com/brand/omnixys-bg-dark.svg" /> -->
+     <source media="(prefers-color-scheme: dark)" srcset="public/omnixys-bg-dark.png" />
+    <!-- Light-Mode Logo-Background -->
+    <!-- <source media="(prefers-color-scheme: light)" srcset="https://svg.omnixys-cdn.com/brand/omnixys-bg-light.svg" /> -->
+     <source media="(prefers-color-scheme: light)" srcset="public/omnixys-bg-dark.png" />
+    <!-- Fallback (local logo) -->
+    <img src="public/omnixys-bg-dark.png" alt="Omnixys Logo" width="180" />
+  </picture>
+</p>
+
+<p align="center">
+  <em style="color:#6A4BBC; font-weight:500;">The Fabric of Modular Innovation</em>
+</p>
+
+---
+
+<!-- ![Auto Assign](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/auto-assign.yml/badge.svg)
+![Proof HTML](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/proof-html.yml/badge.svg) -->
+
+<p align="center">
+  <!-- CI/CD Badges -->
+  <img src="https://github.com/omnixys/omnixys-authentication-service/actions/workflows/ci-cd.yml/badge.svg" alt="Build Status" />
+  <img src="https://github.com/omnixys/omnixys-authentication-service/actions/workflows/test.yml/badge.svg" alt="E2E Tests" />
+  <img src="https://github.com/omnixys/omnixys-authentication-service/actions/workflows/security.yml/badge.svg" alt="Security Audit" />
+  <a href="./.extras/badges/coverage.svg">
+    <img src="./.extras/badges/coverage.svg" alt="Test Coverage" />
+  </a>
+</p>
+
+<p align="center">
+  <!-- Repo Metrics -->
+  <img src="https://img.shields.io/github/last-commit/omnixys/omnixys-authentication-service?label=last%20commit&style=flat-square" alt="Last Commit" />
+  <img src="https://img.shields.io/github/commit-activity/m/omnixys/omnixys-authentication-service?style=flat-square" alt="Commit Activity" />
+  <img src="https://img.shields.io/github/languages/top/omnixys/omnixys-authentication-service?style=flat-square" alt="Primary Language" />
+  <img src="https://img.shields.io/github/languages/code-size/omnixys/omnixys-authentication-service?style=flat-square" alt="Code Size" />
+  <img src="https://img.shields.io/github/issues/omnixys/omnixys-authentication-service?style=flat-square" alt="Issues" />
+  <img src="https://img.shields.io/github/issues-pr/omnixys/omnixys-authentication-service?style=flat-square" alt="Pull Requests" />
+</p>
+
+<p align="center">
+  <!-- Meta / License / Branding -->
+  <a href="./LICENSE.md">
+    <img src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=flat-square" alt="License: GPLv3" />
+  </a>
+  <a href="./SECURITY.md">
+    <img src="https://img.shields.io/badge/Security-Policy-blue?style=flat-square" alt="Security Policy" />
+  </a>
+  <img src="https://img.shields.io/badge/node-24.10.0-green?style=flat-square" alt="Node Version" />
+  <a href="https://omnixys.com">
+    <img src="https://img.shields.io/badge/made%20with-%E2%9D%A4-ff69b4?style=flat-square" alt="Made with Love by Omnixys" />
+  </a>
 </p>
 
 ---
 
 ## 📖 Table of Contents
+
 
 - [🇬🇧 English Version](#-english-version)
   - [🔎 Overview](#🔎-overview)
