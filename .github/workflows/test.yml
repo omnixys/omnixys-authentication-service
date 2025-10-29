@@ -94,7 +94,8 @@ jobs:
           docker run -d --name keycloak -p 18080:8080 \
             -e KEYCLOAK_ADMIN=admin \
             -e KEYCLOAK_ADMIN_PASSWORD=admin \
-            quay.io/keycloak/keycloak:25.0 start-dev --http-port=8080
+            -v ${{ github.workspace }}/__tests__/keycloak/realm.json:/opt/keycloak/data/import/realm.json:ro \
+            quay.io/keycloak/keycloak:25.0 start-dev --import-realm --http-port=8080
           echo "⏳ Waiting for Keycloak..."
           for i in {1..30}; do
             if curl -fs http://localhost:18080/realms/master >/dev/null 2>&1; then
@@ -104,17 +105,6 @@ jobs:
             echo "waiting ($i/30)..."
             sleep 5
           done
-
-      # ⚙️ Import realm using official Keycloak Admin CLI Action
-      - name: 🧩 Import Keycloak Realm
-        uses: carlosthe19916/keycloak-action@0.7
-        with:
-          version: latest
-          server: http://localhost:18080
-          username: admin
-          password: admin
-          kcadm: |
-            create realms -f __tests__/keycloak/realm.json
 
       - name: 🧪 Run E2E Auth Tests
         env:
