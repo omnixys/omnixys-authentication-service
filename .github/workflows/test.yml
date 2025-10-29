@@ -213,26 +213,26 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-auth-${{ matrix.test-type }}-logs
+          name: e2e-auth-logs
           path: ./__tests__/reports/
 
       - name: 📊 Upload Coverage Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-auth-${{ matrix.test-type }}-coverage
+          name: e2e-auth-coverage
           path: __tests__/reports/e2e/coverage/
 
       - name: 🧾 Append Coverage Summary
         if: always()
         run: |
-          echo "### 🧪 E2E Test Summary – ${{ matrix.test-type }}" >> $GITHUB_STEP_SUMMARY
+          echo "### 🧪 E2E Test Summary" >> $GITHUB_STEP_SUMMARY
           if [ -d "./__tests__/reports/e2e/coverage" ]; then
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
             npx jest --coverage --coverageReporters=text-summary | tee -a $GITHUB_STEP_SUMMARY
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           else
-            echo "⚠️ No coverage report generated for ${{ matrix.test-type }}" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ No coverage report generated for >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: 🪶 Generate Coverage Badge
