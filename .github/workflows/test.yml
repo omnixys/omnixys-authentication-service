@@ -79,6 +79,7 @@ jobs:
         node-version: [24.10.0]
         redis-version: [7]
         postgres-version: [18]
+        test-type: [login, signup, user, admin, signum]
 
     services:
       postgres:
@@ -206,11 +207,30 @@ jobs:
       - name: 🧪 Run E2E Auth Tests
         run: |
           pnpm run build
-          pnpm run test:e2e:auth
+          pnpm run test:e2e:auth:${{ matrix.test-type }}
 
       - name: 🧾 Upload Test Logs (on failure)
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-auth-logs
+          name: e2e-auth-${{ matrix.test-type }}-logs
           path: ./__tests__/reports/
+
+      - name: 📊 Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-auth-${{ matrix.test-type }}-coverage
+          path: __tests__/reports/e2e/coverage/
+
+      - name: 🧾 Append Coverage Summary
+        if: always()
+        run: |
+          echo "### 🧪 E2E Test Summary – ${{ matrix.test-type }}" >> $GITHUB_STEP_SUMMARY
+          if [ -d "__tests__/reports/e2e/coverage" ]; then
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            npx jest --coverage --coverageReporters=text-summary | tee -a $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ No coverage report generated for ${{ matrix.test-type }}" >> $GITHUB_STEP_SUMMARY
+          fi

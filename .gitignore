@@ -18,6 +18,7 @@
 /dist
 /node_modules
 /build
+**/reports/**
 
 # TypeScript build cache
 *.tsbuildinfo

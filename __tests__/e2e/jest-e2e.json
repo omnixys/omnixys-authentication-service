@@ -31,7 +31,29 @@
     }
   },
   "setupFilesAfterEnv": ["<rootDir>/setup-e2e.ts"],
-"testEnvironmentOptions": {
-  "url": "http://localhost/"
-}
+  "testEnvironmentOptions": {
+    "url": "http://localhost/"
+  },
+  "collectCoverage": true,
+  "collectCoverageFrom": [
+    "src/**/*.ts",
+    "!src/main.ts",
+    "!src/**/*.module.ts",
+    "!**/node_modules/**",
+    "!**/dist/**"
+  ],
+  "coverageDirectory": "../reports/e2e/coverage",
+  "coverageReporters": ["text-summary", "lcov", "html"],
+
+  "reporters": [
+    "default",
+    [
+      "jest-junit",
+      {
+        "outputDirectory": "__tests__/reports/e2e/junit",
+        "outputName": "junit-results.xml",
+        "suiteName": "E2E Authentication Tests"
+      }
+    ]
+  ]
 }
