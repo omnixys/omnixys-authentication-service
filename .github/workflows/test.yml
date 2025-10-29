@@ -267,12 +267,22 @@ jobs:
             --output __tests__/reports/e2e/coverage/coverage.svg
         continue-on-error: true
 
-
-
       - name: 📤 Upload Coverage Badge
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-badge
           path: ./coverage/badge.svg
+
+      - name: 💾 Commit Coverage Badge to Repo
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          cp ./coverage/badge.svg .extras/badge/coverage.svg
+          git add .extras/badge/coverage.svg 
+          git commit -m "ci: update coverage badge [skip ci]" || echo "No changes to commit"
+          git push origin main
 

@@ -5,7 +5,9 @@
 ![security-backend](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/security.yml/badge.svg)
 ![Build Status](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/ci-cd.yml/badge.svg)
 ![Build Status](https://img.shields.io/github/actions/workflow/status/omnixys/omnixys-authentication-service/ci-cd.yml)
+
 ![E2E Tests](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/test.yml/badge.svg)
+![E2E Test Coverage](./.extras/badge/coverage.svg)
 
 ![Last Commit](https://img.shields.io/github/last-commit/omnixys/omnixys-authentication-service)
 ![Issues](https://img.shields.io/github/issues/omnixys/omnixys-authentication-service)
@@ -17,6 +19,8 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE.md)
 [![Security Policy](https://img.shields.io/badge/security-policy-blue)](./SECURITY.md)
 [![Made with ❤ by Omnixys](https://img.shields.io/badge/made%20with-%E2%9D%A4-ff69b4)](https://omnixys.com)
+![Node](https://img.shields.io/badge/node-24.10.0-green)
+
 # 🛡️ Omnixys Auth Service
 
 <p align="center">
