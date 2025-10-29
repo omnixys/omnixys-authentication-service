@@ -89,34 +89,28 @@ jobs:
           pnpm install --frozen-lockfile
 
       # 🚀 Start Keycloak as background container manually
-      - name: 🚀 Start Keycloak
+      - name: 🚀 Start Keycloak (26.3.2)
         run: |
           docker run -d --name keycloak -p 18080:8080 \
             -e KEYCLOAK_ADMIN=admin \
             -e KEYCLOAK_ADMIN_PASSWORD=admin \
-            -e KC_FEATURES=token-exchange,scripts \
-            -v ${{ github.workspace }}/__tests__/keycloak/realm.json:/opt/keycloak/data/import/realm.json:ro \
+            -v "$(pwd)/__tests__/keycloak/realm-clean.json:/opt/keycloak/data/import/realm.json:ro" \
             quay.io/keycloak/keycloak:26.3.2 \
-            start-dev --import-realm \
-              --features=scripts,token-exchange \
-              --spi-scripts-provider=script \
-              --spi-scripts-enabled=true \
-              --http-port=8080
-          echo "⏳ Waiting for Keycloak to finish realm import..."
-          for i in {1..5}; do
-            if curl -fs http://localhost:18080/health/ready >/dev/null 2>&1; then
-              echo "✅ Keycloak is fully READY (after $i checks)"
-              break
+            start-dev --import-realm --http-port=8080
+      
+          echo "⏳ Waiting for Keycloak..."
+          for i in {1..40}; do
+            if curl -fs http://localhost:18080/realms/camunda-platform >/dev/null 2>&1; then
+              echo "✅ Keycloak ready after $i checks"
+              exit 0
             fi
-            echo "waiting ($i/5)..."
+            echo "waiting ($i/40)..."
             sleep 5
           done
-
-          if [ $i -eq 5 ]; then
-            echo "❌ Keycloak did not become ready in time. Dumping logs..."
-            docker logs keycloak || true
-            exit 1
-          fi
+      
+          echo "❌ Keycloak did not become ready in time. Dumping logs..."
+          docker logs keycloak
+          exit 1
 
       - name: 🧪 Run E2E Auth Tests
         env:
