@@ -51,7 +51,7 @@
   ],
   "coverageDirectory": "./__tests__/reports/coverage",
   "coverageReporters": ["text-summary", "lcov", "html"],
-    "coverageProvider": "babel",
+  "coverageProvider": "babel",
 
   "reporters": [
     "default",
@@ -64,5 +64,4 @@
       }
     ]
   ]
-
 }

@@ -3,8 +3,9 @@
 
 <!-- ![Backend Test](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/test-backend.yml/badge.svg) -->
 ![security-backend](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/security.yml/badge.svg)
+![Build Status](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/ci-cd.yml/badge.svg)
 ![Build Status](https://img.shields.io/github/actions/workflow/status/omnixys/omnixys-authentication-service/ci-cd.yml)
-![E2E Tests](https://img.shields.io/github/actions/workflow/status/omnixys/omnixys-authentication-service/test.yml)
+![E2E Tests](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/test.yml/badge.svg)
 
 ![Last Commit](https://img.shields.io/github/last-commit/omnixys/omnixys-authentication-service)
 ![Issues](https://img.shields.io/github/issues/omnixys/omnixys-authentication-service)

@@ -40,12 +40,11 @@
     "test:e2e": "NODE_OPTIONS='--experimental-vm-modules' jest --config ./__tests__/e2e/jest-e2e.json --passWithNoTests",
     "typedoc": "typedoc",
     "depcheck": "depcheck",
-    "test:e2e:auth": "NODE_OPTIONS='--experimental-vm-modules' jest --config ./__tests__/e2e/jest-e2e.json --maxWorkers=4",
+    "test:e2e:auth": "NODE_OPTIONS='--experimental-vm-modules' jest --config ./jest-e2e.json --maxWorkers=4 --coverage",
     "test:e2e:auth:login": "pnpm run test:e2e:auth -- __tests__/e2e/auth/auth.login.e2e-spec.ts",
-    "test:e2e:auth:signup": "pnpm run test:e2e:auth -- __tests__/e2e/auth/auth.signup.e2e-spec.ts",
+        "test:e2e:auth:signup": "pnpm run test:e2e:auth -- __tests__/e2e/auth/auth.signup.e2e-spec.ts",
     "test:e2e:auth:user": "pnpm run test:e2e:auth -- __tests__/e2e/auth/auth.user.e2e-spec.ts",
-    "test:e2e:auth:admin": "pnpm run test:e2e:auth -- __tests__/e2e/auth/auth.admin.e2e-spec.ts",
-    "test:e2e:auth2": "NODE_OPTIONS='--experimental-vm-modules' jest --config ./jest-e2e.json --maxWorkers=4 --coverage"
+    "test:e2e:auth:admin": "pnpm run test:e2e:auth -- __tests__/e2e/auth/auth.admin.e2e-spec.ts"
   },
   "dependencies": {
     "@apollo/server": "^5.0.0",

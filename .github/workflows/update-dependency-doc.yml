@@ -16,9 +16,9 @@
 name: 🔄 Update Dependency Management Docs
 
 on:
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
