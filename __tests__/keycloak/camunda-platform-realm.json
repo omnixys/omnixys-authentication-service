@@ -1049,13 +1049,9 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
-      "redirectUris": [
-        "http://localhost:8084/auth/login-callback"
-      ],
-      "webOrigins": [
-        "+"
-      ],
+      "secret": "camunda-secret",
+      "redirectUris": ["http://localhost:8084/auth/login-callback"],
+      "webOrigins": ["+"],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
@@ -1168,7 +1164,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "camunda-secret",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -1214,9 +1210,7 @@
             "type": "urn:camunda-identity-resource-server:resources:default",
             "ownerManagedAccess": false,
             "attributes": {},
-            "uris": [
-              "/*"
-            ]
+            "uris": ["/*"]
           }
         ],
         "policies": [],
@@ -1232,7 +1226,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "camunda-secret",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -1353,7 +1347,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "camunda-secret",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -1399,9 +1393,7 @@
             "type": "urn:console-api:resources:default",
             "ownerManagedAccess": false,
             "attributes": {},
-            "uris": [
-              "/*"
-            ]
+            "uris": ["/*"]
           }
         ],
         "policies": [],
@@ -1417,13 +1409,9 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
-      "redirectUris": [
-        "http://localhost:8083/api/authentication/callback"
-      ],
-      "webOrigins": [
-        "+"
-      ],
+      "secret": "camunda-secret",
+      "redirectUris": ["http://localhost:8083/api/authentication/callback"],
+      "webOrigins": ["+"],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
@@ -1481,7 +1469,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "camunda-secret",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -1527,9 +1515,7 @@
             "type": "urn:optimize-api:resources:default",
             "ownerManagedAccess": false,
             "attributes": {},
-            "uris": [
-              "/*"
-            ]
+            "uris": ["/*"]
           }
         ],
         "policies": [],
@@ -1545,13 +1531,9 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
-      "redirectUris": [
-        "http://localhost:8088/sso-callback"
-      ],
-      "webOrigins": [
-        "+"
-      ],
+      "secret": "camunda-secret",
+      "redirectUris": ["http://localhost:8088/sso-callback"],
+      "webOrigins": ["+"],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
@@ -1609,7 +1591,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "camunda-secret",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -1655,9 +1637,7 @@
             "type": "urn:orchestration-api:resources:default",
             "ownerManagedAccess": false,
             "attributes": {},
-            "uris": [
-              "/*"
-            ]
+            "uris": ["/*"]
           }
         ],
         "policies": [],
@@ -1823,7 +1803,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "camunda-secret",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -1869,9 +1849,7 @@
             "type": "urn:web-modeler-api:resources:default",
             "ownerManagedAccess": false,
             "attributes": {},
-            "uris": [
-              "/*"
-            ]
+            "uris": ["/*"]
           }
         ],
         "policies": [],
