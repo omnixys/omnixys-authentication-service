@@ -32,7 +32,7 @@ async function verifyKeycloak(): Promise<void> {
 
   const url = `${base}/realms/${realm}`;
   console.log('ASDASDASDASDASDASDASDASDASDSDASDASDASDASDASDASDASDASD');
-  console.log(url);
+  console.log('[DEBUG] KC_URL (base64):', Buffer.from(url).toString('base64'));
 
   try {
     const res = await axios.get(url);
