@@ -265,9 +265,7 @@ jobs:
         run: |
           mkdir -p coverage
           cp __tests__/reports/e2e/coverage/coverage-summary.json coverage/
-          npx make-coverage-badge \
-            --input __tests__/reports/e2e/coverage/lcov.info \
-            --output __tests__/reports/e2e/coverage/coverage.svg
+          npx make-coverage-badge 
         continue-on-error: true
 
       - name: 📤 Upload Coverage Badge
@@ -277,6 +275,19 @@ jobs:
           name: coverage-badge
           path: ./coverage/badge.svg
 
+      - name: 🗂️ Ensure .extras/badges directory exists
+        if: always()
+        run: |
+          # defensiv prüfen, ob .extras/badges ein echtes Verzeichnis ist
+          if [ -e ".extras/badges" ] && [ ! -d ".extras/badges" ]; then
+            echo "⚠️ .extras/badges exists but is not a directory. Removing..."
+            rm -f .extras/badges
+          fi
+          mkdir -p .extras/badges
+
+      - name: 🕒 Archive Coverage Badge
+        run: cp ./coverage/badge.svg .extras/badges/coverage.svg
+
       - name: 💾 Commit Coverage Badge to Repo
         if: success()
         run: |
@@ -284,8 +295,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin main
           git checkout main
-          cp ./coverage/badge.svg .extras/badge/coverage.svg
-          git add .extras/badge/coverage.svg 
+          git add .extras/badges/coverage.svg 
           git commit -m "ci: update coverage badge [skip ci]" || echo "No changes to commit"
           git push origin main
 
