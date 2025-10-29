@@ -168,7 +168,7 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
 
       - name: Lint code
-        run: pnpm eslint
+        run: pnpm lint
 
       - name: Security audit
         run: pnpm audit
