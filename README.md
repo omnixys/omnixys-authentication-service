@@ -7,7 +7,7 @@
 ![Build Status](https://img.shields.io/github/actions/workflow/status/omnixys/omnixys-authentication-service/ci-cd.yml)
 
 ![E2E Tests](https://github.com/omnixys/omnixys-authentication-service/actions/workflows/test.yml/badge.svg)
-![E2E Test Coverage](./.extras/badge/coverage.svg)
+![E2E Test Coverage](./.extras/badges/coverage.svg)
 
 ![Last Commit](https://img.shields.io/github/last-commit/omnixys/omnixys-authentication-service)
 ![Issues](https://img.shields.io/github/issues/omnixys/omnixys-authentication-service)
