@@ -104,18 +104,18 @@ jobs:
               echo "✅ Base realm 'master' available (after $i checks)"
               break
             fi
-            echo "waiting for master realm ($i/7)..."
+            echo "waiting for master realm ($i/40)..."
             sleep 5
           done
 
           echo "⏳ Waiting for imported realm 'camunda-platform'..."
-          for i in {1..20}; do
+          for i in {1..100}; do
             if curl -fs http://localhost:18080/realms/camunda-platform >/dev/null 2>&1; then
               echo "✅ Realm 'camunda-platform' available (after $i checks)"
               docker ps
               exit 0
             fi
-            echo "waiting for camunda-platform realm ($i/10)..."
+            echo "waiting for camunda-platform realm ($i/100)..."
             sleep 5
           done
 
