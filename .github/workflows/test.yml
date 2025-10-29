@@ -102,7 +102,7 @@ jobs:
           for i in {1..7}; do
             if  curl -fs http://localhost:18080/realms/master >/dev/null 2>&1; then
               echo "✅ Base realm 'master' available (after $i checks)"
-              exit 0
+              break
             fi
             echo "waiting for master realm ($i/7)..."
             sleep 5
