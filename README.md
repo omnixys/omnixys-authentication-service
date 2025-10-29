@@ -218,7 +218,6 @@ Never use them in production — instead, inject credentials through your CI/CD 
 | `OMNIXYS_USER_USERNAME`  | Standard user username              | `user`                        |
 | `OMNIXYS_USER_PASSWORD`  | Standard user password              | `change-me`                   |
 | `OMNIXYS_EMAIL_DOMAIN`   | Default email domain for test users | `omnixys.com`                 |
-| `KC_TEST_URL`            | Keycloak base URL for test realm    | `http://localhost:18080/auth` |
 
 ---
 

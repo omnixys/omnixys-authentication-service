@@ -17,7 +17,7 @@
 
 /* eslint-disable no-console */
 import { AppModule } from '../../src/app.module.js';
-// import { env } from '../env.js';
+import { env } from '../env.js';
 import { type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import axios, { type AxiosError } from 'axios';
@@ -27,10 +27,10 @@ import axios, { type AxiosError } from 'axios';
 // =====================================================
 
 async function verifyKeycloak(): Promise<void> {
-  // const base = env.KC_TEST_URL;
-  // const realm = env.KC_REALM;
+  const base = env.KC_URL;
+  const realm = env.KC_REALM;
 
-  const url = `$http://localhost:18080/realms/camunda-platform`;
+  const url = `${base}/realms/${realm}`;
 
   try {
     const res = await axios.get(url);
