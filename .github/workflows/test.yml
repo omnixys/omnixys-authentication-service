@@ -238,8 +238,7 @@ jobs:
       - name: 🪶 Generate Coverage Badge
         if: always()
         run: |
-          npm install -g genbadge
-          genbadge coverage -i ./__tests__/reports/e2e/coverage/lcov.info -o coverage.svg
+          npx make-coverage-badge --input ./__tests__/reports/e2e/coverage/lcov.info --output coverage.svg
         continue-on-error: true
 
 
