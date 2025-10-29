@@ -22,7 +22,7 @@ import { env } from './env.js';
 import type { Consumer } from 'kafkajs';
 import { Kafka, Partitioners, logLevel } from 'kafkajs';
 
-const { SERVICE, KAFKA_BROKER } = env;
+const { SERVICE, KAFKA_URI } = env;
 
 /**
  * Kafka-Konfiguration für den Microservice.
@@ -30,7 +30,7 @@ const { SERVICE, KAFKA_BROKER } = env;
  */
 export const kafka = new Kafka({
   clientId: `omnixys-${SERVICE}`,
-  brokers: [KAFKA_BROKER],
+  brokers: [KAFKA_URI],
   logLevel: logLevel.INFO,
   connectionTimeout: 10000,
   requestTimeout: 30000,

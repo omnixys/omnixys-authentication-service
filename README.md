@@ -198,7 +198,7 @@ All values can be defined in a local `.env` file or injected via Docker Compose 
 | `GRAPHQL_PLAYGROUND` | Enables GraphQL Playground for development             | `true`                            |
 | `HTTPS`              | Enables HTTPS mode (`true` / `false`)                  | `false`                           |
 | `KEYS_PATH`          | Path to SSL/TLS certificate key files                  | `../../keys`                      |
-| `KAFKA_BROKER`       | Kafka broker connection (host:port)                    | `localhost:9092`                  |
+| `KAFKA_URL`          | Kafka broker connection (host:port)                    | `localhost:9092`                  |
 | `TEMPO_URI`          | Tempo tracing collector endpoint                       | `http://localhost:4318/v1/traces` |
 
 ---
@@ -229,15 +229,15 @@ All values can be defined in a local `.env` file or injected via Docker Compose 
 
 #### 💾 Redis Configuration
 
-| Variable         | Description                                | Default                                        |
-| ---------------- | ------------------------------------------ | ---------------------------------------------- |
-| `REDIS_HOST`     | Redis hostname                             | `127.0.0.1`                                    |
-| `REDIS_PORT`     | Redis port                                 | `6379`                                         |
-| `REDIS_USERNAME` | Redis username (optional)                  | *(empty)*                                      |
-| `REDIS_PASSWORD` | Redis password (optional)                  | `strongPassword123`                            |
-| `REDIS_URL`      | Full Redis connection URI                  | `redis://:${REDIS_PASSWORD}@localhost:6379`    |
-| `PC_JWE_KEY`     | Symmetric encryption key for cached tokens | `KyzH+ACxa2z97O1o647pl3IehIZTVPQ2nZd9TPqmb8o=` |
-| `PC_TTL_SEC`     | Time-to-live for token cache (seconds)     | `2592000`                                      |
+| Variable          | Description                                | Default                                        |
+| ----------------- | ------------------------------------------ | ---------------------------------------------- |
+| `REDIS_HOST`      | Redis hostname                             | `127.0.0.1`                                    |
+| `REDIS_PORT`      | Redis port                                 | `6379`                                         |
+| `REDIS_USERNAME`  | Redis username (optional)                  | *(empty)*                                      |
+| `REDIS_PASSWORD`  | Redis password (optional)                  | `strongPassword123`                            |
+| `REDIS_URL`       | Full Redis connection URI                  | `redis://:${REDIS_PASSWORD}@localhost:6379`    |
+| `REDIS_PC_JWE_KEY`| Symmetric encryption key for cached tokens | `KyzH+ACxa2z97O1o647pl3IehIZTVPQ2nZd9TPqmb8o=` |
+| `REDIS_PC_TTL_SEC`| Time-to-live for token cache (seconds)     | `2592000`                                      |
 
 ---
 

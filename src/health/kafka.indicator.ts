@@ -20,12 +20,12 @@ import { Injectable } from '@nestjs/common';
 import { HealthIndicatorResult } from '@nestjs/terminus';
 import { Kafka } from 'kafkajs';
 
-const { KAFKA_BROKER } = env;
+const { KAFKA_URI } = env;
 @Injectable()
 export class KafkaIndicator {
   async isHealthy(): Promise<HealthIndicatorResult> {
     const kafka = new Kafka({
-      brokers: [KAFKA_BROKER],
+      brokers: [KAFKA_URI],
       clientId: 'health-check',
     });
 

@@ -57,10 +57,6 @@ describe('🛡️ Auth E2E - Admin Operations (Full Flow)', () => {
         }) { accessToken }
       }
     `;
-    console.log(
-      `ADASDASDASDASD: username: ${process.env.OMNIXYS_ADMIN_USERNAME} password ${process.env.OMNIXYS_ADMIN_PASSWORD}`,
-    );
-    console.log(`ADASDASDASDASD: Query: ${loginQ}`);
     const { data, cookies: setCookies } = await gqlRequest(app, loginQ);
     cookies = setCookies ?? [];
     accessToken = data?.login?.accessToken;

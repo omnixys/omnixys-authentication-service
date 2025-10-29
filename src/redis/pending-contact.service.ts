@@ -31,9 +31,9 @@ export class PendingContactService {
   }
 
   private getKeyMaterial(): Uint8Array {
-    const raw = process.env.PC_JWE_KEY;
+    const raw = process.env.REDIS_PC_JWE_KEY;
     if (!raw) {
-      throw new Error('PC_JWE_KEY missing (32 bytes base64 recommended)');
+      throw new Error('REDIS_PC_JWE_KEY missing (32 bytes base64 recommended)');
     }
     // base64 oder utf8 zulassen
     try {
@@ -49,7 +49,7 @@ export class PendingContactService {
 
   async put(
     input: Omit<PendingContact, 'id' | 'createdAt'>,
-    ttlSec = Number(process.env.PC_TTL_SEC ?? 60 * 60 * 24 * 30),
+    ttlSec = Number(process.env.REDIS_PC_TTL_SEC ?? 60 * 60 * 24 * 30),
   ): Promise<string> {
     const id = randomUUID();
     const payload: PendingContact = { ...input, id, createdAt: Date.now() };

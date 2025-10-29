@@ -27,11 +27,7 @@ import path from 'path';
 // 🧩 ENVIRONMENT SETUP
 // =====================================================
 
-const envPath =
-  process.env.TEST_MODE === 'live'
-    ? path.resolve(process.cwd(), '.env')
-    : path.resolve(process.cwd(), '.health.env');
-
+const envPath = path.resolve(process.cwd(), '.env');
 dotenv.config({ path: envPath });
 console.log(`[setup-e2e] loaded env from ${envPath}`);
 

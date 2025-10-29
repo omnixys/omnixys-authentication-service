@@ -66,7 +66,7 @@ export const env = {
   KC_URL: process.env.KC_URL ?? 'http://localhost:18080/auth',
   KC_REALM: process.env.KC_REALM ?? 'camunda-platform',
   KC_CLIENT_ID: process.env.KC_CLIENT_ID ?? 'camunda-identity',
-  KAFKA_BROKER: process.env.KAFKA_BROKER ?? '9092',
+  KAFKA_URI: process.env.KAFKA_URI ?? '9092',
   SERVICE: process.env.SERVICE ?? '',
 } as const;
 

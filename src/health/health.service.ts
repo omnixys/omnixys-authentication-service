@@ -17,7 +17,7 @@
 
 import { env } from '../config/env.js';
 import { Injectable } from '@nestjs/common';
-import { readFileSync, existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { Kafka } from 'kafkajs';
 
 export interface CheckHealth {
@@ -27,7 +27,7 @@ export interface CheckHealth {
   tlsKey: string;
 }
 
-const { KAFKA_BROKER, KEYS_PATH } = env;
+const { KAFKA_URI, KEYS_PATH } = env;
 @Injectable()
 export class HealthService {
   async checkHealth(): Promise<CheckHealth> {
@@ -46,7 +46,7 @@ export class HealthService {
   private async checkKafka(): Promise<string> {
     try {
       const kafka = new Kafka({
-        brokers: [KAFKA_BROKER],
+        brokers: [KAFKA_URI],
         clientId: 'health-check',
       });
       const admin = kafka.admin();
