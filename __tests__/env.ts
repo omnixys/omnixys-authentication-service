@@ -19,7 +19,7 @@ import 'dotenv/config';
 import process from 'node:process';
 
 export const env = {
-  KC_TEST_URL: process.env.KC_TEST_URL ?? 'http://localhost:18080/auth',
+  KC_TEST_URL: process.env.KC_TEST_URL ?? 'http://localhost:18080',
   KC_REALM: process.env.KC_REALM ?? 'camunda-platform',
   OMNIXYS_ADMIN_USERNAME: process.env.OMNIXYS_ADMIN_USERNAME ?? 'admin',
   OMNIXYS_ADMIN_PASSWORD: process.env.OMNIXYS_ADMIN_PASSWORD ?? 'p',
