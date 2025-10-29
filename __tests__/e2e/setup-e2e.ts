@@ -36,7 +36,7 @@ console.log(`[setup-e2e] loaded env from ${envPath}`);
 // =====================================================
 
 async function verifyKeycloak(): Promise<void> {
-  const base = process.env.KC_URL?.replace(/\/$/, '');
+  const base = process.env.KC_TEST_URL?.replace(/\/$/, '');
   const realm = process.env.KC_REALM;
   if (!base || !realm) {
     console.warn('[Keycloak] ⚠️ KC_URL or KC_REALM not set — skipping check.');

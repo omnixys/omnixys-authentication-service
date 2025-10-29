@@ -185,74 +185,103 @@ auth/
 
 ---
 
-### ⚙️ Environment Variables
+## ⚙️ Environment Configuration
 
-The following environment variables configure the **Omnixys Authentication Service**.
-All values can be defined in a local `.env` file or injected via **Docker Compose**, **Kubernetes Secrets**, or your CI/CD environment.
-
----
-
-#### 🧩 Core Configuration
-
-| Variable             | Description                                               | Default                           |
-| -------------------- | --------------------------------------------------------- | --------------------------------- |
-| `NODE_ENV`           | Runtime environment (`development`, `production`, `test`) | `development`                     |
-| `SERVICE`            | Logical service name (used in logs and tracing)           | `authentication`                  |
-| `PORT`               | HTTP server port for the NestJS application               | `7501`                            |
-| `GRAPHQL_PLAYGROUND` | Enables GraphQL Playground for local development          | `true`                            |
-| `HTTPS`              | Enables HTTPS mode (`true` / `false`)                     | `false`                           |
-| `KEYS_PATH`          | Path to SSL/TLS key and certificate files                 | `../../keys`                      |
-| `KAFKA_URI`          | Kafka broker connection string (`host:port`)              | `localhost:9092`                  |
-| `TEMPO_URL`          | Tempo tracing collector endpoint                          | `http://localhost:4318/v1/traces` |
+The **Omnixys Authentication Service** uses environment variables to control runtime behavior, security integration, and observability.
+All values can be defined in a local `.env` file or provided via **Docker Compose**, **Kubernetes Secrets**, or CI/CD environments (e.g., GitHub Actions).
 
 ---
 
-#### 🧾 Logging Configuration
+### 🧩 Core Application Settings
 
-| Variable                | Description                                    | Default      |
-| ----------------------- | ---------------------------------------------- | ------------ |
-| `LOG_LEVEL`             | Log level (`debug`, `info`, `warn`, `error`)   | `debug`      |
-| `LOG_PRETTY`            | Pretty-prints logs (recommended for local use) | `true`       |
-| `LOG_DEFAULT`           | Enables default console/file logger            | `false`      |
-| `LOG_DIRECTORY`         | Directory for log file output                  | `log`        |
-| `LOG_FILE_DEFAULT_NAME` | Default log filename                           | `server.log` |
-
----
-
-#### 🔑 Keycloak Configuration
-
-| Variable           | Description                         | Default                       |
-| ------------------ | ----------------------------------- | ----------------------------- |
-| `KC_URL`           | Base URL of the Keycloak instance   | `http://localhost:18080/auth` |
-| `KC_REALM`         | Keycloak realm name                 | `camunda-platform`            |
-| `KC_CLIENT_ID`     | Registered client ID                | `camunda-identity`            |
-| `KC_CLIENT_SECRET` | Client secret for secure API access | *(none)*                      |
-| `KC_ADMIN_USER`    | Administrator username for Keycloak | `admin`                       |
-| `KC_ADMIN_PASS`    | Administrator password for Keycloak | `admin`                       |
+| Variable             | Description                                          | Default          |
+| -------------------- | ---------------------------------------------------- | ---------------- |
+| `SERVICE`            | Logical name of the microservice                     | `authentication` |
+| `PORT`               | Port on which the NestJS service listens             | `7501`           |
+| `GRAPHQL_PLAYGROUND` | Enables GraphQL Playground for development           | `true`           |
+| `KEYS_PATH`          | Relative path to SSL/TLS key and certificate files   | `../../keys`     |
+| `NODE_ENV`           | Execution mode (`development`, `production`, `test`) | `development`    |
+| `HTTPS`              | Enables HTTPS (`true` / `false`)                     | `false`          |
+| `KAFKA_URI`          | Kafka broker address (`host:port`)                   | `localhost:9092` |
 
 ---
 
-#### 💾 Redis Configuration
+### 🧪 Test Credentials
 
-| Variable           | Description                                | Default                                        |
-| ------------------ | ------------------------------------------ | ---------------------------------------------- |
-| `REDIS_HOST`       | Redis hostname                             | `127.0.0.1`                                    |
-| `REDIS_PORT`       | Redis port                                 | `6379`                                         |
-| `REDIS_USERNAME`   | Redis username (optional)                  | *(empty)*                                      |
-| `REDIS_PASSWORD`   | Redis password (optional)                  | *(empty)*                                      |
-| `REDIS_URL`        | Full Redis connection URI                  | `redis://:${REDIS_PASSWORD}@localhost:6379`    |
-| `REDIS_PC_JWE_KEY` | Symmetric encryption key for cached tokens | `KyzH+ACxa2z97O1o647pl3IehIZTVPQ2nZd9TPqmb8o=` |
-| `REDIS_PC_TTL_SEC` | Token cache time-to-live (in seconds)      | `2592000` (= 30 days)                          |
+These variables are used for local E2E and integration testing.
+Never use them in production — instead, inject credentials through your CI/CD secrets store.
+
+| Variable                 | Description                         | Default                       |
+| ------------------------ | ----------------------------------- | ----------------------------- |
+| `OMNIXYS_ADMIN_USERNAME` | Administrator username              | `admin`                       |
+| `OMNIXYS_ADMIN_PASSWORD` | Administrator password              | `change-me`                   |
+| `OMNIXYS_USER_USERNAME`  | Standard user username              | `user`                        |
+| `OMNIXYS_USER_PASSWORD`  | Standard user password              | `change-me`                   |
+| `OMNIXYS_EMAIL_DOMAIN`   | Default email domain for test users | `omnixys.com`                 |
+| `KC_TEST_URL`            | Keycloak base URL for test realm    | `http://localhost:18080/auth` |
 
 ---
 
-#### 📊 Health & Monitoring
+### 🪵 Logging Configuration
 
-| Variable                | Description                        | Default                           |
-| ----------------------- | ---------------------------------- | --------------------------------- |
-| `KEYCLOAK_HEALTH_URL`   | Keycloak health endpoint           | `http://localhost:18080/auth`     |
-| `TEMPO_HEALTH_URL`      | Tempo metrics endpoint             | `http://localhost:3200/metrics`   |
-| `PROMETHEUS_HEALTH_URL` | Prometheus metrics target endpoint | `http://localhost:9090/-/healthy` |
+| Variable                | Description                                       | Default      |
+| ----------------------- | ------------------------------------------------- | ------------ |
+| `LOG_LEVEL`             | Minimum log level (`debug`, `info`, `warn`, etc.) | `debug`      |
+| `LOG_PRETTY`            | Pretty-print logs for readability (dev only)      | `true`       |
+| `LOG_DEFAULT`           | Enables NestJS default logger output              | `false`      |
+| `LOG_DIRECTORY`         | Folder for file-based logs                        | `log`        |
+| `LOG_FILE_DEFAULT_NAME` | Default filename for generated logs               | `server.log` |
+
+---
+
+### 🔐 Keycloak Configuration
+
+Defines connection parameters for the integrated **Keycloak Identity Provider**.
+Required for authentication, authorization, and token issuance.
+
+| Variable           | Description                               | Default                       |
+| ------------------ | ----------------------------------------- | ----------------------------- |
+| `KC_URL`           | Base URL of the Keycloak instance         | `http://localhost:18080/auth` |
+| `KC_REALM`         | Keycloak realm name                       | `camunda-platform`            |
+| `KC_CLIENT_ID`     | Registered Keycloak client ID             | `camunda-identity`            |
+| `KC_CLIENT_SECRET` | Secret for the configured Keycloak client | *(none)*                      |
+| `KC_ADMIN_USER`    | Keycloak admin username                   | `admin`                       |
+| `KC_ADMIN_PASS`    | Keycloak admin password                   | `change-me`                   |
+
+---
+
+### 💾 Redis Configuration
+
+Defines the in-memory data store used for token caching, rate limiting, and user sessions.
+
+| Variable           | Description                                    | Default             |
+| ------------------ | ---------------------------------------------- | ------------------- |
+| `REDIS_HOST`       | Redis hostname                                 | `127.0.0.1`         |
+| `REDIS_PORT`       | Redis port                                     | `6379`              |
+| `REDIS_USERNAME`   | Redis username (optional)                      | *(empty)*           |
+| `REDIS_PASSWORD`   | Redis password (optional)                      | *(empty)*           |
+| `REDIS_PC_JWE_KEY` | Encryption key used for token caching (Base64) | `your-jwe-key`      |
+| `REDIS_PC_TTL_SEC` | Token cache time-to-live (seconds)             | `2592000` (30 days) |
+
+---
+
+### 🛰️ Tracing & Observability
+
+| Variable    | Description                      | Default                           |
+| ----------- | -------------------------------- | --------------------------------- |
+| `TEMPO_URI` | Tempo tracing collector endpoint | `http://localhost:4318/v1/traces` |
+
+---
+
+### ❤️ Health Check Endpoints
+
+Defines local and remote health probe targets for monitoring (e.g., Kubernetes, Prometheus).
+
+| Variable                | Description                           | Default                           |
+| ----------------------- | ------------------------------------- | --------------------------------- |
+| `KEYCLOAK_HEALTH_URL`   | Keycloak service health endpoint      | `http://localhost:18080/auth`     |
+| `TEMPO_HEALTH_URL`      | Tempo tracing health metrics endpoint | `http://localhost:3200/metrics`   |
+| `PROMETHEUS_HEALTH_URL` | Prometheus metrics target endpoint    | `http://localhost:9090/-/healthy` |
 
 ---
 
