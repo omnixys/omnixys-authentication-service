@@ -87,7 +87,7 @@ export class BannerService implements OnApplicationBootstrap {
     this.#logger.info(chalk.cyan('client: ') + chalk.yellow(keycloak.clientId));
     this.#logger.info(chalk.cyan('Keys path: ') + chalk.yellow(keysPath));
     this.#logger.info(chalk.green('==============HEALTH==========='));
-    this.#logger.info(chalk.cyan('Kycloak Health URI') + chalk.yellow(KEYCLOAK_HEALTH_URL));
+    this.#logger.info(chalk.cyan('Kycloak Health URI: ') + chalk.yellow(KEYCLOAK_HEALTH_URL));
     this.#logger.info(chalk.cyan('Tempo Health URI: ') + chalk.yellow(TEMPO_HEALTH_URL));
     this.#logger.info(chalk.cyan('Prometheus Health URI: ') + chalk.yellow(PROMETHEUS_HEALTH_URL));
     this.#logger.info(chalk.green('==============KAFKA==========='));

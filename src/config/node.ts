@@ -56,7 +56,7 @@ const {
   LOG_PRETTY,
   LOG_LEVEL,
   SERVICE,
-  KAFKA_URI,
+  KAFKA_BROKER,
 } = env;
 
 /**
@@ -85,5 +85,5 @@ export const nodeConfig: NodeConfig = {
     logLevel: LOG_LEVEL,
   },
   serviceName: SERVICE,
-  kafkaUri: KAFKA_URI,
+  kafkaUri: KAFKA_BROKER,
 } as const;

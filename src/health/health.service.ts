@@ -27,7 +27,7 @@ export interface CheckHealth {
   tlsKey: string;
 }
 
-const { KAFKA_URI, KEYS_PATH } = env;
+const { KAFKA_BROKER, KEYS_PATH } = env;
 @Injectable()
 export class HealthService {
   async checkHealth(): Promise<CheckHealth> {
@@ -46,7 +46,7 @@ export class HealthService {
   private async checkKafka(): Promise<string> {
     try {
       const kafka = new Kafka({
-        brokers: [KAFKA_URI],
+        brokers: [KAFKA_BROKER],
         clientId: 'health-check',
       });
       const admin = kafka.admin();

@@ -32,7 +32,7 @@ env:
   POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
   POSTGRES_SQL_HOST: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5433/${{ secrets.POSTGRES_DB }}
 
-  KAFKA_URI: ${{ secrets.KAFKA_URI }}
+  KAFKA_BROKER: ${{ secrets.KAFKA_BROKER }}
   TEMPO_URI: ${{ secrets.TEMPO_URI }}
 
   KC_ADMIN_USERNAME: ${{ secrets.KC_ADMIN_USERNAME }}

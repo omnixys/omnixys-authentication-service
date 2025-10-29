@@ -69,7 +69,7 @@ export const env = {
   KC_ADMIN_USERNAME: process.env.KC_ADMIN_USERNAME ?? 'admin',
   KC_ADMIN_PASSWORD: process.env.KC_ADMIN_PASSWORD ?? 'admin',
 
-  KAFKA_URI: process.env.KAFKA_URI ?? '9092',
+  KAFKA_BROKER: process.env.KAFKA_BROKER ?? 'localhost:9092',
   SERVICE: process.env.SERVICE ?? '',
 
   KEYCLOAK_HEALTH_URL: process.env.KEYCLOAK_HEALTH_URL ?? '',

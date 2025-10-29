@@ -202,7 +202,7 @@ All values can be defined in a local `.env` file or provided via **Docker Compos
 | `KEYS_PATH`          | Relative path to SSL/TLS key and certificate files   | `../../keys`     |
 | `NODE_ENV`           | Execution mode (`development`, `production`, `test`) | `development`    |
 | `HTTPS`              | Enables HTTPS (`true` / `false`)                     | `false`          |
-| `KAFKA_URI`          | Kafka broker address (`host:port`)                   | `localhost:9092` |
+| `KAFKA_BROKER`       | Kafka broker address (`host:port`)                   | `localhost:9092` |
 
 ---
 
