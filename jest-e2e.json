@@ -49,7 +49,7 @@
     "!**/node_modules/**",
     "!**/dist/**"
   ],
-  "coverageDirectory": "./__tests__/reports/coverage",
+  "coverageDirectory": "./__tests__/reports/e2e/coverage",
   "coverageReporters": ["text-summary", "lcov", "html"],
   "coverageProvider": "babel",
 
