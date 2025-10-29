@@ -88,15 +88,14 @@ jobs:
           corepack enable
           pnpm install --frozen-lockfile
 
-      # 🚀 Start Keycloak as background container manually
       - name: 🚀 Start Keycloak (26.3.2)
         run: |
           docker run -d --name keycloak -p 18080:8080 \
             -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
             -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
-
+            -v "$(pwd)/__tests__/keycloak/realm-clean.json:/opt/keycloak/data/import/realm.json:ro" \
             quay.io/keycloak/keycloak:26.3.2 \
-            start-dev--http-port=8080
+            start-dev --import-realm --http-port=8080
 
           echo "⏳ Waiting for Keycloak..."
           for i in {1..5}; do
