@@ -1,6 +1,8 @@
 {
   "id": "camunda-platform",
   "realm": "camunda-platform",
+  "displayName": "",
+  "displayNameHtml": "",
   "notBefore": 0,
   "defaultSignatureAlgorithm": "RS256",
   "revokeRefreshToken": false,
@@ -54,18 +56,13 @@
         "composite": true,
         "composites": {
           "client": {
-            "camunda-identity-resource-server": [
-              "write",
-              "read"
-            ]
+            "camunda-identity-resource-server": ["write", "read"]
           }
         },
         "clientRole": false,
         "containerId": "camunda-platform",
         "attributes": {
-          "camunda_role": [
-            "true"
-          ]
+          "camunda_role": ["true"]
         }
       },
       {
@@ -75,18 +72,13 @@
         "composite": true,
         "composites": {
           "client": {
-            "account": [
-              "view-profile",
-              "manage-account"
-            ]
+            "account": ["view-profile", "manage-account"]
           }
         },
         "clientRole": false,
         "containerId": "camunda-platform",
         "attributes": {
-          "camunda_role": [
-            "true"
-          ]
+          "camunda_role": ["true"]
         }
       },
       {
@@ -96,20 +88,14 @@
         "composite": true,
         "composites": {
           "client": {
-            "web-modeler-api": [
-              "write:*"
-            ],
-            "camunda-identity-resource-server": [
-              "read:users"
-            ]
+            "web-modeler-api": ["write:*"],
+            "camunda-identity-resource-server": ["read:users"]
           }
         },
         "clientRole": false,
         "containerId": "camunda-platform",
         "attributes": {
-          "camunda_role": [
-            "true"
-          ]
+          "camunda_role": ["true"]
         }
       },
       {
@@ -146,18 +132,13 @@
         "composite": true,
         "composites": {
           "client": {
-            "orchestration-api": [
-              "read:*",
-              "write:*"
-            ]
+            "orchestration-api": ["read:*", "write:*"]
           }
         },
         "clientRole": false,
         "containerId": "camunda-platform",
         "attributes": {
-          "camunda_role": [
-            "true"
-          ]
+          "camunda_role": ["true"]
         }
       },
       {
@@ -167,20 +148,14 @@
         "composite": true,
         "composites": {
           "client": {
-            "optimize-api": [
-              "write:*"
-            ],
-            "camunda-identity-resource-server": [
-              "read:users"
-            ]
+            "optimize-api": ["write:*"],
+            "camunda-identity-resource-server": ["read:users"]
           }
         },
         "clientRole": false,
         "containerId": "camunda-platform",
         "attributes": {
-          "camunda_role": [
-            "true"
-          ]
+          "camunda_role": ["true"]
         }
       },
       {
@@ -198,17 +173,13 @@
         "composite": true,
         "composites": {
           "client": {
-            "console-api": [
-              "write:*"
-            ]
+            "console-api": ["write:*"]
           }
         },
         "clientRole": false,
         "containerId": "camunda-platform",
         "attributes": {
-          "camunda_role": [
-            "true"
-          ]
+          "camunda_role": ["true"]
         }
       },
       {
@@ -236,21 +207,14 @@
         "composite": true,
         "composites": {
           "client": {
-            "web-modeler-api": [
-              "admin:*",
-              "write:*"
-            ],
-            "camunda-identity-resource-server": [
-              "read:users"
-            ]
+            "web-modeler-api": ["admin:*", "write:*"],
+            "camunda-identity-resource-server": ["read:users"]
           }
         },
         "clientRole": false,
         "containerId": "camunda-platform",
         "attributes": {
-          "camunda_role": [
-            "true"
-          ]
+          "camunda_role": ["true"]
         }
       }
     ],
@@ -274,10 +238,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "realm-management": [
-                "query-users",
-                "query-groups"
-              ]
+              "realm-management": ["query-users", "query-groups"]
             }
           },
           "clientRole": true,
@@ -381,9 +342,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "realm-management": [
-                "query-clients"
-              ]
+              "realm-management": ["query-clients"]
             }
           },
           "clientRole": true,
@@ -595,9 +554,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "account": [
-                "manage-account-links"
-              ]
+              "account": ["manage-account-links"]
             }
           },
           "clientRole": true,
@@ -647,9 +604,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "account": [
-                "view-consent"
-              ]
+              "account": ["view-consent"]
             }
           },
           "clientRole": true,
@@ -677,9 +632,7 @@
     "clientRole": false,
     "containerId": "camunda-platform"
   },
-  "requiredCredentials": [
-    "password"
-  ],
+  "requiredCredentials": ["password"],
   "otpPolicyType": "totp",
   "otpPolicyAlgorithm": "HmacSHA1",
   "otpPolicyInitialCounter": 0,
@@ -694,9 +647,7 @@
   ],
   "localizationTexts": {},
   "webAuthnPolicyRpEntityName": "keycloak",
-  "webAuthnPolicySignatureAlgorithms": [
-    "ES256"
-  ],
+  "webAuthnPolicySignatureAlgorithms": ["ES256"],
   "webAuthnPolicyRpId": "",
   "webAuthnPolicyAttestationConveyancePreference": "not specified",
   "webAuthnPolicyAuthenticatorAttachment": "not specified",
@@ -707,9 +658,7 @@
   "webAuthnPolicyAcceptableAaguids": [],
   "webAuthnPolicyExtraOrigins": [],
   "webAuthnPolicyPasswordlessRpEntityName": "keycloak",
-  "webAuthnPolicyPasswordlessSignatureAlgorithms": [
-    "ES256"
-  ],
+  "webAuthnPolicyPasswordlessSignatureAlgorithms": ["ES256"],
   "webAuthnPolicyPasswordlessRpId": "",
   "webAuthnPolicyPasswordlessAttestationConveyancePreference": "not specified",
   "webAuthnPolicyPasswordlessAuthenticatorAttachment": "not specified",
@@ -721,21 +670,80 @@
   "webAuthnPolicyPasswordlessExtraOrigins": [],
   "users": [
     {
+      "id": "dde8114c-2637-462a-90b9-413924fa3f55",
+      "username": "admin",
+      "firstName": "NewMe",
+      "lastName": "Updated",
+      "email": "me@omnixys.com",
+      "emailVerified": true,
+      "enabled": true,
+      "createdTimestamp": 1761420075722,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "b7f4ace3-a978-4b92-bc20-fe4ea81e0fe1",
+          "type": "password",
+          "userLabel": "My password",
+          "createdDate": 1761420103110,
+          "secretData": "{\"value\":\"N2P3IiHYnbsBTIn8+KF7VLVtdYvlG0lCoTAUcOeSgb4=\",\"salt\":\"V9vTkQdKaRTdc+TS2RbzJQ==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["Default user role", "realm-admin"],
+      "clientRoles": {
+        "realm-management": ["manage-users"]
+      },
+      "notBefore": 0,
+      "groups": []
+    },
+    {
+      "id": "a22c88c5-52af-467f-b6dd-836845c5e860",
+      "username": "demo",
+      "firstName": "Demo",
+      "lastName": "User",
+      "email": "demo@example.org",
+      "emailVerified": false,
+      "enabled": true,
+      "createdTimestamp": 1761341234172,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "9c8e9dfd-6125-4f0e-afa7-f3a9dced8966",
+          "type": "password",
+          "createdDate": 1761341234202,
+          "secretData": "{\"value\":\"kYIzDXnRWajnSXxWvWf/dAiudw75iNGwQv57TF+32TA=\",\"salt\":\"dKCkPKcyHk0sUcrNHE8yEQ==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "ManagementIdentity",
+        "Default user role",
+        "Optimize",
+        "Web Modeler",
+        "Console",
+        "Web Modeler Admin",
+        "Orchestration"
+      ],
+      "notBefore": 0,
+      "groups": []
+    },
+    {
       "id": "aff70f85-cb0a-4be1-8275-c4a489a0ff15",
       "username": "service-account-camunda-identity",
       "emailVerified": false,
       "enabled": true,
       "totp": false,
       "serviceAccountClientId": "camunda-identity",
+      "credentials": [],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": [
-        "realm-admin"
-      ],
+      "realmRoles": ["realm-admin"],
       "clientRoles": {
-        "realm-management": [
-          "realm-admin"
-        ]
+        "realm-management": ["realm-admin"]
       },
       "notBefore": 0,
       "groups": []
@@ -748,11 +756,10 @@
       "createdTimestamp": 1761341232709,
       "totp": false,
       "serviceAccountClientId": "camunda-identity-resource-server",
+      "credentials": [],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": [
-        "Default user role"
-      ],
+      "realmRoles": ["Default user role"],
       "notBefore": 0,
       "groups": []
     },
@@ -764,15 +771,12 @@
       "createdTimestamp": 1761341233544,
       "totp": false,
       "serviceAccountClientId": "connectors",
+      "credentials": [],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": [
-        "Default user role"
-      ],
+      "realmRoles": ["Default user role"],
       "clientRoles": {
-        "orchestration-api": [
-          "read:*"
-        ]
+        "orchestration-api": ["read:*"]
       },
       "notBefore": 0,
       "groups": []
@@ -785,11 +789,10 @@
       "createdTimestamp": 1761341233082,
       "totp": false,
       "serviceAccountClientId": "console-api",
+      "credentials": [],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": [
-        "Default user role"
-      ],
+      "realmRoles": ["Default user role"],
       "notBefore": 0,
       "groups": []
     },
@@ -801,11 +804,10 @@
       "createdTimestamp": 1761341233481,
       "totp": false,
       "serviceAccountClientId": "optimize",
+      "credentials": [],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": [
-        "Default user role"
-      ],
+      "realmRoles": ["Default user role"],
       "notBefore": 0,
       "groups": []
     },
@@ -817,11 +819,10 @@
       "createdTimestamp": 1761341233246,
       "totp": false,
       "serviceAccountClientId": "optimize-api",
+      "credentials": [],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": [
-        "Default user role"
-      ],
+      "realmRoles": ["Default user role"],
       "notBefore": 0,
       "groups": []
     },
@@ -833,11 +834,10 @@
       "createdTimestamp": 1761341233414,
       "totp": false,
       "serviceAccountClientId": "orchestration",
+      "credentials": [],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": [
-        "Default user role"
-      ],
+      "realmRoles": ["Default user role"],
       "notBefore": 0,
       "groups": []
     },
@@ -849,11 +849,10 @@
       "createdTimestamp": 1761341233168,
       "totp": false,
       "serviceAccountClientId": "orchestration-api",
+      "credentials": [],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": [
-        "Default user role"
-      ],
+      "realmRoles": ["Default user role"],
       "notBefore": 0,
       "groups": []
     },
@@ -865,11 +864,38 @@
       "createdTimestamp": 1761341233314,
       "totp": false,
       "serviceAccountClientId": "web-modeler-api",
+      "credentials": [],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": [
-        "Default user role"
+      "realmRoles": ["Default user role"],
+      "notBefore": 0,
+      "groups": []
+    },
+    {
+      "id": "4bae06a0-7d93-4eab-8943-dc7b01f8fb8a",
+      "username": "user",
+      "firstName": "User",
+      "lastName": "Omnixys",
+      "email": "user@omnixys.de",
+      "emailVerified": true,
+      "attributes": {
+        "roles": ["ADMIN"]
+      },
+      "enabled": true,
+      "createdTimestamp": 1761659749205,
+      "totp": false,
+      "credentials": [
+        {
+          "id": "4b3dcd7a-7bb7-4127-a99f-6a503b387e57",
+          "type": "password",
+          "createdDate": 1761659749226,
+          "secretData": "{\"value\":\"B6Ziac+iBJ22jPoI0DAPnWtHdHxY4bMVwQZtA4ljp4s=\",\"salt\":\"65NT5zMyIwKoRvjuhytgRg==\",\"additionalParameters\":{}}",
+          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+        }
       ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": ["Default user role"],
       "notBefore": 0,
       "groups": []
     }
@@ -877,19 +903,14 @@
   "scopeMappings": [
     {
       "clientScope": "offline_access",
-      "roles": [
-        "offline_access"
-      ]
+      "roles": ["offline_access"]
     }
   ],
   "clientScopeMappings": {
     "account": [
       {
         "client": "account-console",
-        "roles": [
-          "manage-account",
-          "view-groups"
-        ]
+        "roles": ["manage-account", "view-groups"]
       }
     ]
   },
@@ -904,9 +925,7 @@
       "enabled": false,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": [
-        "/realms/camunda-platform/account/*"
-      ],
+      "redirectUris": ["/realms/camunda-platform/account/*"],
       "webOrigins": [],
       "notBefore": 0,
       "bearerOnly": false,
@@ -925,10 +944,7 @@
       "authenticationFlowBindingOverrides": {},
       "fullScopeAllowed": false,
       "nodeReRegistrationTimeout": 0,
-      "defaultClientScopes": [
-        "acr",
-        "basic"
-      ],
+      "defaultClientScopes": ["acr", "basic"],
       "optionalClientScopes": []
     },
     {
@@ -941,9 +957,7 @@
       "enabled": false,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": [
-        "/realms/camunda-platform/account/*"
-      ],
+      "redirectUris": ["/realms/camunda-platform/account/*"],
       "webOrigins": [],
       "notBefore": 0,
       "bearerOnly": false,
@@ -973,10 +987,7 @@
           "config": {}
         }
       ],
-      "defaultClientScopes": [
-        "acr",
-        "basic"
-      ],
+      "defaultClientScopes": ["acr", "basic"],
       "optionalClientScopes": []
     },
     {
@@ -1006,10 +1017,7 @@
       "authenticationFlowBindingOverrides": {},
       "fullScopeAllowed": true,
       "nodeReRegistrationTimeout": 0,
-      "defaultClientScopes": [
-        "acr",
-        "basic"
-      ],
+      "defaultClientScopes": ["acr", "basic"],
       "optionalClientScopes": []
     },
     {
@@ -1049,7 +1057,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "camunda-secret",
+      "secret": "b5qpOgD5Z6wB4PjtL4NP0rPcwZ6rK7gG",
       "redirectUris": ["http://localhost:8084/auth/login-callback"],
       "webOrigins": ["+"],
       "notBefore": 0,
@@ -1164,7 +1172,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "camunda-secret",
+      "secret": "wXAmPAThmfw5suq5MLUhLRgWrgkK9CkO",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -1213,7 +1221,29 @@
             "uris": ["/*"]
           }
         ],
-        "policies": [],
+        "policies": [
+          {
+            "name": "Default Policy",
+            "description": "A policy that grants access only for users within this realm",
+            "type": "js",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "code": "// by default, grants any permission associated with this policy\n$evaluation.grant();\n"
+            }
+          },
+          {
+            "name": "Default Permission",
+            "description": "A permission that applies to the default resource type",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "defaultResourceType": "urn:camunda-identity-resource-server:resources:default",
+              "applyPolicies": "[\"Default Policy\"]"
+            }
+          }
+        ],
         "scopes": [],
         "decisionStrategy": "UNANIMOUS"
       }
@@ -1226,7 +1256,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "camunda-secret",
+      "secret": "demo-connectors-secret",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -1285,12 +1315,8 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": [
-        "http://localhost:8087/"
-      ],
-      "webOrigins": [
-        "+"
-      ],
+      "redirectUris": ["http://localhost:8087/"],
+      "webOrigins": ["+"],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
@@ -1347,7 +1373,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "camunda-secret",
+      "secret": "OUEDqH9MAWVMmPndAQCDMExGlNKpmLKF",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -1396,7 +1422,29 @@
             "uris": ["/*"]
           }
         ],
-        "policies": [],
+        "policies": [
+          {
+            "name": "Default Policy",
+            "description": "A policy that grants access only for users within this realm",
+            "type": "js",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "code": "// by default, grants any permission associated with this policy\n$evaluation.grant();\n"
+            }
+          },
+          {
+            "name": "Default Permission",
+            "description": "A permission that applies to the default resource type",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "defaultResourceType": "urn:console-api:resources:default",
+              "applyPolicies": "[\"Default Policy\"]"
+            }
+          }
+        ],
         "scopes": [],
         "decisionStrategy": "UNANIMOUS"
       }
@@ -1409,7 +1457,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "camunda-secret",
+      "secret": "demo-optimize-secret",
       "redirectUris": ["http://localhost:8083/api/authentication/callback"],
       "webOrigins": ["+"],
       "notBefore": 0,
@@ -1469,7 +1517,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "camunda-secret",
+      "secret": "eQSIGyhDrSPq7Nzw5G6uuUxVnKmxdxvy",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -1518,7 +1566,29 @@
             "uris": ["/*"]
           }
         ],
-        "policies": [],
+        "policies": [
+          {
+            "name": "Default Policy",
+            "description": "A policy that grants access only for users within this realm",
+            "type": "js",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "code": "// by default, grants any permission associated with this policy\n$evaluation.grant();\n"
+            }
+          },
+          {
+            "name": "Default Permission",
+            "description": "A permission that applies to the default resource type",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "defaultResourceType": "urn:optimize-api:resources:default",
+              "applyPolicies": "[\"Default Policy\"]"
+            }
+          }
+        ],
         "scopes": [],
         "decisionStrategy": "UNANIMOUS"
       }
@@ -1531,7 +1601,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "camunda-secret",
+      "secret": "secret",
       "redirectUris": ["http://localhost:8088/sso-callback"],
       "webOrigins": ["+"],
       "notBefore": 0,
@@ -1591,7 +1661,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "camunda-secret",
+      "secret": "yRmmuImcYVIOTLpDr12agNDLWLUZIoiy",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -1640,7 +1710,29 @@
             "uris": ["/*"]
           }
         ],
-        "policies": [],
+        "policies": [
+          {
+            "name": "Default Policy",
+            "description": "A policy that grants access only for users within this realm",
+            "type": "js",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "code": "// by default, grants any permission associated with this policy\n$evaluation.grant();\n"
+            }
+          },
+          {
+            "name": "Default Permission",
+            "description": "A permission that applies to the default resource type",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "defaultResourceType": "urn:orchestration-api:resources:default",
+              "applyPolicies": "[\"Default Policy\"]"
+            }
+          }
+        ],
         "scopes": [],
         "decisionStrategy": "UNANIMOUS"
       }
@@ -1684,12 +1776,8 @@
       "enabled": false,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": [
-        "/admin/camunda-platform/console/*"
-      ],
-      "webOrigins": [
-        "+"
-      ],
+      "redirectUris": ["/admin/camunda-platform/console/*"],
+      "webOrigins": ["+"],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
@@ -1727,10 +1815,7 @@
           }
         }
       ],
-      "defaultClientScopes": [
-        "acr",
-        "basic"
-      ],
+      "defaultClientScopes": ["acr", "basic"],
       "optionalClientScopes": []
     },
     {
@@ -1741,12 +1826,8 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": [
-        "http://localhost:8070/login-callback"
-      ],
-      "webOrigins": [
-        "+"
-      ],
+      "redirectUris": ["http://localhost:8070/login-callback"],
+      "webOrigins": ["+"],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
@@ -1803,7 +1884,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "camunda-secret",
+      "secret": "Aftm8CxnD8574XY2nR4cmp6qvfuIGqy3",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -1852,7 +1933,29 @@
             "uris": ["/*"]
           }
         ],
-        "policies": [],
+        "policies": [
+          {
+            "name": "Default Policy",
+            "description": "A policy that grants access only for users within this realm",
+            "type": "js",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "code": "// by default, grants any permission associated with this policy\n$evaluation.grant();\n"
+            }
+          },
+          {
+            "name": "Default Permission",
+            "description": "A permission that applies to the default resource type",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "defaultResourceType": "urn:web-modeler-api:resources:default",
+              "applyPolicies": "[\"Default Policy\"]"
+            }
+          }
+        ],
         "scopes": [],
         "decisionStrategy": "UNANIMOUS"
       }
@@ -2566,9 +2669,7 @@
   "smtpServer": {},
   "loginTheme": "identity",
   "eventsEnabled": false,
-  "eventsListeners": [
-    "jboss-logging"
-  ],
+  "eventsListeners": ["jboss-logging"],
   "enabledEventTypes": [],
   "adminEventsEnabled": false,
   "adminEventsDetailsEnabled": false,
@@ -2591,9 +2692,7 @@
         "subType": "anonymous",
         "subComponents": {},
         "config": {
-          "max-clients": [
-            "200"
-          ]
+          "max-clients": ["200"]
         }
       },
       {
@@ -2611,9 +2710,7 @@
         "subType": "anonymous",
         "subComponents": {},
         "config": {
-          "allow-default-scopes": [
-            "true"
-          ]
+          "allow-default-scopes": ["true"]
         }
       },
       {
@@ -2661,12 +2758,8 @@
         "subType": "anonymous",
         "subComponents": {},
         "config": {
-          "host-sending-registration-request-must-match": [
-            "true"
-          ],
-          "client-uris-must-match": [
-            "true"
-          ]
+          "host-sending-registration-request-must-match": ["true"],
+          "client-uris-must-match": ["true"]
         }
       },
       {
@@ -2676,9 +2769,7 @@
         "subType": "authenticated",
         "subComponents": {},
         "config": {
-          "allow-default-scopes": [
-            "true"
-          ]
+          "allow-default-scopes": ["true"]
         }
       }
     ],
@@ -2701,12 +2792,12 @@
         "providerId": "hmac-generated",
         "subComponents": {},
         "config": {
-          "priority": [
-            "100"
+          "kid": ["32752456-17c3-4e9c-b95e-8e75f107c6ad"],
+          "secret": [
+            "XMCPwdAdYuiSJqn6INqdj8kj6eDDC7xeKfuEu5PBh9TGBiFSGzoOUJvKwef2UUFanJ-GJ_OpxJ9JF66xcbpNsUzmKwl42vqO6yLHl3_F0gXXjX_9-pqU7AAwHtpz7DQ7mk114dVa20096Qhmk6b6EAZkk5ClYo2sOh5fGqXIdp0"
           ],
-          "algorithm": [
-            "HS512"
-          ]
+          "priority": ["100"],
+          "algorithm": ["HS512"]
         }
       },
       {
@@ -2715,9 +2806,9 @@
         "providerId": "aes-generated",
         "subComponents": {},
         "config": {
-          "priority": [
-            "100"
-          ]
+          "kid": ["aa3ded92-ac09-46bd-8f67-8cc8918839a2"],
+          "secret": ["_p6PDug2hgFnM3irh58STg"],
+          "priority": ["100"]
         }
       },
       {
@@ -2726,9 +2817,14 @@
         "providerId": "rsa-generated",
         "subComponents": {},
         "config": {
-          "priority": [
-            "100"
-          ]
+          "privateKey": [
+            "MIIEpAIBAAKCAQEAnGZsQe8qWXCEBqd8Ha4kXT+xHsgsgGBVvZyh5N8KLpNb20MVxqy/hEcVuCKtinDY+GmMW1C3VSYzqczpof41l9QdJHmaunB0hYyaMAdAx5QS25JTwExh0PyAt2GH9kpm/2I0HEtPesKHnG6AXciFDm4+ekfliYJLfs3uIaVOqOyeZPnLrNqmhZ5QK3sMB7irFHAWENXqYg/Mj0KB80N0hcYEi8Q5hk2pGxmZXqC4yNOFEn/OI6bF96q3cMCQIL0WfTaPmMUj/Pu8v1ZyXoYdAe/Fnpi1CWSWGdWMoVP34v1dfi875yjbR8X0GZa4gMGFMPBrZ7cS5rqjeixBD91wuwIDAQABAoIBAEtAtvc0qiZVzpjbDovDZijeBA3BGDR+5dJxoq4aqW4GpkyGZ1xsc0wk3ez29pRlvugr9QZc/JGCa5pYh9PTmprey1TpFAuAH3jA0dGpM8Cz3Sz8J8MfnXMug4p46bAWVZ+s81Dn5aq2HgUlYCt/15G9dt9kZ6v13vh5Aor63LHHQ6jOFI17QBr4zbQJWZ3VEeJBH/3vBWZ+0lg9MeHbJi7t0Kx0/P0r4CtT7huYf3uDSxQZ880mBrTabpZPtAuKu1pggtPLfKhV50SAZGt6ut7f62tnhVkHgJruv9MzZzuLTnPUdP+Gejuzg1c1AUW0fCE8ChXRfqv23+PSuXOF8bUCgYEA0IMxNODGV+ELCnsKCUG050QfInhUgJtS9JU/UPlH3eWs3YO3fA8ET+wkrTA2XB/ZM1Pwr3HJBb9JgnMkvZP97+DEgX8A71+Pnu/Ykv+LFrqmqgSsoNEOJ4u2xjUZZQ9XLcPtPd9KwyfeL0eDWP2NfwQRpyWsELsO3Q1041GyjOUCgYEAwATyPMKXL70SuY9HDdAe267gbNa4a6COJfDRb+CHBU5oSQZbFBygPYjkGQsI67rLnBGX4mtV2+WMDEqYwUBsf65DKW24RJO5dpPL0UU+gnCNh+v5jrWWuFChAvpa21Dg4t2w6SFTr7q0PL0xRe0C+4WwB99w4KupFLuQmEMPzR8CgYBcQb/S2qVHmr3s3DW7lMP7E2wHL2CMKq1QpHyIUlOW/Zk3xaC4llhdGGm96zgSGNFcYYZ7ygecsF9RBas66jEQIs4vUcdTImAEfbDAkaqz2tAFJ95NpVHy82FiX3ol+dyj1i2xE4wbvxcSqjyWclFZ4q4A260/FdTkv6B5N9uddQKBgQCF+i2GhYN1lKfe/wBlu+P8Bg2jA0KUHedww5FuTSwIYMfUw/GCm+KWbNAyRQfJaoEseP4PxjKXBpfr75SbqjbJ86361wpuFuCdwsvATV8rJhsqTlTG5R6vpdpiOIpyYgE3adVJJK6+ezfM9XjOwGuHUaUcKSQaLsv/oktmYcxBowKBgQC7v2NuqZrvGlBoEfKHYDyC3DeqqvnN0clnqbRk2lrcXEENwEZQhwuQpU3tBqkKTgc8CCHo0bhzYnEiILl793alE7iDM09tBeFGKRBPdQxefica6UyKdoPk81RmmGZ4QZgKXgHILd2853H5OyjDq8A+xhj+SkZdnofkkhn0zL2JvA=="
+          ],
+          "keyUse": ["sig"],
+          "certificate": [
+            "MIICrzCCAZcCBgGaGB5TnDANBgkqhkiG9w0BAQsFADAbMRkwFwYDVQQDDBBjYW11bmRhLXBsYXRmb3JtMB4XDTI1MTAyNDIxMjUzMloXDTM1MTAyNDIxMjcxMlowGzEZMBcGA1UEAwwQY2FtdW5kYS1wbGF0Zm9ybTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJxmbEHvKllwhAanfB2uJF0/sR7ILIBgVb2coeTfCi6TW9tDFcasv4RHFbgirYpw2PhpjFtQt1UmM6nM6aH+NZfUHSR5mrpwdIWMmjAHQMeUEtuSU8BMYdD8gLdhh/ZKZv9iNBxLT3rCh5xugF3IhQ5uPnpH5YmCS37N7iGlTqjsnmT5y6zapoWeUCt7DAe4qxRwFhDV6mIPzI9CgfNDdIXGBIvEOYZNqRsZmV6guMjThRJ/ziOmxfeqt3DAkCC9Fn02j5jFI/z7vL9Wcl6GHQHvxZ6YtQlklhnVjKFT9+L9XX4vO+co20fF9BmWuIDBhTDwa2e3Eua6o3osQQ/dcLsCAwEAATANBgkqhkiG9w0BAQsFAAOCAQEAIVv4HWGFukUkzhGXMDmDHn+UEQzNBMeuiZcQvNdrpeaMom4qEq4uUAHcxVh/XdzlWURmOuLd7T6ooystwuyQEAgrmE6nmzjy31r6un7uTxiDesll4uUcLAHVGd4s9N5PCajHaBGlmuAUc463SFGCpja5ATx+mBr0gnnQDc+QQmv4GC+ec9+D+VfLdzFAVXwptHl7DYWHQUvHfDpPjqPZvQCS+8nnIBW0Yd2sIVkGrPW7aR1AzEmhnPMyRSP0EYzlHd0mY9T9qNxu9AKVtW4snHWOuoawPbfr4MqDHGmXzbM8C4p3ogtgJ2Kp3eW1z/4K+jTWsRZyPlbDnHnneDIwqw=="
+          ],
+          "priority": ["100"]
         }
       },
       {
@@ -2737,9 +2833,14 @@
         "providerId": "rsa-generated",
         "subComponents": {},
         "config": {
-          "priority": [
-            "100"
-          ]
+          "privateKey": [
+            "MIIEowIBAAKCAQEAmUZhSyOoS1OD92BDU4qxMn9vbXEtvRGwsGq58oGwyk3/jJ38RRKwmR+uqJwpNzJCFSLhLqQXuA7EPLMdDgrsGYgtTevQAHOMYMPrbxeOUZp5WuRXMj4kJhSC+Kyq0G80SStI6dgO09Z/wdc0tnxKNb3n+eau/XItizn1LA7Sbk61ex13riT7Jn8PpjAbpRyv1Ay1CWcBeL6tZPvm2+T8xJP/jMvjh2xIX1fxL1CNylaO7C9Jt8jEufaPpL0QfSnyKjsbcVmG45eeNmiLWymCHigDH3nwnmWNwmkn0pISK/Jag0D9xqbCJAOBSlSL+v3gTDA/L03MUPgWnbaYupWS1QIDAQABAoIBABVtLsWrvueEzcJjnRXNIhc+lEuW0j+HfQ00Zjkd4yJsw+ga37yiL7jAIpDkf6h9KJq+zP7RppUuz0Ty/wFLCpVJIZguel3NyVZvnPZjMxx6PTO1DvFxmWkPXf24WYqYuRTvbZpu/yei6SomVPKbrl4T5Z1cH6NDdlVrrTfS/Jy5wZMvHKY4cSFVSiEe35420MW0KRAmyOeoL8W8uAdLkQHxSd98IVBzStR1XU+yCsIaAnjMwtlTXYW79GmRvWIaw03aJW0Tez3TDf6wpWHqYEZDOHCVFd9j9MU5XRH6AbuOeALoK/vvxBlvVxZiVfcZP/nnKu3LF1O78C6i6QQCJDMCgYEA0R6HG+toBPJ1x2EWCA0MK2A323U3UuR3ks1x4KjG6kluBv+LgN+qWTz+MAsnP9QntlQkv/2cF8+QgCZ/8NeJElXpfWvRZRWuU7no0n+7YhHlaOD/HvJ7J73jfdP/6DAUZ31tRe7XWBrX99hE0HfB+/XmORy62ErTvIPrZShXdkcCgYEAu6LqKgpv+Aoxnn2aQiwtqY9tU9lLKY7eQ30a9Q5lzrR6qEqw7ndJk2BSoqrvRKcRnZj4grYMA6l1sMeSK2bApeoLwH9BEGa5MS1VF85KK9Jupic+kzvI+WJWStpXNlxgZj/RUW3F/xQKpbe2KlKQrtX8GGd+CNUbyi2aT5YfUAMCgYBJIMnSo6G+iSNS08qmihmFWaJu5jCwliCSf7GhBKR67a7CV77rFEw35LJnDp9tHL2+bvJjCUb6tKUti0kWaekPNmfuajPRi6FougyHABABHY0B/hx5MAaNQUQ6jlZhVd7sydnaqMk5kDmR/FkkJZz6hWU696cHWDNvKxq4R0E+pQKBgHXw31NxoBO/BJVkydOSRVlxR/0Odoo2vUqalpk2ZZPaKcciu7gIzvyN7SNGYoM6qH3xKzOuDjs3Bz0JFL2nJqyjQqPK2TDgAMQChJwkFMcazGYwAMs3JwpqX2dJesw2oHlk38NZRr0g8dhcc2qC32KmKoGEe9o9aexZYcdoy2HVAoGBAIfP1tt9XdMe2C2rq9P28YqncaUtOkvEEhC9uzykO0zTPPFwSwzLf+ddRTg3OVQfjLORZws52E+gyCRJFf29b4o4KmyOKARIyP5+MyUX0PvKzrv8ZA+ouzsgxvyubdNDrlFDPJWzjMTfLZ+grS9+hUxiXjeypCIOj6D0lM7Z+q2k"
+          ],
+          "keyUse": ["enc"],
+          "certificate": [
+            "MIICrzCCAZcCBgGaGB5TQzANBgkqhkiG9w0BAQsFADAbMRkwFwYDVQQDDBBjYW11bmRhLXBsYXRmb3JtMB4XDTI1MTAyNDIxMjUzMVoXDTM1MTAyNDIxMjcxMVowGzEZMBcGA1UEAwwQY2FtdW5kYS1wbGF0Zm9ybTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJlGYUsjqEtTg/dgQ1OKsTJ/b21xLb0RsLBqufKBsMpN/4yd/EUSsJkfrqicKTcyQhUi4S6kF7gOxDyzHQ4K7BmILU3r0ABzjGDD628XjlGaeVrkVzI+JCYUgvisqtBvNEkrSOnYDtPWf8HXNLZ8SjW95/nmrv1yLYs59SwO0m5OtXsdd64k+yZ/D6YwG6Ucr9QMtQlnAXi+rWT75tvk/MST/4zL44dsSF9X8S9QjcpWjuwvSbfIxLn2j6S9EH0p8io7G3FZhuOXnjZoi1spgh4oAx958J5ljcJpJ9KSEivyWoNA/camwiQDgUpUi/r94EwwPy9NzFD4Fp22mLqVktUCAwEAATANBgkqhkiG9w0BAQsFAAOCAQEAY+PjIhIIDruqmN+S9crnavF7OfC2SwYMuzRXQ+qLbXVwqDpJdF3HYJy5sThmiK/uktg4+5vnGnEhBeW40/aacxaG7qPHfIEfhzxsKD/M9xVAhOn+wr+xqbIOoCQP+3Gc/cZ2EU4+e8DDCRzAFoDgjR+boauhUpThK4eYknYWV6WMI3hQavp4PXbRFjDRzwD4tyy+jf+hAA6P4NgSxhSQb4AQvg/2ovOrs4CLqMrJrrfDmB0W3QNND8YQDhlybgdVpnJn2J+uTGTAoZ+fQNjtzwQfwxZYwJjClfVX22Mlb7KVSyuqQ64uWPhkcBm6uyKXSZdpXswJHHxGdHzKSZvIQA=="
+          ],
+          "priority": ["100"]
         }
       },
       {
@@ -2748,12 +2849,12 @@
         "providerId": "hmac-generated",
         "subComponents": {},
         "config": {
-          "priority": [
-            "100"
+          "kid": ["11e764ff-76c5-444e-bdf9-b811aa2f6b31"],
+          "secret": [
+            "gNstO8UXoR3hvwZfx3ZBNI-2veWcTbXf2vROFOJ_B0J9C_vK0c5gsksAVv6Jl6gNeEdVDyVc2UuDHtPWxeaFEst98FFATcNC2xtzeCg3QqkxP1fKPNDMydQaH3o0qAihi2UPQPoQ8ZtbJq9wxSzRB1J5XLCmLqktUgC2L-op1gs"
           ],
-          "algorithm": [
-            "HS256"
-          ]
+          "priority": ["100"],
+          "algorithm": ["HS256"]
         }
       }
     ]
@@ -3380,17 +3481,20 @@
   "firstBrokerLoginFlow": "first broker login",
   "attributes": {
     "cibaBackchannelTokenDeliveryMode": "poll",
-    "cibaExpiresIn": "120",
     "cibaAuthRequestedUserHint": "login_hint",
-    "oauth2DeviceCodeLifespan": "600",
     "clientOfflineSessionMaxLifespan": "0",
     "oauth2DevicePollingInterval": "5",
     "clientSessionIdleTimeout": "0",
-    "parRequestUriLifespan": "60",
-    "clientSessionMaxLifespan": "0",
     "clientOfflineSessionIdleTimeout": "0",
     "cibaInterval": "5",
-    "realmReusableOtpCode": "false"
+    "realmReusableOtpCode": "false",
+    "cibaExpiresIn": "120",
+    "oauth2DeviceCodeLifespan": "600",
+    "saml.signature.algorithm": "",
+    "parRequestUriLifespan": "60",
+    "clientSessionMaxLifespan": "0",
+    "frontendUrl": "",
+    "acr.loa.map": "{}"
   },
   "keycloakVersion": "26.3.2",
   "userManagedAccessAllowed": false,
