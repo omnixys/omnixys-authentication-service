@@ -40,8 +40,8 @@ describe('👤 Auth E2E - User Operations', () => {
     const q = `
       mutation {
         login(input: {
-          username: "${process.env.KEYCLOAK_USER_USERNAME ?? 'user'}",
-          password: "${process.env.KEYCLOAK_USER_PASSWORD ?? 'p'}"
+          username: "${process.env.OMNIXYS_USER_USERNAME ?? 'user'}",
+          password: "${process.env.OMNIXYS_USER_PASSWORD ?? 'p'}"
         }) { accessToken }
       }
     `;

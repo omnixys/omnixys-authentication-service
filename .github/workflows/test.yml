@@ -140,8 +140,8 @@ jobs:
           KC_REALM: camunda-platform
           KC_CLIENT_ID: camunda-identity
           KC_CLIENT_SECRET: b5qpOgD5Z6wB4PjtL4NP0rPcwZ6rK7gG
-          KEYCLOAK_ADMIN_USERNAME: admin
-          KEYCLOAK_ADMIN_PASSWORD: admin
+          OMNIXYS_ADMIN_USERNAME: admin
+          OMNIXYS_ADMIN_PASSWORD: admin
           TEST_EMAIL_DOMAIN: omnixys.com
         run: |
           echo "🔧 Loading CI environment variables"

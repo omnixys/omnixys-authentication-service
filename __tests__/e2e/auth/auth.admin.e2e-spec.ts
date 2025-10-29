@@ -52,8 +52,8 @@ describe('🛡️ Auth E2E - Admin Operations (Full Flow)', () => {
     const loginQ = `
       mutation {
         login(input: {
-          username: "${process.env.KEYCLOAK_ADMIN_USERNAME ?? 'admin'}",
-          password: "${process.env.KEYCLOAK_ADMIN_PASSWORD ?? 'p'}"
+          username: "${process.env.OMNIXYS_ADMIN_USERNAME ?? 'admin'}",
+          password: "${process.env.OMNIXYS_ADMIN_PASSWORD ?? 'p'}"
         }) { accessToken }
       }
     `;
