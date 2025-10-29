@@ -234,6 +234,9 @@ describe('👑 Auth E2E - User SignUp Flow (Full Lifecycle)', () => {
   it('should delete the created user as admin', async () => {
     expect(createdUserId).toBeDefined();
 
+    console.log(
+      `ADASDASDASDASD: username: ${process.env.OMNIXYS_ADMIN_USERNAME} password ${process.env.OMNIXYS_ADMIN_PASSWORD}`,
+    );
     // 🔐 Login als Admin
     const adminLoginQuery = `
       mutation {
