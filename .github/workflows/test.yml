@@ -96,8 +96,12 @@ jobs:
             -e KEYCLOAK_ADMIN_PASSWORD=admin \
             -e KC_FEATURES=token-exchange,scripts \
             -v ${{ github.workspace }}/__tests__/keycloak/realm.json:/opt/keycloak/data/import/realm.json:ro \
-            quay.io/keycloak/keycloak:26.3.2 start-dev --import-realm --spi-scripts-scripts-enabled=true ---features=scripts,token-exchange --http-port=8080 
-
+            quay.io/keycloak/keycloak:26.3.2 \
+            start-dev --import-realm \
+              --features=scripts,token-exchange \
+              --spi-scripts-provider=script \
+              --spi-scripts-enabled=true \
+              --http-port=8080
           echo "⏳ Waiting for Keycloak to finish realm import..."
           for i in {1..5}; do
             if curl -fs http://localhost:18080/health/ready >/dev/null 2>&1; then
