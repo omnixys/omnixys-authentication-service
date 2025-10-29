@@ -109,13 +109,18 @@ jobs:
           done
 
           echo "⏳ Waiting for imported realm 'camunda-platform'..."
-          for i in {1..100}; do
-            if curl -fs http://localhost:18080/realms/camunda-platform >/dev/null 2>&1; then
-              echo "✅ Realm 'camunda-platform' available (after $i checks)"
+          for i in {1..60}; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" \
+              -H "Accept: application/json" \
+              http://localhost:18080/realms/camunda-platform || echo 000)
+
+            if [ "$status" = "200" ]; then
+              echo "✅ Realm 'camunda-platform' reachable (HTTP $status after $i tries)"
               docker ps
               exit 0
             fi
-            echo "waiting for camunda-platform realm ($i/100)..."
+
+            echo "Realm not yet reachable (status $status, try $i/60)..."
             sleep 5
           done
 
