@@ -102,7 +102,7 @@ jobs:
           for i in {1..7}; do
             if  curl -fs http://localhost:18080/realms/master >/dev/null 2>&1; then
               echo "✅ Base realm 'master' available (after $i checks)"
-              break
+              exit 0
             fi
             echo "waiting for master realm ($i/7)..."
             sleep 5
@@ -117,6 +117,7 @@ jobs:
             fi
             echo "waiting for camunda-platform realm ($i/7)..."
             sleep 5
+               docker logs keycloak
           done
 
           echo "❌ Keycloak did not become ready in time. Dumping logs..."
