@@ -672,23 +672,14 @@
     {
       "id": "dde8114c-2637-462a-90b9-413924fa3f55",
       "username": "admin",
-      "firstName": "NewMe",
-      "lastName": "Updated",
-      "email": "me@omnixys.com",
+      "firstName": "Admin",
+      "lastName": "Omnixys",
+      "email": "admin@omnixys.com",
       "emailVerified": true,
       "enabled": true,
       "createdTimestamp": 1761420075722,
       "totp": false,
-      "credentials": [
-        {
-          "id": "b7f4ace3-a978-4b92-bc20-fe4ea81e0fe1",
-          "type": "password",
-          "userLabel": "My password",
-          "createdDate": 1761420103110,
-          "secretData": "{\"value\":\"N2P3IiHYnbsBTIn8+KF7VLVtdYvlG0lCoTAUcOeSgb4=\",\"salt\":\"V9vTkQdKaRTdc+TS2RbzJQ==\",\"additionalParameters\":{}}",
-          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
-        }
-      ],
+      "credentials": [{ "type": "password", "value": "p", "temporary": false }],
       "disableableCredentialTypes": [],
       "requiredActions": [],
       "realmRoles": ["Default user role", "realm-admin"],
@@ -884,15 +875,7 @@
       "enabled": true,
       "createdTimestamp": 1761659749205,
       "totp": false,
-      "credentials": [
-        {
-          "id": "4b3dcd7a-7bb7-4127-a99f-6a503b387e57",
-          "type": "password",
-          "createdDate": 1761659749226,
-          "secretData": "{\"value\":\"B6Ziac+iBJ22jPoI0DAPnWtHdHxY4bMVwQZtA4ljp4s=\",\"salt\":\"65NT5zMyIwKoRvjuhytgRg==\",\"additionalParameters\":{}}",
-          "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
-        }
-      ],
+      "credentials": [{ "type": "password", "value": "p", "temporary": false }],
       "disableableCredentialTypes": [],
       "requiredActions": [],
       "realmRoles": ["Default user role"],
