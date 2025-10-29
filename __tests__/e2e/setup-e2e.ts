@@ -21,16 +21,6 @@ import { env } from '../env.js';
 import { type INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import axios, { type AxiosError } from 'axios';
-import * as dotenv from 'dotenv';
-import path from 'path';
-
-// =====================================================
-// 🧩 ENVIRONMENT SETUP
-// =====================================================
-
-const envPath = path.resolve(process.cwd(), '.env');
-dotenv.config({ path: envPath });
-console.log(`[setup-e2e] loaded env from ${envPath}`);
 
 // =====================================================
 // 🔹 OPTIONAL HEALTH CHECK: KEYCLOAK
@@ -41,6 +31,8 @@ async function verifyKeycloak(): Promise<void> {
   const realm = env.KC_REALM;
 
   const url = `${base}/realms/${realm}`;
+  console.log('ASDASDASDASDASDASDASDASDASDSDASDASDASDASDASDASDASDASD');
+  console.log(url);
 
   try {
     const res = await axios.get(url);
