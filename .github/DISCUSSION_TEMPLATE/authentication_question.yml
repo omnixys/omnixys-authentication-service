@@ -15,8 +15,8 @@
 
 # name: ❓ Authentication Service Question or Support Request
 # description: Ask a question or request help with setup, deployment, or usage of the Authentication Service.
-labels: ["question", "auth"]
-title: "[Auth Question] "
+labels: ["question", "authentication"]
+title: "[Authentication Question] "
 # category: "❓ Questions & Support"
 
 body:

@@ -34,7 +34,7 @@ import type { INestApplication } from '@nestjs/common';
  * 6️⃣ Login mit neuem Passwort
  * 7️⃣ deleteUser
  */
-describe('👑 Auth E2E - User SignUp Flow (Full Lifecycle)', () => {
+describe('👑 Authentication E2E - User SignUp Flow (Full Lifecycle)', () => {
   let app: INestApplication;
   let cookies: string[] = [];
   let createdUserId: string | null = null;
@@ -45,7 +45,11 @@ describe('👑 Auth E2E - User SignUp Flow (Full Lifecycle)', () => {
 
   const log = (msg: string): void =>
     console.info(
-      JSON.stringify({ level: 'INFO', message: msg, service: 'auth-signup' }),
+      JSON.stringify({
+        level: 'INFO',
+        message: msg,
+        service: 'authentication-signup',
+      }),
     );
 
   beforeAll(async () => {

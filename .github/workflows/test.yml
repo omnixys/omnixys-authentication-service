@@ -72,7 +72,7 @@ env:
 
 jobs:
   e2e:
-    name: Run Auth E2E Tests
+    name: Run Authentication E2E Tests
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
@@ -207,23 +207,23 @@ jobs:
           docker logs keycloak
           exit 1
 
-      - name: 🧪 Run E2E Auth Tests
+      - name: 🧪 Run E2E Authentication Tests
         run: |
-          pnpm run build
-          pnpm run test:e2e:auth
+          pnpm build
+          pnpm test
   
       - name: 🧾 Upload Test Logs (on failure)
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-auth-logs
+          name: e2e-authentication-logs
           path: ./__tests__/reports/
 
       - name: 📊 Upload Coverage Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e-auth-coverage
+          name: e2e-authentication-coverage
           path: __tests__/reports/e2e/coverage/
 
       - name: 🧾 Append Coverage Summary

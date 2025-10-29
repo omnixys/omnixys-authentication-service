@@ -15,11 +15,14 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
+import { env } from '../config/env.js';
+
+const { SERVICE } = env;
+
 /**
  * Zentrale Konfiguration aller Kafka-Topics im System.
  * Dient der Typsicherheit, Übersichtlichkeit und Wiederverwendbarkeit in Publishern und Handlern.
  */
-
 export const KafkaTopics = {
   invitation: {
     addUser: 'invitation.add.user',
@@ -27,18 +30,18 @@ export const KafkaTopics = {
   notification: {
     sendCredentials: 'notification.notify.user',
   },
-  auth: {
-    create: 'auth.create.user',
-    delete: 'auth.delete.user',
-    addAttribute: 'auth.add-attribute.user',
-    setAttribute: 'auth.set-attribute.user',
+  [SERVICE]: {
+    create: `${SERVICE}.create.user`,
+    delete: `${SERVICE}.delete.user`,
+    addAttribute: `${SERVICE}.add-attribute.user`,
+    setAttribute: `${SERVICE}.set-attribute.user`,
   },
   logstream: {
-    log: 'logstream.log.auth',
+    log: `logstream.log.${SERVICE}`,
   },
   admin: {
-    restart: 'auth.restart.admin',
-    shutdown: 'auth.shutdown.admin',
+    restart: `${SERVICE}.restart.admin`,
+    shutdown: `${SERVICE}.shutdown.admin`,
     allRestart: 'all.restart.admin',
     allShutdown: 'all.shutdown.admin',
   },
@@ -63,6 +66,7 @@ export function getAllKafkaTopics(): readonly string[] {
   return flatten(KafkaTopics);
 }
 
+// TODO übersetzen auf Englisch
 /**
  * Gibt alle Kafka-Topics zurück, optional gefiltert nach Top-Level-Kategorien.
  * @param keys z.B. ['Invitation', 'Notification']
@@ -74,7 +78,7 @@ export function getKafkaTopicsBy<K extends keyof KafkaTopicsType>(
   for (const key of keys) {
     const section = KafkaTopics[key];
     if (section && typeof section === 'object') {
-      result.push(...Object.values(section));
+      result.push(...(Object.values(section) as string[]));
     }
   }
   return result;

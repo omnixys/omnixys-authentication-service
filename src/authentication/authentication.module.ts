@@ -19,11 +19,11 @@ import { LoggerModule } from '../logger/logger.module.js';
 import { KafkaModule } from '../messaging/kafka.module.js';
 import { TraceModule } from '../trace/trace.module.js';
 import { AdminMutationResolver } from './resolvers/admin-mutation.resolver.js';
-import { AuthMutationResolver } from './resolvers/auth-mutation.resolver.js';
-import { AuthQueryResolver } from './resolvers/auth-query.resolver.js';
+import { AuthMutationResolver } from './resolvers/authentication-mutation.resolver.js';
+import { AuthQueryResolver } from './resolvers/authentication-query.resolver.js';
 import { UserMutationResolver } from './resolvers/user-mutation.resolver.js';
 import { AdminWriteService } from './services/admin-write.service.js';
-import { AuthWriteService } from './services/auth-write.service.js';
+import { AuthWriteService } from './services/authentication-write.service.js';
 import { KeycloakReadService } from './services/read.service.js';
 import { UserWriteService } from './services/user-write.service.js';
 import { Module } from '@nestjs/common';
@@ -75,4 +75,4 @@ class ConfigModule {}
     AuthWriteService,
   ],
 })
-export class KeycloakModule {}
+export class AuthenticationModule {}

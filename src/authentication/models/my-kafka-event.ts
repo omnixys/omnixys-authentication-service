@@ -14,7 +14,7 @@ export interface MyKafkaEvent<TPayload = unknown> {
   /** Zeitstempel (ISO 8601) */
   timestamp: string;
 
-  /** Service, der das Event gesendet hat (z. B. "checkpoint-auth") */
+  /** Service, der das Event gesendet hat (z. B. "omnixys-authentication") */
   source: string;
 
   /** Nutzlast mit beliebigem Typ */

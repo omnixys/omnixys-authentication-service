@@ -31,7 +31,7 @@ import { Role } from '../models/enums/role.enum.js';
 import type { SignUpInput0 } from '../models/inputs/sign-up.input.js';
 import { UpdateMyProfileInput } from '../models/inputs/user-update.input.js';
 import type { TokenPayload } from '../models/payloads/token.payload.js';
-import { AuthWriteService } from './auth-write.service.js';
+import { AuthWriteService } from './authentication-write.service.js';
 import { KeycloakBaseService } from './keycloak-base.service.js';
 import { KeycloakReadService } from './read.service.js';
 import { Injectable } from '@nestjs/common';
@@ -55,7 +55,7 @@ export class AdminWriteService extends KeycloakBaseService {
   }
 
   async signUp(input: SignUpInput0): Promise<TokenPayload> {
-    return this.withSpan('auth.signUp', async () => {
+    return this.withSpan('authentication.signUp', async () => {
       const { firstName, lastName, email, invitationIds, phoneNumbers, username, password } = input;
       void this.logger.debug('signUp: input=%o', input);
 

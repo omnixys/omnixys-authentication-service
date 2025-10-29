@@ -22,7 +22,7 @@ import { UpdateMyProfileInput } from '../models/inputs/user-update.input.js';
 import { SuccessPayload } from '../models/payloads/success.payload.js';
 import { AdminWriteService } from '../services/admin-write.service.js';
 import { UserWriteService } from '../services/user-write.service.js';
-import { type GqlCtx } from './auth-mutation.resolver.js';
+import { type GqlCtx } from './authentication-mutation.resolver.js';
 import {
   BadRequestException,
   UnauthorizedException,

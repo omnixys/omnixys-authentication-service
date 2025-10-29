@@ -15,13 +15,16 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-import type { MyKafkaEvent } from '../auth/models/my-kafka-event.js';
+import type { MyKafkaEvent } from '../authentication/models/my-kafka-event.js';
+import { env } from '../config/env.js';
 import { createKafkaConsumer } from '../config/kafka.js';
 import { LoggerPlus } from '../logger/logger-plus.js';
 import { TraceContextProvider } from '../trace/trace-context.provider.js';
 import { KafkaEventDispatcherService } from './kafka-event-dispatcher.service.js';
 import { getKafkaTopicsBy } from './kafka-topic.properties.js';
-import { Injectable, OnModuleInit, OnModuleDestroy, OnApplicationShutdown } from '@nestjs/common';
+import { Injectable, OnApplicationShutdown, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+
+const { SERVICE } = env;
 
 @Injectable()
 export class KafkaConsumerService implements OnModuleInit, OnModuleDestroy, OnApplicationShutdown {
@@ -35,7 +38,7 @@ export class KafkaConsumerService implements OnModuleInit, OnModuleDestroy, OnAp
   async onModuleInit(): Promise<void> {
     try {
       await this.consumer.connect();
-      const topics = [...getKafkaTopicsBy(['auth', 'admin'])];
+      const topics = [...getKafkaTopicsBy([SERVICE, 'admin'])];
       await this.consumer.subscribe({ topics, fromBeginning: false });
 
       this.logger.info('✅ Kafka consumer connected & subscribed: %o', topics);

@@ -31,7 +31,7 @@ import { SignUpInput0 } from '../models/inputs/sign-up.input.js';
 import { SuccessPayload } from '../models/payloads/success.payload.js';
 import { TokenPayload } from '../models/payloads/token.payload.js';
 import { AdminWriteService } from '../services/admin-write.service.js';
-import { AuthWriteService } from '../services/auth-write.service.js';
+import { AuthWriteService } from '../services/authentication-write.service.js';
 import { BadUserInputError } from '../utils/error.util.js';
 
 // ---------- Context-Typ (falls noch nicht vorhanden) ----------

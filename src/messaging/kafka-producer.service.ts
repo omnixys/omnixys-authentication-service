@@ -14,9 +14,8 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-import type { PhoneNumberInput } from '../auth/models/inputs/phone-number.input.js';
-import { LoggerPlus } from '../logger/logger-plus.js';
-import { setGlobalKafkaProducer } from '../logger/logger-plus.service.js';
+import type { PhoneNumberInput } from '../authentication/models/inputs/phone-number.input.js';
+import { LoggerPlusService, setGlobalKafkaProducer } from '../logger/logger-plus.service.js';
 import type { TraceContext } from '../trace/trace-context.util.js';
 import type { KafkaEnvelope } from './decorators/kafka-envelope.type.js';
 import { KafkaHeaderBuilder } from './kafka-header-builder.js';
@@ -30,9 +29,14 @@ import type { Producer, ProducerRecord } from 'kafkajs';
  */
 @Injectable()
 export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
-  private readonly logger = new LoggerPlus(KafkaProducerService.name);
+  private readonly logger;
 
-  constructor(@Inject('KAFKA_PRODUCER') private readonly producer: Producer) {}
+  constructor(
+    @Inject('KAFKA_PRODUCER') private readonly producer: Producer,
+    private readonly loggerService: LoggerPlusService,
+  ) {
+    this.logger = this.loggerService.getLogger(KafkaProducerService.name);
+  }
 
   async onModuleInit(): Promise<void> {
     try {
@@ -108,18 +112,18 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
     await this.send(KafkaTopics.notification.sendCredentials, envelope, trace);
   }
 
-  async disconnect() {
+  async disconnect(): Promise<void> {
     if (this.producer) {
       await this.producer.disconnect();
-      console.log('[KafkaProducerService] 🧹 Disconnected cleanly');
+      this.logger.log('[KafkaProducerService] 🧹 Disconnected cleanly');
     }
   }
 
-  async onModuleDestroy() {
+  async onModuleDestroy(): Promise<void> {
     await this.disconnect();
   }
 
-  async onApplicationShutdown() {
+  async onApplicationShutdown(): Promise<void> {
     await this.disconnect();
   }
 }

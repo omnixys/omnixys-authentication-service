@@ -32,7 +32,7 @@ import type { INestApplication } from '@nestjs/common';
  * - assignRealmRole / removeRealmRole
  * - deleteUser
  */
-describe('🛡️ Auth E2E - Admin Operations (Full Flow)', () => {
+describe('🛡️ Authentication E2E - Admin Operations (Full Flow)', () => {
   let app: INestApplication;
   let cookies: string[] = [];
   let accessToken: string | null = null;
@@ -42,7 +42,11 @@ describe('🛡️ Auth E2E - Admin Operations (Full Flow)', () => {
 
   const log = (msg: string): void =>
     console.info(
-      JSON.stringify({ level: 'INFO', message: msg, service: 'auth-admin' }),
+      JSON.stringify({
+        level: 'INFO',
+        message: msg,
+        service: 'authentication-admin',
+      }),
     );
 
   beforeAll(async () => {

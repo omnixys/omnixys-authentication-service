@@ -21,7 +21,7 @@
 [![Made with ❤ by Omnixys](https://img.shields.io/badge/made%20with-%E2%9D%A4-ff69b4)](https://omnixys.com)
 ![Node](https://img.shields.io/badge/node-24.10.0-green)
 
-# 🛡️ Omnixys Auth Service
+# 🛡️ Omnixys Authentication Service
 
 <p align="center">
   <img src="https://omnixys.com/assets/logo.png" width="150" alt="Omnixys Logo" />
@@ -67,7 +67,7 @@
 ## 🇬🇧 English Version
 
 ### 🔎 Overview
-The **Omnixys Auth Service** is a secure authentication and authorization microservice built with **NestJS** and integrated with **Keycloak**, **Kafka**, **Redis**, and **Apollo Federation**.  
+The **Omnixys Authentication Service** is a secure authentication and authorization microservice built with **NestJS** and integrated with **Keycloak**, **Kafka**, **Redis**, and **Apollo Federation**.  
 It manages user identities, token validation, and inter-service authentication across the Omnixys ecosystem.
 
 ---
@@ -103,88 +103,88 @@ It manages user identities, token validation, and inter-service authentication a
 ### 📂 Folder Structure
 
 ```text
-auth/
-├── .github/                               # GitHub configuration and automation
-│   ├── workflows/                         # CI/CD & security pipelines
-│   │   ├── test.yml                       # 🧪 E2E Auth Tests (Keycloak, Redis, Kafka, Postgres)
-│   │   ├── ci-cd.yml                      # Build & deploy pipeline
-│   │   ├── codeql.yml                     # CodeQL security scanning
-│   │   ├── security.yml                   # Dependency vulnerability checks
-│   │   └── release.yml                    # Automated versioning & release tagging
+authentication/
+├── .github/                                        # GitHub configuration and automation
+│   ├── workflows/                                  # CI/CD & security pipelines
+│   │   ├── test.yml                                # 🧪 E2E Authentication Tests (Keycloak, Redis, Kafka, Postgres)
+│   │   ├── ci-cd.yml                               # Build & deploy pipeline
+│   │   ├── codeql.yml                              # CodeQL security scanning
+│   │   ├── security.yml                            # Dependency vulnerability checks
+│   │   └── release.yml                             # Automated versioning & release tagging
 │   │
-│   ├── ISSUE_TEMPLATE/                    # Structured GitHub issue templates
+│   ├── ISSUE_TEMPLATE/                             # Structured GitHub issue templates
 │   │   ├── auth_bug_report.yml
 │   │   ├── auth_feature_request.yml
 │   │   ├── auth_security_vulnerability.yml
 │   │   └── task.yml
 │   │
-│   ├── DISCUSSION_TEMPLATE/               # GitHub Discussions templates
+│   ├── DISCUSSION_TEMPLATE/                         # GitHub Discussions templates
 │   │   ├── auth_question.yml
 │   │   ├── auth_idea.yml
 │   │   └── auth_implementation.yml
 │   │
-│   ├── CODEOWNERS                         # Maintainer ownership
-│   ├── CODE_OF_CONDUCT.md                 # Contributor behavior guidelines
-│   ├── CONTRIBUTING.md                    # Contribution setup & pull request rules
-│   ├── SECURITY.md                        # Responsible disclosure policy
-│   ├── LICENSE                            # GPL-3.0-or-later license file
-│   └── dependabot.yml                     # Automated dependency update rules
+│   ├── CODEOWNERS                                   # Maintainer ownership
+│   ├── CODE_OF_CONDUCT.md                           # Contributor behavior guidelines
+│   ├── CONTRIBUTING.md                              # Contribution setup & pull request rules
+│   ├── SECURITY.md                                  # Responsible disclosure policy
+│   ├── LICENSE                                      # GPL-3.0-or-later license file
+│   └── dependabot.yml                               # Automated dependency update rules
 │
-├── __tests__/                             # Automated test suite
-│   ├── e2e/                               # End-to-End test layer
-│   │   ├── auth/
-│   │   │   ├── auth.login.e2e-spec.ts     # Login / Refresh / Logout
-│   │   │   ├── auth.signup.e2e-spec.ts    # User & Admin registration (SignUp flow)
-│   │   │   ├── auth.user.e2e-spec.ts      # Me / Update profile / Change password / Send mail
-│   │   │   └── auth.admin.e2e-spec.ts     # Admin operations (roles, update, delete)
-│   │   ├── graphql-client.ts              # Request helper (cookies, retries)
-│   │   ├── setup-e2e.ts                   # Bootstraps Nest test app with real Keycloak
-│   │   ├── jest-e2e.json                  # Jest configuration for E2E tests
-│   │   └── tsconfig.spec.json             # TypeScript config for test compilation
+├── __tests__/                                       # Automated test suite
+│   ├── e2e/                                         # End-to-End test layer
+│   │   ├── authentication/
+│   │   │   ├── authentication.login.e2e-spec.ts     # Login / Refresh / Logout
+│   │   │   ├── authentication.signup.e2e-spec.ts    # User & Admin registration (SignUp flow)
+│   │   │   ├── authentication.user.e2e-spec.ts      # Me / Update profile / Change password / Send mail
+│   │   │   └── authentication.admin.e2e-spec.ts     # Admin operations (roles, update, delete)
+│   │   ├── graphql-client.ts                        # Request helper (cookies, retries)
+│   │   ├── setup-e2e.ts                             # Bootstraps Nest test app with real Keycloak
+│   │   ├── jest-e2e.json                            # Jest configuration for E2E tests
+│   │   └── tsconfig.spec.json                       # TypeScript config for test compilation
 │   │
 │   └── keycloak/
-│       ├── ci.env                         # Keycloak credentials used in CI runs
-│       └── realm.json                     # Imported test realm for CI Keycloak instance
+│       ├── ci.env                                   # Keycloak credentials used in CI runs
+│       └── realm.json                               # Imported test realm for CI Keycloak instance
 │
-├── src/                                   # NestJS source code
-│   ├── admin/                             # Admin module (shutdown, restart, maintenance)
-│   ├── auth/                              # Authentication & Keycloak integration layer
-│   ├── config/                            # Environment & system configuration
-│   ├── handlers/                          # Kafka event & domain logic handlers
-│   ├── health/                            # Liveness & readiness probes
-│   ├── logger/                            # Pino logger setup & response interceptors
-│   ├── messaging/                         # KafkaJS producer / consumer abstraction
-│   ├── redis/                             # Redis client, cache & pub/sub
-│   ├── security/                          # HTTP headers, CORS & helmet middleware
-│   ├── trace/                             # Tempo tracing / OpenTelemetry integration
-│   ├── app.module.ts                      # Root NestJS application module
-│   └── main.ts                            # Application bootstrap entrypoint
+├── src/                                             # NestJS source code
+│   ├── admin/                                       # Admin module (shutdown, restart, maintenance)
+│   ├── authentication/                              # Authentication & Keycloak integration layer
+│   ├── config/                                      # Environment & system configuration
+│   ├── handlers/                                    # Kafka event & domain logic handlers
+│   ├── health/                                      # Liveness & readiness probes
+│   ├── logger/                                      # Pino logger setup & response interceptors
+│   ├── messaging/                                   # KafkaJS producer / consumer abstraction
+│   ├── redis/                                       # Redis client, cache & pub/sub
+│   ├── security/                                    # HTTP headers, CORS & helmet middleware
+│   ├── trace/                                       # Tempo tracing / OpenTelemetry integration
+│   ├── app.module.ts                                # Root NestJS application module
+│   └── main.ts                                      # Application bootstrap entrypoint
 │
-├── public/                                # Static assets
+├── public/                                          # Static assets
 │   ├── favicon/
 │   ├── favicon.ico
 │   ├── logo.png
 │   └── theme.css
 │
-├── log/                                   # Runtime log output
+├── log/                                             # Runtime log output
 │   └── server.log
 │
-├── .env                                   # Main environment configuration
-├── .env.example                           # Example environment for developers
-├── .health.env                            # Health probe endpoints (Keycloak, Tempo)
+├── .env                                             # Main environment configuration
+├── .env.example                                     # Example environment for developers
+├── .health.env                                      # Health probe endpoints (Keycloak, Tempo)
 │
-├── Dockerfile                             # Production Docker image
-├── docker-bake.hcl                        # Multi-stage build setup for Docker Bake
+├── Dockerfile                                       # Production Docker image
+├── docker-bake.hcl                                  # Multi-stage build setup for Docker Bake
 │
-├── eslint.config.mjs                      # ESLint configuration (TypeScript + Prettier)
-├── nest-cli.json                          # NestJS CLI settings
-├── package.json                           # Project metadata & scripts
-├── pnpm-lock.yaml                         # pnpm dependency lockfile
-├── pnpm-workspace.yaml                    # Monorepo workspace setup
-├── tsconfig.json                          # Root TypeScript configuration
-├── tsconfig.build.json                    # Build-only TypeScript config
-├── typedoc.cjs                            # TypeDoc configuration for API docs
-└── README.md                              # Main project documentation
+├── eslint.config.mjs                                # ESLint configuration (TypeScript + Prettier)
+├── nest-cli.json                                    # NestJS CLI settings
+├── package.json                                     # Project metadata & scripts
+├── pnpm-lock.yaml                                   # pnpm dependency lockfile
+├── pnpm-workspace.yaml                              # Monorepo workspace setup
+├── tsconfig.json                                    # Root TypeScript configuration
+├── tsconfig.build.json                              # Build-only TypeScript config
+├── typedoc.cjs                                      # TypeDoc configuration for API docs
+└── README.md                                        # Main project documentation
 
 ```
 
@@ -294,8 +294,8 @@ Defines local and remote health probe targets for monitoring (e.g., Kubernetes, 
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/omnixys/auth-service.git
-cd auth
+git clone https://github.com/omnixys/omnixys-authentication-service.git
+cd authentication
 
 # 2. Copy environment file
 cp .env.example .env
@@ -412,7 +412,7 @@ Licensed under **GPL-3.0-or-later**
 ## 🇩🇪 Deutsche Version
 
 ### 🔎 Übersicht
-Der **Omnixys Auth Service** ist ein sicherer Authentifizierungs- und Autorisierungs-Mikroservice auf Basis von **NestJS**, integriert mit **Keycloak**, **Kafka**, **Redis** und **Apollo Federation**.  
+Der **Omnixys Authentication Service** ist ein sicherer Authentifizierungs- und Autorisierungs-Mikroservice auf Basis von **NestJS**, integriert mit **Keycloak**, **Kafka**, **Redis** und **Apollo Federation**.  
 Er verwaltet Benutzeridentitäten, Token und Kommunikationssicherheit im gesamten Omnixys-Ökosystem.
 
 ---
@@ -447,8 +447,11 @@ Er verwaltet Benutzeridentitäten, Token und Kommunikationssicherheit im gesamte
 ### 🚀 Installation & Setup
 
 ```bash
-git clone https://github.com/omnixys/auth-service.git
-cd auth
+git clone https://github.com/omnixys/omnixys-authentication-service.git
+cd authentication
+```
+
+```bash
 cp .env.example .env
 pnpm install
 ```

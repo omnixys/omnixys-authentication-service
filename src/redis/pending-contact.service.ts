@@ -16,7 +16,7 @@
  */
 
 // src/service/pending-contact.service.ts
-import { PendingContact } from '../auth/models/dtos/pending-contact.dto.js';
+import { PendingContact } from '../authentication/models/dtos/pending-contact.dto.js';
 import { env } from '../config/env.js';
 import { RedisService } from './redis.service.js';
 import { Injectable } from '@nestjs/common';

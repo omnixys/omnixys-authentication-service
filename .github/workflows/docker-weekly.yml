@@ -122,6 +122,10 @@ jobs:
           tags: |
             ${{ env.IMAGE_NAME_REPOSITORY }}:${{ env.CURRENT_DATE }}
             ${{ env.IMAGE_NAME_REPOSITORY }}:latest
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.description=Omnixys Authentication Service
+            org.opencontainers.image.licenses=GPL-3.0-or-later
           build-args: |
             REVISION=${{ github.sha }}
             CREATED=${{ env.CURRENT_DATE }}

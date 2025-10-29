@@ -15,8 +15,8 @@
 
 # name: 💡 Authentication Service Idea or Proposal
 # description: Share an idea or suggestion to improve the Authentication microservice.
-labels: ["idea", "auth"]
-title: "[Auth Idea] "
+labels: ["idea", "authentication"]
+title: "[Authentication Service Idea] "
 # category: "💡 Ideas & Suggestions"
 
 body:

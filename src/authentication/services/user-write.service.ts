@@ -15,7 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-// /backend/auth/src/auth/services/keycloak-write.service.ts
 import { paths } from '../../config/keycloak.js';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { KafkaProducerService } from '../../messaging/kafka-producer.service.js';
@@ -25,7 +24,7 @@ import { updatePasswortDTO } from '../models/dtos/update-password.dto.js';
 import { Role } from '../models/enums/role.enum.js';
 import { SignUpPayload } from '../models/payloads/sign-in.payload.js';
 import { AdminWriteService } from './admin-write.service.js';
-import { AuthWriteService } from './auth-write.service.js';
+import { AuthWriteService } from './authentication-write.service.js';
 import { KeycloakBaseService } from './keycloak-base.service.js';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
@@ -52,7 +51,7 @@ export class UserWriteService extends KeycloakBaseService {
    * User anlegen (mit invitationId/phoneNumber Attributen) + Rolle + Kafka-Events.
    */
   async signUp(input: SignUpDTO): Promise<SignUpPayload> {
-    return this.withSpan('auth.signUp', async () => {
+    return this.withSpan('authentication.signUp', async () => {
       void this.logger.debug('signUp: input=%o', input);
 
       const { firstName, lastName, email, invitationId, phoneNumbers } = input;
@@ -107,10 +106,10 @@ export class UserWriteService extends KeycloakBaseService {
       await this.adminService.assignRealmRoleToUser(userId, Role.GUEST);
 
       const traceCtx = this.traceContext.getContext();
-      void this.kafka.addUser({ userId, invitationId }, 'auth.signUp', traceCtx);
+      void this.kafka.addUser({ userId, invitationId }, 'authentication.signUp', traceCtx);
       void this.kafka.sendUserCredentials(
         { userId, firstName, username, password, phoneNumbers },
-        'auth.signUp',
+        'authentication.signUp',
         traceCtx,
       );
 

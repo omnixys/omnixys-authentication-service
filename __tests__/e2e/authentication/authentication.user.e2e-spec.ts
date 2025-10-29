@@ -24,7 +24,7 @@ import { gqlRequest } from '../graphql-client.js';
 import { createTestApp } from '../setup-e2e.js';
 import type { INestApplication } from '@nestjs/common';
 
-describe('👤 Auth E2E - User Operations', () => {
+describe('👤 Authentication E2E - User Operations', () => {
   let app: INestApplication;
   let cookies: string[] = [];
   let accessToken: string | null = null;
@@ -32,7 +32,11 @@ describe('👤 Auth E2E - User Operations', () => {
 
   const log = (msg: string): void =>
     console.info(
-      JSON.stringify({ level: 'INFO', message: msg, service: 'auth-user' }),
+      JSON.stringify({
+        level: 'INFO',
+        message: msg,
+        service: 'authentication-user',
+      }),
     );
 
   beforeAll(async () => {

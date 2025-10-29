@@ -33,7 +33,7 @@ import { User } from '../models/entitys/user.entity.js';
 import {
   type GqlCtx,
   readAccessTokenFromCookie,
-} from './auth-mutation.resolver.js';
+} from './authentication-mutation.resolver.js';
 
 /**
  * @file GraphQL-Resolver für **lesende** Auth-Abfragen (ME/USERS).

@@ -15,8 +15,8 @@
 
 name: 💡 Authentication Service Feature Request
 description: Suggest a new feature or enhancement for the Authentication microservice
-title: "[Auth Feature] "
-labels: [enhancement, auth]
+title: "[Authentication Feature] "
+labels: [enhancement, authentication]
 body:
   - type: markdown
     attributes:

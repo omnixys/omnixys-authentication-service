@@ -15,8 +15,8 @@
 
 # name: 🧪 Implementation or Architecture Discussion
 # description: Discuss technical design, architecture, or integration details for the Authentication Service.
-labels: ["🧪 Implementation", "auth"]
-title: "[Auth Implementation] "
+labels: ["🧪 Implementation", "authentication"]
+title: "[Authentication Implementation] "
 # category: "🧪 Implementation Details"
 
 body:

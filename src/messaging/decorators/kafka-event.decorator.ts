@@ -54,7 +54,7 @@ export function KafkaHandler(handlerName: string): ClassDecorator {
  *
  * @example
  * ```ts
- * @KafkaEvent('auth.create')
+ * @KafkaEvent('authentication.create')
  * async handle(topic: string, data: any) {
  *   // ...
  * }

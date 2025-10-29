@@ -15,8 +15,8 @@
  
 name: 🐛 Authentication Service Bug Report
 description: Report a reproducible issue or unexpected behavior in the Authentication microservice
-title: "[Auth Bug] "
-labels: [bug, auth, needs-triage]
+title: "[Authentication Bug] "
+labels: [bug, authentication, needs-triage]
 assignees: []
 body:
   - type: markdown
@@ -51,7 +51,7 @@ body:
       label: Steps to reproduce
       description: How can we reproduce the bug?
       placeholder: |
-        1. Start the auth-service with `pnpm run start:dev`
+        1. Start the authentication-service with `pnpm run start:dev`
         2. Send a login mutation via GraphQL
         3. Observe error response
     validations:

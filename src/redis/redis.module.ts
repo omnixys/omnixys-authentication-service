@@ -15,10 +15,16 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
+import { LoggerPlusService } from '../logger/logger-plus.service.js';
 import { RedisLockService } from './redis-lock.service.js';
 import { RedisService } from './redis.service.js';
 import { Module, OnModuleDestroy } from '@nestjs/common';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
+
+interface ClosableRedisClient {
+  quit?: () => Promise<unknown> | void;
+  disconnect?: () => Promise<unknown> | void;
+}
 
 @Module({
   imports: [],
@@ -26,18 +32,26 @@ import { RedisPubSub } from 'graphql-redis-subscriptions';
   exports: [RedisService, RedisPubSub, RedisLockService],
 })
 export class RedisModule implements OnModuleDestroy {
+  private readonly logger;
+
   constructor(
     private readonly redis: RedisService,
     private readonly pubsub: RedisPubSub,
     private readonly lock: RedisLockService,
-  ) {}
+    private readonly loggerService: LoggerPlusService,
+  ) {
+    this.logger = this.loggerService.getLogger(RedisModule.name);
+  }
 
   async onModuleDestroy(): Promise<void> {
-    const close = async (client: any, name: string) => {
+    const close = async (client: ClosableRedisClient, name: string): Promise<void> => {
       try {
-        if (client?.quit) await client.quit();
-        else if (client?.disconnect) await client.disconnect();
-        console.log(`[RedisModule] 🧹 Closed ${name}`);
+        if (client?.quit) {
+          await client.quit();
+        } else if (client?.disconnect) {
+          await client.disconnect();
+        }
+        this.logger.log(`[RedisModule] 🧹 Closed ${name}`);
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : JSON.stringify(err);
         console.warn(`[RedisModule] ⚠️ Error closing ${name}: ${message}`);
@@ -45,9 +59,9 @@ export class RedisModule implements OnModuleDestroy {
     };
 
     await Promise.allSettled([
-      close(this.redis, 'RedisService'),
-      close(this.pubsub, 'RedisPubSub'),
-      close(this.lock, 'RedisLockService'),
+      close(this.redis as ClosableRedisClient, 'RedisService'),
+      close(this.pubsub as ClosableRedisClient, 'RedisPubSub'),
+      close(this.lock as ClosableRedisClient, 'RedisLockService'),
     ]);
   }
 }

@@ -94,7 +94,7 @@ export async function gqlRequest<
       JSON.stringify(
         {
           level: 'ERROR',
-          service: 'auth-e2e',
+          service: 'authentication-e2e',
           message: 'GraphQL Errors',
           details: body.errors,
         },

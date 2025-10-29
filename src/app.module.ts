@@ -16,7 +16,7 @@
  */
 
 import { AdminModule } from './admin/admin.module.js';
-import { KeycloakModule } from './auth/keycloak.module.js';
+import { AuthenticationModule } from './authentication/authentication.module.js';
 import { env } from './config/env.js';
 import { HandlerModule } from './handlers/handler.module.js';
 import { HealthModule } from './health/health.module.js';
@@ -36,7 +36,7 @@ const { SCHEMA_TARGET } = env;
     AdminModule,
     HandlerModule,
     HealthModule,
-    KeycloakModule,
+    AuthenticationModule,
     LoggerModule,
     KafkaModule,
     RedisModule,

@@ -15,8 +15,8 @@
 
 # name: 🧵 General Discussion
 # description: Start an open discussion or share general feedback about the Authentication Service.
-labels: ["general", "auth"]
-title: "[Auth Discussion] "
+labels: ["general", "authentication"]
+title: "[Authentication Service Discussion] "
 # category: "🧵 General"
 
 body:

@@ -15,8 +15,8 @@
 
 name: ❓ Authentication Service Question or Help Request
 description: Ask a question or request help regarding setup, configuration, or usage of the Authentication Service.
-title: "[Auth Question] "
-labels: ["question", "auth", "needs-triage"]
+title: "[Authentication Question] "
+labels: ["question", "authentication", "needs-triage"]
 assignees: []
 body:
   - type: markdown

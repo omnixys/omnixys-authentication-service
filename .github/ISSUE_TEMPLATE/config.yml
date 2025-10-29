@@ -15,7 +15,7 @@
  
 contact_links:
   - name: 🔐 Authentication Service Docs
-    url: https://github.com/omnixys/auth-service#readme
+    url: https://github.com/omnixys/omnixys-authentication-service#readme
     about: Read the documentation before creating an issue.
   - name: 💬 Omnixys Discussion Board
     url: https://github.com/orgs/omnixys/discussions

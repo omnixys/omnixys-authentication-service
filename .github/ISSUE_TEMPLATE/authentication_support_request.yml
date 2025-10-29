@@ -15,8 +15,8 @@
 
 name: 🆘 Authentication Service Support Request
 description: Get help with setup, configuration, or usage of the Authentication Service
-title: "[Auth Support] "
-labels: [support, question, auth]
+title: "[Authentication Support] "
+labels: [support, question, authentication]
 body:
   - type: markdown
     attributes:

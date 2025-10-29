@@ -1,5 +1,5 @@
 {
-  "name": "@omnixys/auth-service",
+  "name": "omnixys-authentication-service",
   "version": "1.0.0",
   "description": "Omnixys Authentication Service – zentrale Authentifizierungs- und Autorisierungskomponente (Keycloak, JWT, SSO).",
   "author": {
@@ -32,7 +32,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest --config ./jest-e2e.json --maxWorkers=4 --coverage",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:e2e:debug": "NODE_OPTIONS='--experimental-vm-modules' jest --runInBand --detectOpenHandles --config ./__tests__/jest-e2e.json",
@@ -40,11 +40,10 @@
     "test:e2e": "NODE_OPTIONS='--experimental-vm-modules' jest --config ./__tests__/e2e/jest-e2e.json --passWithNoTests",
     "typedoc": "typedoc",
     "depcheck": "depcheck",
-    "test:e2e:auth": "NODE_OPTIONS='--experimental-vm-modules' jest --config ./jest-e2e.json --maxWorkers=4 --coverage",
-    "test:e2e:auth:login": "pnpm run test:e2e:auth -- __tests__/e2e/auth/auth.login.e2e-spec.ts",
-        "test:e2e:auth:signup": "pnpm run test:e2e:auth -- __tests__/e2e/auth/auth.signup.e2e-spec.ts",
-    "test:e2e:auth:user": "pnpm run test:e2e:auth -- __tests__/e2e/auth/auth.user.e2e-spec.ts",
-    "test:e2e:auth:admin": "pnpm run test:e2e:auth -- __tests__/e2e/auth/auth.admin.e2e-spec.ts"
+    "test:login": "pnpm test -- __tests__/e2e/authentication/authentication.login.e2e-spec.ts",
+    "test:signup": "pnpm test -- __tests__/e2e/authentication/authentication.signup.e2e-spec.ts",
+    "test:user": "pnpm test -- __tests__/e2e/authentication/authentication.user.e2e-spec.ts",
+    "test:admin": "pnpm test -- __tests__/e2e/authentication/authentication.admin.e2e-spec.ts"
   },
   "dependencies": {
     "@apollo/server": "^5.0.0",

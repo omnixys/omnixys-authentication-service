@@ -187,7 +187,7 @@ async function bootstrap(): Promise<void> {
    */
   await app.listen(port, '0.0.0.0');
 
-  console.debug(`✅ Auth-Service läuft auf Port: ${port}`);
+  console.debug(`✅ Authentication-Service läuft auf Port: ${port}`);
 }
 
 // ======================================================
