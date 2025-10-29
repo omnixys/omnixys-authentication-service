@@ -13,7 +13,7 @@
  #
  # For more information, visit <https://www.gnu.org/licenses/>.
  
-name: Security
+name: Security Node
 
 on:
   schedule:
@@ -23,6 +23,7 @@ on:
 permissions:
   contents: read
   security-events: write
+  actions: read
 
 env:
   IMAGE_NAME: ${{ secrets.DOCKER_USER }}/${{ secrets.SERVICE }}-service
@@ -170,3 +171,105 @@ jobs:
         with:
           name: docker-scout-reports
           path: ./docker-scout-*.md
+
+  audit:
+    name: 🔒 PNPM Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛎️ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Enable Corepack (pnpm)
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      - name: 📦 Install dependencies (prod only)
+        run: pnpm install --prod --frozen-lockfile
+
+      - name: 🧪 Run pnpm audit and save JSON
+        run: |
+          pnpm audit --json > audit-report.json || true
+
+      - name: 📤 Upload audit JSON as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pnpm-audit-report
+          path: audit-report.json
+
+      - name: 🧾 Append readable Audit Summary
+        if: always()
+        run: |
+          echo "### 🔒 Dependency Audit Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -s audit-report.json ]; then
+            node -e "
+            import fs from 'fs';
+            const data = JSON.parse(fs.readFileSync('audit-report.json', 'utf8'));
+            if (!data.advisories) {
+              console.log('✅ No vulnerabilities found.');
+              process.exit(0);
+            }
+            const advisories = Object.values(data.advisories);
+            if (advisories.length === 0) {
+              console.log('✅ No vulnerabilities found.');
+              process.exit(0);
+            }
+
+            const color = {
+              critical: '🔴',
+              high: '🟠',
+              moderate: '🟡',
+              low: '🟢',
+            };
+
+            console.log('| Severity | Package | Vulnerable | Patched | Path | Advisory | Recommended Update |');
+            console.log('|-----------|----------|------------|----------|-----------|-----------|------------------|');
+
+            for (const adv of advisories) {
+              const sev = adv.severity;
+              const pkg = adv.module_name;
+              const vuln = adv.vulnerable_versions;
+              const patched = adv.patched_versions || '-';
+              const path = adv.findings?.[0]?.paths?.[0] || '-';
+              const url = adv.url || 'n/a';
+              const icon = color[sev] || '⚪';
+              const updateCmd = patched && patched !== '-' 
+                ? \`pnpm update \${pkg}@\${patched.replace('>=', '')}\`
+                : \`pnpm update \${pkg}\`;
+
+              console.log(\`| \${icon} \${sev} | \${pkg} | \${vuln} | \${patched} | \${path} | [link](\${url}) | \\\`\${updateCmd}\\\` |\`);
+            }" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ No audit data generated." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 🚨 Fail workflow on critical issues
+        id: failcheck
+        if: always()
+        run: |
+          node <<'EOF'
+          import fs from 'fs';
+          const data = JSON.parse(fs.readFileSync('audit-report.json','utf8'));
+          const critical = Object.values(data.advisories || {}).filter(a => a.severity === 'critical');
+          if (critical.length > 0) {
+            console.error(`❌ Critical vulnerabilities found: ${critical.length}`);
+            process.exit(1);
+          } else {
+            console.log('✅ No critical vulnerabilities.');
+          }
+          EOF
+
+      - name: 🪪 Create GitHub Issue on critical vulnerabilities
+        if: failure() # Nur wenn vorheriger Schritt fehlschlägt
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "🚨 Critical vulnerabilities detected in PNPM audit"
+          content-filepath: ./audit-report.json
+          labels: |
+            security
+            vulnerability
+          assignees: caleb-script
+          token: ${{ secrets.GITHUB_TOKEN }}
