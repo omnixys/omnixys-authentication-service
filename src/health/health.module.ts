@@ -25,7 +25,7 @@ import { TerminusModule } from '@nestjs/terminus';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.health.env',
+      // envFilePath: '.health.env',
       isGlobal: true,
     }),
     TerminusModule,
