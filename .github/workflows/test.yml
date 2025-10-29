@@ -99,7 +99,7 @@ jobs:
             start-dev --import-realm --http-port=8080
 
           echo "⏳ Waiting for Keycloak..."
-          for i in {1..7}; do
+          for i in {1..40}; do
             if  curl -fs http://localhost:18080/realms/master >/dev/null 2>&1; then
               echo "✅ Base realm 'master' available (after $i checks)"
               break
@@ -109,7 +109,7 @@ jobs:
           done
 
           echo "⏳ Waiting for imported realm 'camunda-platform'..."
-          for i in {1..10}; do
+          for i in {1..20}; do
             if curl -fs http://localhost:18080/realms/camunda-platform >/dev/null 2>&1; then
               echo "✅ Realm 'camunda-platform' available (after $i checks)"
               docker ps
