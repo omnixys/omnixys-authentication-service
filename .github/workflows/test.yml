@@ -227,21 +227,46 @@ jobs:
         if: always()
         run: |
           echo "### 🧪 E2E Test Summary" >> $GITHUB_STEP_SUMMARY
-          if [ -d "./__tests__/reports/e2e/coverage" ]; then
-            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-            pnpm run test:e2e:auth --coverageReporters=text-summary | tee -a $GITHUB_STEP_SUMMARY
-            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          SUMMARY_FILE="./__tests__/reports/e2e/coverage/coverage-summary.json"
+      
+          if [ -f "$SUMMARY_FILE" ]; then
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            node -e "
+            const fs = require('fs');
+            const summary = JSON.parse(fs.readFileSync('$SUMMARY_FILE', 'utf8'));
+            const total = summary.total;
+            for (const [key, value] of Object.entries(total)) {
+              const pct = value.pct?.toString().padStart(6, ' ');
+              console.log(\`\${key.padEnd(12)}: \${pct}% (\${value.covered}/\${value.total})\`);
+            }
+            " >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+      
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Metric | % | Covered | Total |" >> $GITHUB_STEP_SUMMARY
+            echo "|:--|--:|--:|--:|" >> $GITHUB_STEP_SUMMARY
+            node -e "
+            const fs = require('fs');
+            const s = JSON.parse(fs.readFileSync('$SUMMARY_FILE', 'utf8')).total;
+            for (const [k, v] of Object.entries(s)) {
+              console.log(\`| \${k} | \${v.pct}% | \${v.covered} | \${v.total} |\`);
+            }
+            " >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ No coverage report generated" >> $GITHUB_STEP_SUMMARY
           fi
 
 
-
       - name: 🪶 Generate Coverage Badge
         if: always()
         run: |
-          npx make-coverage-badge --input ./__tests__/reports/e2e/coverage/lcov.info --output coverage.svg
+          mkdir -p coverage
+          cp __tests__/reports/e2e/coverage/coverage-summary.json coverage/
+          npx make-coverage-badge \
+            --input __tests__/reports/e2e/coverage/lcov.info \
+            --output __tests__/reports/e2e/coverage/coverage.svg
         continue-on-error: true
+
 
 
       - name: 📤 Upload Coverage Badge
