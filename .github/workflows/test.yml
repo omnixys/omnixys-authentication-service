@@ -88,28 +88,23 @@ jobs:
           corepack enable
           pnpm install --frozen-lockfile
 
-      - name: 🚀 Start Keycloak (26.3.2)
+          
+      - name: 🚀 Start Keycloak
         run: |
           docker run -d --name keycloak -p 18080:8080 \
-            -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
-            -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
-            -v "$(pwd)/__tests__/keycloak/realm-clean.json:/opt/keycloak/data/import/realm.json:ro" \
-            quay.io/keycloak/keycloak:26.3.2 \
-            start-dev --import-realm --http-port=8080
-
+            -e KEYCLOAK_ADMIN=admin \
+            -e KEYCLOAK_ADMIN_PASSWORD=admin \
+            quay.io/keycloak/keycloak:25.0 start-dev --http-port=8080
           echo "⏳ Waiting for Keycloak..."
-          for i in {1..5}; do
-            if docker exec keycloak curl -fs http://localhost:18080/realms/master >/dev/null 2>&1; then
-              echo "✅ Keycloak ready after $i checks"
-              exit 0
+          for i in {1..30}; do
+            if curl -fs http://localhost:18080/realms/master >/dev/null 2>&1; then
+              echo "✅ Keycloak ready (after $i checks)"
+              break
             fi
-            echo "waiting ($i/5)..."
+            echo "waiting ($i/30)..."
             sleep 5
           done
 
-          echo "❌ Keycloak did not become ready in time. Dumping logs..."
-          docker logs keycloak
-          exit 1
 
       - name: 🧪 Run E2E Auth Tests
         env:
