@@ -19,7 +19,7 @@ services:
       start_period: 10s
 
   tempo:
-    image: grafana/tempo
+    image: grafana/tempo:2.8.0
     command: ['-config.file=/etc/tempo.yaml']
     volumes:
       - type: bind
@@ -38,8 +38,6 @@ services:
       timeout: 3s
       retries: 5
       start_period: 10s
-    networks:
-      - omnixys-network
 
   prometheus:
     image: prom/prometheus:v2.50.1
@@ -60,8 +58,6 @@ services:
         target: /etc/prometheus/certificate.crt
         read_only: true
     container_name: prometheus
-    networks:
-      - omnixys-network
 
   grafana:
     depends_on:
