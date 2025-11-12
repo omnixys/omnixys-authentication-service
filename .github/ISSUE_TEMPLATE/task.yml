@@ -1,0 +1,79 @@
+# @license GPL-3.0-or-later
+# Copyright (C) 2025 Caleb Gyamfi - Omnixys Technologies
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+name: ✅ Task
+description: Create or track a technical task within the Authentication Service project
+title: '[Auth Task] '
+labels: ['task', 'authentication']
+
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: Task summary
+      placeholder: e.g., Refactor Keycloak service logging
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Task details
+      placeholder: |
+        - Purpose of this task
+        - Expected deliverables
+        - Dependencies or blockers
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options: [Low, Medium, High]
+      description: Will sync to Project → Priority field
+    validations:
+      required: true
+
+  - type: dropdown
+    id: estimate
+    attributes:
+      label: Estimated effort
+      options: [XS (≤1h), S (≤3h), M (≤1d), L (≤2d), XL (>2d)]
+      description: Will sync to Project → Estimate field
+    validations:
+      required: false
+
+  - type: input
+    id: start_date
+    attributes:
+      label: Start date (YYYY-MM-DD)
+      description: Optional; mapped to Project → Start date
+    validations:
+      required: false
+
+  - type: input
+    id: end_date
+    attributes:
+      label: End date (YYYY-MM-DD)
+      description: Optional; mapped to Project → End date
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - [ ] Code merged & tested
+        - [ ] Pipeline green
+        - [ ] Docs updated
