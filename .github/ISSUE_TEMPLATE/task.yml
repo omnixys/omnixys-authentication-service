@@ -35,40 +35,6 @@ body:
     validations:
       required: true
 
-  - type: dropdown
-    id: priority
-    attributes:
-      label: Priority
-      options: [Low, Medium, High]
-      description: Will sync to Project → Priority field
-    validations:
-      required: true
-
-  - type: dropdown
-    id: estimate
-    attributes:
-      label: Estimated effort
-      options: [XS (≤1h), S (≤3h), M (≤1d), L (≤2d), XL (>2d)]
-      description: Will sync to Project → Estimate field
-    validations:
-      required: false
-
-  - type: input
-    id: start_date
-    attributes:
-      label: Start date (YYYY-MM-DD)
-      description: Optional; mapped to Project → Start date
-    validations:
-      required: false
-
-  - type: input
-    id: end_date
-    attributes:
-      label: End date (YYYY-MM-DD)
-      description: Optional; mapped to Project → End date
-    validations:
-      required: false
-
   - type: textarea
     id: acceptance
     attributes:
