@@ -1,0 +1,94 @@
+services:
+  loki:
+    image: grafana/loki
+    ports:
+      - published: 3100
+        target: 3100
+    volumes:
+      - type: bind
+        source: ./loki-config.yaml
+        target: /etc/loki/local-config.yaml
+        read_only: true
+    command: -config.file=/etc/loki/local-config.yaml
+    container_name: loki
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3100/ready']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  tempo:
+    image: grafana/tempo
+    command: ['-config.file=/etc/tempo.yaml']
+    volumes:
+      - type: bind
+        source: ./tempo.yaml
+        target: /etc/tempo.yaml
+        read_only: true
+    ports:
+      - published: 3200
+        target: 3200
+      - published: 4318
+        target: 4318
+    container_name: tempo
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:3200/metrics']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - omnixys-network
+
+  prometheus:
+    image: prom/prometheus:v2.50.1
+    ports:
+      - published: 9090
+        target: 9090
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: ./prometheus.yaml
+        target: /etc/prometheus/prometheus.yml
+        read_only: true
+      - type: bind
+        source: ../../volumes/prometheus
+        target: /prometheus
+      - type: bind
+        source: ../../keys/certificate.crt
+        target: /etc/prometheus/certificate.crt
+        read_only: true
+    container_name: prometheus
+    networks:
+      - omnixys-network
+
+  grafana:
+    depends_on:
+      - prometheus
+      - tempo
+    image: grafana/grafana:10.3.3
+    ports:
+      - published: 7600
+        target: 3000
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: ./grafana-datasources
+        target: /etc/grafana/provisioning/datasources
+        read_only: true
+      - type: bind
+        # SQLite-Datenbank mit z.B. der Tabelle "dashboard"
+        source: ./grafana.db
+        target: /var/lib/grafana/grafana.db
+    environment:
+      # default: admin / admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    container_name: grafana
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
+      interval: 30s
+      timeout: 3s
+      retries: 5
