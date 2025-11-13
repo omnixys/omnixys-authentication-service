@@ -1,8 +1,0 @@
-include:
-  - path: camunda/compose.yaml
-  - path: kafka/compose.yaml
-  - path: observability/compose.yaml
-  # - path: redis/compose.yaml
-# networks:
-#   omnixys-network:
-#     driver: bridge

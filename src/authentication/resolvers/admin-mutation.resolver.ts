@@ -16,18 +16,25 @@
  */
 
 import { UseInterceptors } from '@nestjs/common';
-import { Args, ID, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Context, ID, Mutation, Resolver } from '@nestjs/graphql';
 import { Public } from 'nest-keycloak-connect';
 
 import { getLogger } from '../../logger/get-logger.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
 
 import { Role } from '../models/enums/role.enum.js';
+import { AdminSignUpInput } from '../models/inputs/sign-up.input.js';
 import {
   UpdateUserInput,
   UpdateUserPasswordInput,
 } from '../models/inputs/update-user.input.js';
+import { TokenPayload } from '../models/payloads/token.payload.js';
 import { AdminWriteService } from '../services/admin-write.service.js';
+import {
+  cookieOpts,
+  GqlCtx,
+  setCookieSafe,
+} from './authentication-mutation.resolver.js';
 
 /**
  * @fileoverview
@@ -164,5 +171,29 @@ export class AdminMutationResolver {
     this.logger.debug('removeRealmRole: userId=%s, role=%s', id, roleName);
     await this.adminService.removeRealmRoleFromUser(id, roleName);
     return true;
+  }
+
+  @Mutation(() => TokenPayload, { name: 'adminSignUp' })
+  @Public()
+  async adminSignIn(
+    @Args('input', { type: () => AdminSignUpInput }) input: AdminSignUpInput,
+    @Context() ctx: GqlCtx,
+  ): Promise<TokenPayload> {
+    this.logger.debug('signIn: input=%o', input);
+    const result = await this.adminService.adminSignUp(input);
+
+    setCookieSafe(
+      ctx?.res,
+      'kc_access_token',
+      result.accessToken,
+      cookieOpts(result.expiresIn * 1000),
+    );
+    setCookieSafe(
+      ctx?.res,
+      'kc_refresh_token',
+      result.refreshToken,
+      cookieOpts(result.refreshExpiresIn * 1000),
+    );
+    return result;
   }
 }

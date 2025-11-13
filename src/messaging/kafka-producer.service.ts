@@ -13,8 +13,7 @@
  * See the GNU General Public License for more details.
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
-
-import type { PhoneNumberInput } from '../authentication/models/inputs/phone-number.input.js';
+import { UserDTO } from '../authentication/models/dtos/user.dto.js';
 import { LoggerPlusService, setGlobalKafkaProducer } from '../logger/logger-plus.service.js';
 import type { TraceContext } from '../trace/trace-context.util.js';
 import type { KafkaEnvelope } from './decorators/kafka-envelope.type.js';
@@ -73,50 +72,7 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  /**
-   * Convenience-Methoden für spezifische Events.
-   */
-  async addUser(
-    payload: { userId: string; invitationId: string },
-    service: string,
-    trace?: TraceContext,
-  ): Promise<void> {
-    const envelope: KafkaEnvelope<typeof payload> = {
-      event: 'addUserId',
-      service,
-      version: 'v1',
-      trace,
-      payload,
-    };
-    await this.send(KafkaTopics.invitation.addUser, envelope, trace);
-  }
-
-  async sendUserCredentials(
-    payload: {
-      userId: string;
-      firstName: string;
-      username: string;
-      password: string;
-      phoneNumbers?: PhoneNumberInput[];
-    },
-    service: string,
-    trace?: TraceContext,
-  ): Promise<void> {
-    const envelope: KafkaEnvelope<typeof payload> = {
-      event: 'sendCredentials',
-      service,
-      version: 'v1',
-      trace,
-      payload,
-    };
-    await this.send(KafkaTopics.notification.sendCredentials, envelope, trace);
-  }
-
-  async sendUserId(
-    payload: { userId: string },
-    service: string,
-    trace?: TraceContext,
-  ): Promise<void> {
+  async sendUserId(payload: UserDTO, service: string, trace?: TraceContext): Promise<void> {
     const envelope: KafkaEnvelope<typeof payload> = {
       event: 'sendUserId',
       service,

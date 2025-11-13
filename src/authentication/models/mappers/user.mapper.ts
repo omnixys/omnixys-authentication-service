@@ -17,34 +17,9 @@
 
 import type { KeycloakTokenPayload } from '../dtos/kc-token.dto.js';
 import type { KeycloakUser } from '../dtos/kc-user.dto.js';
-import type { PhoneNumber } from '../entitys/phone-number.entity.js';
 import type { User } from '../entitys/user.entity.js';
-import { PhoneKind } from '../enums/phone-kind.enum.js';
 import type { Role } from '../enums/role.enum.js';
 import { toEnumRoles } from '../enums/role.enum.js';
-
-/**
- * Utility: normiert string|string[]|undefined -> string[]|undefined
- */
-function toStringArray(
-  v: string | string[] | undefined | null,
-): string[] | undefined {
-  if (v == null) {
-    return undefined;
-  }
-  return Array.isArray(v) ? v.filter(Boolean) : v ? [v] : undefined;
-}
-
-/**
- * Utility: holt erstes Element aus attributes[key]
- */
-function firstAttr(
-  attrs: Record<string, string[] | undefined> | undefined,
-  key: string,
-): string | undefined {
-  const arr = attrs?.[key];
-  return Array.isArray(arr) && arr.length > 0 ? arr[0] : undefined;
-}
 
 /**
  * Ist es ein Admin-API-User?
@@ -65,48 +40,12 @@ function isKeycloakUser(
  * - ticketIds[]/invitationIds[]
  */
 function fromKeycloakUser(u: KeycloakUser): User {
-  const attrs: Record<string, string[] | undefined> = u.attributes ?? {};
-
-  // Single Phones (first value)
-  const privatePhone = firstAttr(attrs, 'privatePhone');
-  const workPhone = firstAttr(attrs, 'workPhone');
-  const whatsappPhone = firstAttr(attrs, 'whatsappPhone');
-
-  // Multi phones (OTHER)
-  const phoneNumbersRaw = attrs['phoneNumbers'] ?? [];
-  const phoneOthers =
-    toStringArray(phoneNumbersRaw)?.map<PhoneNumber>((v, i) => ({
-      kind: PhoneKind.OTHER,
-      value: v,
-      label: `phone_${i + 1}`,
-    })) ?? [];
-
-  const phones: PhoneNumber[] = [
-    ...(privatePhone ? [{ kind: PhoneKind.PRIVATE, value: privatePhone }] : []),
-    ...(workPhone ? [{ kind: PhoneKind.WORK, value: workPhone }] : []),
-    ...(whatsappPhone
-      ? [{ kind: PhoneKind.WHATSAPP, value: whatsappPhone }]
-      : []),
-    ...phoneOthers,
-  ];
-
-  const ticketIds = toStringArray(attrs['ticketIds']);
-  const invitationIds = toStringArray(attrs['invitationIds']) ?? [];
-
-  const rolesAttr = toStringArray(attrs['roles']) ?? [];
-  const roles: Role[] = toEnumRoles(rolesAttr);
-
   return {
     id: u.id ?? 'N/A',
     username: u.username,
     firstName: u.firstName ?? 'N/A',
     lastName: u.lastName ?? 'N/A',
     email: u.email,
-    phoneNumbers: phones.length ? phones : undefined,
-    ticketIds,
-    invitationIds,
-    roles,
-    eventIds: u.attributes?.eventIds,
   };
 }
 
@@ -115,36 +54,12 @@ function fromKeycloakUser(u: KeycloakUser): User {
  * - nutzt camelCase Claims aus deinem ClientScope („checkpoint-main-extra“)
  */
 function fromTokenPayload(p: KeycloakTokenPayload): User {
-  // Phones: baue strukturierte Liste aus den Singletons + Liste
-  const phoneList: PhoneNumber[] = [];
-
-  if (p.private_phone) {
-    phoneList.push({ kind: PhoneKind.PRIVATE, value: p.private_phone });
-  }
-  if (p.work_phone) {
-    phoneList.push({ kind: PhoneKind.WORK, value: p.work_phone });
-  }
-  if (p.whatsapp_phone) {
-    phoneList.push({ kind: PhoneKind.WHATSAPP, value: p.whatsapp_phone });
-  }
-
-  if (Array.isArray(p.phoneNumbers)) {
-    p.phoneNumbers.filter(Boolean).forEach((v: string, i) =>
-      phoneList.push({
-        kind: PhoneKind.OTHER,
-        value: v,
-        label: `phone_${i + 1}`,
-      }),
-    );
-  }
-
   const realmRolesStr: string[] = Array.isArray(p.realm_access?.roles)
     ? p.realm_access.roles
     : [];
-  const attrRolesStr: string[] = Array.isArray(p.roles) ? p.roles : [];
 
   // Merge + Enum-Normalisierung
-  const roles: Role[] = toEnumRoles([...realmRolesStr, ...attrRolesStr]);
+  const roles: Role[] = toEnumRoles([...realmRolesStr]);
 
   return {
     id: p.sub ?? 'N/A',
@@ -153,12 +68,6 @@ function fromTokenPayload(p: KeycloakTokenPayload): User {
     lastName: p.last_name ?? 'N/A',
     email: p.email ?? 'N/A',
     roles,
-    invitationIds: Array.isArray(p.invitationIds)
-      ? (p.invitationIds as string[])
-      : [],
-    ticketIds: Array.isArray(p.ticketIds) ? p.ticketIds : undefined,
-    phoneNumbers: phoneList.length ? phoneList : undefined,
-    eventIds: p.event_ids,
   };
 }
 

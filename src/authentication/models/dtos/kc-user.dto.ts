@@ -24,14 +24,35 @@ export interface KeycloakUser {
   email: string;
   emailVerified?: boolean;
   requiredActions?: string[];
-  attributes?: {
-    workPhone?: string[];
-    privatePhone?: string[];
-    whatsappPhone?: string[];
-    ticketIds?: string[];
-    invitationIds?: string[];
-    phoneNumbers?: string[];
-    roles: string[];
-    eventIds?: string[];
+}
+
+export interface KeycloakUserPatch {
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  attributes?: Record<string, unknown>;
+}
+
+export interface KeycloakRawOutput {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  emailVerified: boolean;
+  attributes: { roles: string[] };
+  enabled: boolean;
+  createdTimestamp: number;
+  totp: boolean;
+  disableableCredentialTypes: string[];
+  requiredActions: string[];
+  notBefore: number;
+  access: {
+    manageGroupMembership: boolean;
+    view: boolean;
+    mapRoles: boolean;
+    impersonate: boolean;
+    manage: boolean;
   };
 }

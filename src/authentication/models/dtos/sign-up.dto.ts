@@ -16,8 +16,10 @@
  */
 
 import type { PhoneNumberInput } from '../inputs/phone-number.input.js';
+import { Field, InputType } from '@nestjs/graphql';
+import { IsEmail, IsString, Length } from 'class-validator';
 
-export interface SignUpDTO {
+export interface GuestSignUpDTO {
   invitationId: string;
   firstName: string;
   lastName: string;
@@ -27,31 +29,11 @@ export interface SignUpDTO {
 }
 
 /**
- * @license GPL-3.0-or-later
- * Copyright (C) 2025 Caleb Gyamfi - Omnixys Technologies
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * For more information, visit <https://www.gnu.org/licenses/>.
- */
-
-import { Field, InputType } from '@nestjs/graphql';
-import { IsEmail, IsString, Length } from 'class-validator';
-
-/**
  * Input type for creating a new user.
  * Corresponds to fields in the User entity.
  */
 @InputType()
-export class KCSignUpDTO {
+export class UserSignUpDTO {
   @Field(() => String)
   @IsString()
   @Length(3, 32)
@@ -70,4 +52,7 @@ export class KCSignUpDTO {
   @Field(() => String)
   @IsEmail()
   email!: string;
+
+  password!: string;
+  phoneNumbers?: PhoneNumberInput[];
 }

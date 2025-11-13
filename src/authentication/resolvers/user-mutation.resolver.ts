@@ -17,18 +17,29 @@
 
 import { getLogger } from '../../logger/get-logger.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
+import {
+  GuestSignUpInput,
+  UserSignUpInput,
+} from '../models/inputs/sign-up.input.js';
 import { ChangeMyPasswordInput } from '../models/inputs/update-password.input.js';
 import { UpdateMyProfileInput } from '../models/inputs/user-update.input.js';
+import { SignUpPayload } from '../models/payloads/sign-in.payload.js';
 import { SuccessPayload } from '../models/payloads/success.payload.js';
+import { TokenPayload } from '../models/payloads/token.payload.js';
 import { AdminWriteService } from '../services/admin-write.service.js';
 import { UserWriteService } from '../services/user-write.service.js';
-import { type GqlCtx } from './authentication-mutation.resolver.js';
+import {
+  cookieOpts,
+  setCookieSafe,
+  type GqlCtx,
+} from './authentication-mutation.resolver.js';
 import {
   BadRequestException,
   UnauthorizedException,
   UseInterceptors,
 } from '@nestjs/common';
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
+import { Public } from 'nest-keycloak-connect';
 
 @Resolver()
 @UseInterceptors(ResponseTimeInterceptor)
@@ -104,5 +115,39 @@ export class UserMutationResolver {
 
     await this.adminService.updateUser(user.sub, input);
     return { ok: true, message: 'Profile updated' };
+  }
+
+  @Mutation(() => TokenPayload, { name: 'userSignUp' })
+  @Public()
+  async userSignIn(
+    @Args('input', { type: () => UserSignUpInput }) input: UserSignUpInput,
+    @Context() ctx: GqlCtx,
+  ): Promise<TokenPayload> {
+    this.logger.debug('signIn: input=%o', input);
+    const result = await this.userService.userSignUp(input);
+
+    setCookieSafe(
+      ctx?.res,
+      'kc_access_token',
+      result.accessToken,
+      cookieOpts(result.expiresIn * 1000),
+    );
+    setCookieSafe(
+      ctx?.res,
+      'kc_refresh_token',
+      result.refreshToken,
+      cookieOpts(result.refreshExpiresIn * 1000),
+    );
+    return result;
+  }
+
+  @Mutation(() => SignUpPayload, { name: 'guestSignUp' })
+  @Public()
+  async guestSignIn(
+    @Args('input', { type: () => GuestSignUpInput }) input: GuestSignUpInput,
+  ): Promise<SignUpPayload> {
+    this.logger.debug('signIn: input=%o', input);
+    const result = await this.userService.guestSignUp(input);
+    return result;
   }
 }

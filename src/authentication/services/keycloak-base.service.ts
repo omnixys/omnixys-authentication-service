@@ -20,8 +20,6 @@ import { keycloakConnectOptions, paths } from '../../config/keycloak.js';
 import type { LoggerPlus } from '../../logger/logger-plus.js';
 import type { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import type { TraceContextProvider } from '../../trace/trace-context.provider.js';
-import type { User } from '../models/entitys/user.entity.js';
-import { PhoneKind } from '../models/enums/phone-kind.enum.js';
 import type { Role, RoleData } from '../models/enums/role.enum.js';
 import { ROLE_NAME_MAP } from '../models/enums/role.enum.js';
 import type { HttpService } from '@nestjs/axios';
@@ -314,95 +312,6 @@ export abstract class KeycloakBaseService {
     } finally {
       span.end();
     }
-  }
-
-  /**
-   * Builds a Keycloak-compatible attribute map from phone data.
-   *
-   * @param phones - The list of phone entries.
-   * @returns A Keycloak attribute map.
-   */
-  protected buildAttributesFromPhones(
-    phones?: Array<{ kind: PhoneKind; value: string }>,
-  ): Record<string, string[] | undefined> {
-    const attributes: Record<string, string[] | undefined> = {};
-    if (!phones?.length) {
-      return attributes;
-    }
-
-    const get = (k: PhoneKind): string | undefined =>
-      phones.find((p) => p.kind === k)?.value?.trim();
-    const priv = get(PhoneKind.PRIVATE);
-    const work = get(PhoneKind.WORK);
-    const wa = get(PhoneKind.WHATSAPP);
-
-    const others = phones
-      .filter((p) => p.kind === PhoneKind.OTHER)
-      .map((p) => (p.value ?? '').trim())
-      .filter(Boolean);
-
-    if (priv) {
-      attributes.privatePhone = [priv];
-    }
-    if (work) {
-      attributes.workPhone = [work];
-    }
-    if (wa) {
-      attributes.whatsappPhone = [wa];
-    }
-    if (others.length) {
-      attributes.phoneNumbers = Array.from(new Set(others));
-    }
-
-    return attributes;
-  }
-
-  /**
-   * Converts a domain user entity into a Keycloak attribute map.
-   *
-   * @param u - The user entity.
-   * @returns The mapped Keycloak attributes.
-   */
-  protected attrsFromDomainUser(u: User): Record<string, string[]> {
-    const out: Record<string, string[]> = {};
-    const phones = u.phoneNumbers ?? [];
-
-    const getFirst = (k: PhoneKind): string | undefined =>
-      phones.find((p) => p.kind === k)?.value?.trim();
-
-    const privatePhone = getFirst(PhoneKind.PRIVATE);
-    const workPhone = getFirst(PhoneKind.WORK);
-    const whatsappPhone = getFirst(PhoneKind.WHATSAPP);
-
-    const others = phones
-      .filter((p) => p.kind === PhoneKind.OTHER)
-      .map((p) => (p.value ?? '').trim())
-      .filter(Boolean);
-
-    if (privatePhone) {
-      out.privatePhone = [privatePhone];
-    }
-    if (workPhone) {
-      out.workPhone = [workPhone];
-    }
-    if (whatsappPhone) {
-      out.whatsappPhone = [whatsappPhone];
-    }
-    if (others.length) {
-      out.phoneNumbers = Array.from(new Set(others));
-    }
-
-    if (u.ticketIds?.length) {
-      out.ticketIds = [...u.ticketIds];
-    }
-    if (u.invitationIds?.length) {
-      out.invitationIds = [...u.invitationIds];
-    }
-    if (u.roles?.length) {
-      out.roles = u.roles.map((r) => String(r));
-    }
-
-    return out;
   }
 
   /**

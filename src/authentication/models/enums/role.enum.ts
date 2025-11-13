@@ -24,29 +24,23 @@ export interface RoleData {
 
 export enum Role {
   ADMIN = 'ADMIN',
-  SECURITY = 'SECURITY',
-  GUEST = 'GUEST',
-  EVENT_ADMIN = 'EVENT_ADMIN',
+  USER = 'USER',
 }
 registerEnumType(Role, { name: 'Role' });
 
 /** Enum → tatsächlicher Keycloak-Rollenname (meist lowercase in KC) */
 export const ENUM_TO_KC: Record<Role, string> = {
   [Role.ADMIN]: 'ADMIN',
-  [Role.SECURITY]: 'SECURITY',
-  [Role.GUEST]: 'GUEST',
-  [Role.EVENT_ADMIN]: 'EVENT_ADMIN',
+  [Role.USER]: 'USER',
 };
 
 /** Keycloak-Name/String → Enum (robust & case-insensitive) */
 export const KC_TO_ENUM: Record<string, Role> = {
   admin: Role.ADMIN,
   ADMIN: Role.ADMIN,
-  security: Role.SECURITY,
-  SECURITY: Role.SECURITY,
-  guest: Role.GUEST,
-  GUEST: Role.GUEST,
-  EVENT_ADMIN: Role.EVENT_ADMIN,
+  user: Role.USER,
+  USER: Role.USER,
+
   // hier ggf. Synonyme ergänzen, falls ihr andere Bezeichnungen nutzt
 };
 
@@ -81,7 +75,5 @@ export function enumToKcName(r: Role): string {
 /** Mapping deines internen Role-Typs → tatsächlicher Rollenname in Keycloak */
 export const ROLE_NAME_MAP: Record<Role, string> = {
   ADMIN: Role.ADMIN,
-  SECURITY: Role.SECURITY,
-  GUEST: Role.GUEST,
-  EVENT_ADMIN: Role.EVENT_ADMIN,
+  USER: Role.USER,
 };
