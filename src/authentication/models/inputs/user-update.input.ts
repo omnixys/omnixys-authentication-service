@@ -16,7 +16,6 @@
  */
 
 import { Role } from '../enums/role.enum.js';
-import { PhoneNumberInput } from './phone-number.input.js';
 import { Field, ID, InputType } from '@nestjs/graphql';
 
 @InputType()
@@ -32,33 +31,6 @@ export class UpdateMyProfileInput {
 
   @Field({ nullable: true })
   email?: string;
-
-  // Strukturierte Phones (werden in KC-Attribute gemappt)
-  @Field(() => [PhoneNumberInput], { nullable: true })
-  phoneNumbers?: PhoneNumberInput[];
-
-  // Optional: explizite Single-Phones überschreiben
-  @Field({ nullable: true })
-  privatePhone?: string;
-
-  @Field({ nullable: true })
-  workPhone?: string;
-
-  @Field({ nullable: true })
-  whatsappPhone?: string;
-
-  // Tickets / Invitations inkrementell pflegen
-  @Field(() => [String], { nullable: true })
-  addTicketIds?: string[];
-
-  @Field(() => [String], { nullable: true })
-  removeTicketIds?: string[];
-
-  @Field(() => [String], { nullable: true })
-  addInvitationIds?: string[];
-
-  @Field(() => [String], { nullable: true })
-  removeInvitationIds?: string[];
 }
 
 @InputType()

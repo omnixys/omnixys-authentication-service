@@ -25,16 +25,8 @@ export type KeycloakTokenPayload = jose.JWTPayload & {
   email: string;
   email_verified?: boolean;
   realm_access?: { roles?: string[] };
-  ticket_ids?: string[];
-  invitation_ids: string[];
-  phone_numbers?: string[];
-  work_phone?: string;
-  whatsapp_phone?: string;
-  private_phone?: string;
   iss?: string; // issuer
   azp?: string; // authorized party (client)
-  roles?: string[];
-  event_ids?: string[];
 };
 
 export interface KeycloakToken {

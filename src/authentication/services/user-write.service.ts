@@ -19,10 +19,12 @@ import { paths } from '../../config/keycloak.js';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { KafkaProducerService } from '../../messaging/kafka-producer.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
-import { KCSignUpDTO, SignUpDTO } from '../models/dtos/sign-up.dto.js';
+import { GuestSignUpDTO } from '../models/dtos/sign-up.dto.js';
 import { updatePasswortDTO } from '../models/dtos/update-password.dto.js';
 import { Role } from '../models/enums/role.enum.js';
+import { GuestSignUpInput, UserSignUpInput } from '../models/inputs/sign-up.input.js';
 import { SignUpPayload } from '../models/payloads/sign-in.payload.js';
+import { TokenPayload } from '../models/payloads/token.payload.js';
 import { AdminWriteService } from './admin-write.service.js';
 import { AuthWriteService } from './authentication-write.service.js';
 import { KeycloakBaseService } from './keycloak-base.service.js';
@@ -52,7 +54,7 @@ export class UserWriteService extends KeycloakBaseService {
   /**
    * User anlegen (mit invitationId/phoneNumber Attributen) + Rolle + Kafka-Events.
    */
-  async guestSignUp(input: SignUpDTO): Promise<SignUpPayload> {
+  async guestSignUp(input: GuestSignUpDTO | GuestSignUpInput): Promise<SignUpPayload> {
     return this.withSpan('authentication.signUp', async () => {
       void this.logger.debug('signUp: input=%o', input);
 
@@ -93,28 +95,27 @@ export class UserWriteService extends KeycloakBaseService {
       }
 
       // Rolle zuweisen
-      await this.adminService.assignRealmRoleToUser(userId, Role.GUEST);
+      await this.adminService.assignRealmRoleToUser(userId, Role.USER);
 
       const traceCtx = this.traceContext.getContext();
-      void this.kafka.addUser({ userId, invitationId }, 'authentication.signUp', traceCtx);
-      void this.kafka.sendUserCredentials(
-        { userId, firstName, username, password, phoneNumbers },
-        'authentication.signUp',
+      void this.kafka.sendUserId(
+        { id: userId, firstName, lastName, email, phoneNumbers, invitationId },
+        'authentication.guestSignUp',
         traceCtx,
       );
-
+      // TODO kafka nachrichten implementieren
       return { userId, username, password };
     });
   }
 
-  async signUp2(input: KCSignUpDTO): Promise<SignUpPayload> {
+  async userSignUp(input: UserSignUpInput): Promise<TokenPayload> {
     return this.withSpan('authentication.signUp', async () => {
       void this.logger.debug('signUp: input=%o', input);
 
-      const { firstName, lastName, email, username } = input;
+      const { firstName, lastName, email, username, password, phoneNumbers } = input;
 
       const credentials: Array<Record<string, string | undefined | boolean>> = [
-        { type: 'password', value: 'password', temporary: false },
+        { type: 'password', value: password, temporary: false },
       ];
 
       const body = {
@@ -138,12 +139,21 @@ export class UserWriteService extends KeycloakBaseService {
       }
 
       // Rolle zuweisen
-      await this.adminService.assignRealmRoleToUser(userId, Role.GUEST);
+      await this.adminService.assignRealmRoleToUser(userId, Role.USER);
 
       const traceCtx = this.traceContext.getContext();
-      void this.kafka.sendUserId({ userId }, 'authentication.signUp', traceCtx);
 
-      return { userId, username, password: 'password' };
+      void this.kafka.sendUserId(
+        { id: userId, firstName, lastName, email, phoneNumbers },
+        'authentication.userSignUp',
+        traceCtx,
+      );
+      // TODO kafka nachrichten implementieren
+
+      const token = await this.authService.login({ username, password });
+      return token;
+
+      // return { userId, username, password };
     });
   }
 

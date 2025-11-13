@@ -19,7 +19,7 @@ import { PhoneNumberInput } from './phone-number.input.js';
 import { Field, InputType } from '@nestjs/graphql';
 
 @InputType()
-export class SignUpInput0 {
+export class AdminSignUpInput {
   @Field(() => String, { nullable: true })
   username!: string;
 
@@ -37,40 +37,18 @@ export class SignUpInput0 {
 
   @Field(() => [PhoneNumberInput], { nullable: true })
   phoneNumbers?: PhoneNumberInput[];
-
-  @Field(() => [String], { nullable: true })
-  ticketIds?: string[];
-
-  @Field(() => [String], { nullable: true })
-  invitationIds?: string[];
-
-  @Field({ nullable: true, description: 'Sende VERIFY_EMAIL Required Action' })
-  sendVerifyEmail?: boolean;
-
-  @Field({
-    nullable: true,
-    description: 'Redirect nach VERIFY_EMAIL (optional)',
-  })
-  verifyRedirectUri?: string;
-
-  @Field({
-    nullable: true,
-    description:
-      'Nach erfolgreichem Signup sofort Tokens ausstellen (Server only)',
-  })
-  autoSignIn?: boolean;
 }
 
 @InputType()
-export class SignUpInput {
+export class UserSignUpInput {
   @Field(() => String, { nullable: true })
-  username?: string;
+  username!: string;
 
   @Field(() => String, { nullable: true })
   email?: string;
 
   @Field(() => String, { nullable: true })
-  password?: string;
+  password!: string;
 
   @Field(() => String)
   firstName!: string;
@@ -80,26 +58,22 @@ export class SignUpInput {
 
   @Field(() => [PhoneNumberInput], { nullable: true })
   phoneNumbers?: PhoneNumberInput[];
+}
 
-  @Field(() => [String], { nullable: true })
-  ticketIds?: string[];
+@InputType()
+export class GuestSignUpInput {
+  @Field(() => String, { nullable: true })
+  email?: string;
 
-  @Field(() => [String], { nullable: true })
-  invitationIds?: string[];
+  @Field(() => String)
+  firstName!: string;
 
-  @Field({ nullable: true, description: 'Sende VERIFY_EMAIL Required Action' })
-  sendVerifyEmail?: boolean;
+  @Field(() => String)
+  lastName!: string;
 
-  @Field({
-    nullable: true,
-    description: 'Redirect nach VERIFY_EMAIL (optional)',
-  })
-  verifyRedirectUri?: string;
+  @Field(() => String)
+  invitationId!: string;
 
-  @Field({
-    nullable: true,
-    description:
-      'Nach erfolgreichem Signup sofort Tokens ausstellen (Server only)',
-  })
-  autoSignIn?: boolean;
+  @Field(() => [PhoneNumberInput], { nullable: true })
+  phoneNumbers?: PhoneNumberInput[];
 }

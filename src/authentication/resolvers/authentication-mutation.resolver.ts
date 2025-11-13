@@ -15,23 +15,19 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
+import { env } from '../../config/env.js';
+import { LoggerPlusService } from '../../logger/logger-plus.service.js';
+import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
+import { KeycloakTokenPayload } from '../models/dtos/kc-token.dto.js';
+import { LogInInput } from '../models/inputs/log-in.input.js';
+import { SuccessPayload } from '../models/payloads/success.payload.js';
+import { TokenPayload } from '../models/payloads/token.payload.js';
+import { AuthWriteService } from '../services/authentication-write.service.js';
+import { BadUserInputException } from '../utils/error.util.js';
 import { UseInterceptors } from '@nestjs/common';
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import type { CookieOptions, Request, Response } from 'express';
 import { Public } from 'nest-keycloak-connect';
-
-import { LoggerPlusService } from '../../logger/logger-plus.service.js';
-import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
-
-import { env } from '../../config/env.js';
-import { KeycloakTokenPayload } from '../models/dtos/kc-token.dto.js';
-import { LogInInput } from '../models/inputs/log-in.input.js';
-import { SignUpInput0 } from '../models/inputs/sign-up.input.js';
-import { SuccessPayload } from '../models/payloads/success.payload.js';
-import { TokenPayload } from '../models/payloads/token.payload.js';
-import { AdminWriteService } from '../services/admin-write.service.js';
-import { AuthWriteService } from '../services/authentication-write.service.js';
-import { BadUserInputException } from '../utils/error.util.js';
 
 /**
  * Represents the standard GraphQL execution context used by resolvers.
@@ -96,7 +92,7 @@ const { NODE_ENV } = env;
  * @param maxAgeMs - The cookie lifetime in milliseconds.
  * @returns Express-compatible {@link CookieOptions}.
  */
-const cookieOpts = (maxAgeMs?: number): CookieOptions => ({
+export const cookieOpts = (maxAgeMs?: number): CookieOptions => ({
   httpOnly: true,
   secure: NODE_ENV === 'production',
   sameSite: NODE_ENV === 'production' ? 'lax' : 'lax',
@@ -112,7 +108,7 @@ const cookieOpts = (maxAgeMs?: number): CookieOptions => ({
  * @param value - The cookie value.
  * @param opts - Additional cookie options.
  */
-function setCookieSafe(
+export function setCookieSafe(
   res: Response | undefined,
   name: string,
   value: string,
@@ -157,7 +153,6 @@ export class AuthMutationResolver {
   constructor(
     private readonly loggerService: LoggerPlusService,
     private readonly authService: AuthWriteService,
-    private readonly adminService: AdminWriteService,
   ) {
     this.logger = this.loggerService.getLogger(AuthMutationResolver.name);
   }
@@ -264,41 +259,5 @@ export class AuthMutationResolver {
     clearCookieSafe(ctx?.res, 'kc_refresh_token');
 
     return { ok: true, message: 'Successfully logged out.' };
-  }
-
-  /**
-   * Creates a new user via the administrative sign-up flow.
-   *
-   * @remarks
-   * - Generates credentials for the new user.
-   * - Assigns Keycloak roles and attributes.
-   * - Automatically sets authentication cookies for the new session.
-   *
-   * @param input - Administrative user creation input.
-   * @param ctx - GraphQL context containing HTTP response for cookie handling.
-   * @returns {@link TokenPayload} for the newly created user session.
-   */
-  @Mutation(() => TokenPayload, { name: 'adminSignUp' })
-  @Public()
-  async adminSignUp(
-    @Args('input', { type: () => SignUpInput0 }) input: SignUpInput0,
-    @Context() ctx: GqlCtx,
-  ): Promise<TokenPayload> {
-    this.logger.debug('adminSignUp: input=%o', input);
-    const result = await this.adminService.signUp(input);
-
-    setCookieSafe(
-      ctx?.res,
-      'kc_access_token',
-      result.accessToken,
-      cookieOpts(result.expiresIn * 1000),
-    );
-    setCookieSafe(
-      ctx?.res,
-      'kc_refresh_token',
-      result.refreshToken,
-      cookieOpts(result.refreshExpiresIn * 1000),
-    );
-    return result;
   }
 }

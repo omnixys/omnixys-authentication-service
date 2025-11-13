@@ -16,7 +16,6 @@
  */
 
 import { Role } from '../enums/role.enum.js';
-import { PhoneNumber } from './phone-number.entity.js';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
@@ -36,18 +35,6 @@ export class User {
   @Field(() => String)
   email!: string;
 
-  @Field(() => [PhoneNumber], { nullable: true })
-  phoneNumbers?: PhoneNumber[];
-
-  @Field(() => [String], { nullable: true })
-  ticketIds?: string[];
-
-  @Field(() => [String])
-  invitationIds!: string[];
-
-  @Field(() => [Role])
-  roles!: Role[];
-
-  @Field(() => [String], { nullable: true })
-  eventIds?: string[];
+  @Field(() => [Role], { nullable: true })
+  roles?: Role[];
 }
