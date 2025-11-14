@@ -1,3 +1,5 @@
+// TODO resolve eslint
+
 /**
  * @license GPL-3.0-or-later
  * Copyright (C) 2025 Caleb Gyamfi - Omnixys Technologies
@@ -16,24 +18,26 @@
  */
 
 import {
-  BadRequestException,
-  UnauthorizedException,
-  UseInterceptors,
-} from '@nestjs/common';
-import { Args, Context, ID, Query, Resolver } from '@nestjs/graphql';
-import { Public } from 'nest-keycloak-connect';
-
+  CurrentUser,
+  CurrentUserData,
+} from '../../auth/decorators/current-user.decorator.js';
+import { Public } from '../../auth/decorators/public.decorator.js';
+import { Roles } from '../../auth/decorators/roles.decorator.js';
+import { CookieAuthGuard } from '../../auth/guards/cookie-auth.guard.js';
+import { HeaderAuthGuard } from '../../auth/guards/header-auth.guard.js';
+import { RoleGuard } from '../../auth/guards/role.guard.js';
 import { getLogger } from '../../logger/get-logger.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
-
-import { KeycloakReadService } from '../services/read.service.js';
-import { BadUserInputException } from '../utils/error.util.js';
-
 import { User } from '../models/entitys/user.entity.js';
+import { toEnumRoles } from '../models/enums/role.enum.js';
+import { KeycloakReadService } from '../services/read.service.js';
 import {
-  type GqlCtx,
-  readAccessTokenFromCookie,
-} from './authentication-mutation.resolver.js';
+  BadRequestException,
+  UnauthorizedException,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { Args, ID, Query, Resolver } from '@nestjs/graphql';
 
 /**
  * @file GraphQL-Resolver für **lesende** Authentication-Abfragen (ME/USERS).
@@ -74,7 +78,6 @@ export class AuthQueryResolver {
    * ```
    */
   @Query(() => [User], { name: 'users' })
-  @Public()
   async getUsers(): Promise<User[]> {
     this.logger.debug('Get All Users');
     return this.read.findAllUsers();
@@ -95,46 +98,51 @@ export class AuthQueryResolver {
    * ```
    */
   @Query(() => User, { name: 'meByToken' })
+  @UseGuards(HeaderAuthGuard, RoleGuard)
   @Public()
-  async meByToken(
-    @Context() ctx: GqlCtx,
-    @Args('token', { type: () => String, nullable: true }) token?: string,
-  ): Promise<User> {
-    this.logger.debug('me');
-    const accessFromCookie = readAccessTokenFromCookie(ctx);
-    const accessToken = accessFromCookie ?? token ?? undefined;
+  async meByToken(@CurrentUser() currentUser: CurrentUserData): Promise<User> {
+    this.logger.debug('meByToken() invoked');
 
-    if (!accessToken) {
-      throw new BadUserInputException('Kein Access-Token gesetzt');
-    }
-
-    const user = await this.read.getUserInfo(accessToken);
-    if (!user) {
-      throw new BadUserInputException('Benutzer nicht gefunden');
-    }
-    return user;
-  }
-
-  @Query(() => User, { name: 'me' })
-  async me(@Context() ctx: GqlCtx): Promise<User> {
-    this.logger.debug('me');
-    const user = ctx?.req.user;
-
-    if (!user) {
+    if (!currentUser) {
       this.logger.warn('me() aufgerufen ohne gültigen Benutzer im Kontext');
       throw new BadRequestException(
         'Ungültige Benutzeranfrage – kein User im Kontext',
       );
     }
 
-    this.logger.debug('user=%o', user);
+    this.logger.debug('user=%o', currentUser);
 
-    if (!user?.sub) {
+    if (!currentUser?.id) {
       // Kein authentifizierter Nutzer im Kontext
       throw new UnauthorizedException('Not authenticated');
     }
 
-    return this.read.findById(user.sub);
+    const user = await this.read.findById(currentUser.id);
+    return { ...user, roles: toEnumRoles(currentUser.roles) };
+  }
+
+  @Query(() => User, { name: 'me' })
+  @UseGuards(CookieAuthGuard, RoleGuard)
+  @Roles('ADMIN', 'USER')
+  async me(@CurrentUser() currentUser: CurrentUserData): Promise<User> {
+    this.logger.debug('me By Cookie');
+
+    if (!currentUser) {
+      this.logger.warn('me() aufgerufen ohne gültigen Benutzer im Kontext');
+      throw new BadRequestException(
+        'Ungültige Benutzeranfrage – kein User im Kontext',
+      );
+    }
+
+    this.logger.debug('user=%o', currentUser);
+
+    if (!currentUser?.id) {
+      // Kein authentifizierter Nutzer im Kontext
+      throw new UnauthorizedException('Not authenticated');
+    }
+
+    const user = await this.read.findById(currentUser.id);
+    return { ...user, roles: toEnumRoles(currentUser.roles) };
   }
 
   /**
@@ -151,14 +159,12 @@ export class AuthQueryResolver {
    * ```
    */
   @Query(() => User, { name: 'getById' })
-  @Public()
   async getById(@Args('id', { type: () => ID }) id: string): Promise<User> {
     this.logger.debug('getById: id=%s', id);
     return this.read.findById(id);
   }
 
   @Query(() => User, { name: 'getByUsername' })
-  @Public()
   async getByUsername(
     @Args('username', { type: () => String }) username: string,
   ): Promise<User> {

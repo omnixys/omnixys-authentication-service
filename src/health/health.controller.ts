@@ -24,7 +24,6 @@ import {
   HealthCheck,
   HealthCheckResult,
 } from '@nestjs/terminus';
-import { Public } from 'nest-keycloak-connect';
 
 const { KEYCLOAK_HEALTH_URL, TEMPO_HEALTH_URL, PROMETHEUS_HEALTH_URL } = env;
 @Controller('health')
@@ -41,14 +40,12 @@ export class HealthController {
 
   @Get('liveness')
   @HealthCheck()
-  @Public()
   liveness(): Promise<HealthCheckResult> {
     return this.#health.check([() => Promise.resolve({ app: { status: 'up' } })]);
   }
 
   @Get('readiness')
   @HealthCheck()
-  @Public()
   readiness(): Promise<HealthCheckResult> {
     return this.#health.check([
       () => Promise.resolve({ app: { status: 'up' } }),

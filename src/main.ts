@@ -18,6 +18,7 @@
 import { AppModule } from './app.module.js';
 import { corsOptions } from './config/cors.js';
 import compress from '@fastify/compress';
+import cookie from '@fastify/cookie';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
@@ -129,6 +130,10 @@ async function bootstrap(): Promise<void> {
   await app.register(rateLimit, {
     max: 100, // max. Requests pro Minute
     timeWindow: '1 minute',
+  });
+
+  await app.register(cookie, {
+    secret: process.env.COOKIE_SECRET ?? 'omnixys-default-secret',
   });
 
   // ======================================================

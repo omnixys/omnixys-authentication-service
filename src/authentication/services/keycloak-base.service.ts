@@ -16,7 +16,7 @@
  */
 
 import { env } from '../../config/env.js';
-import { keycloakConnectOptions, paths } from '../../config/keycloak.js';
+import { keycloakConfig, paths } from '../../config/keycloak.js';
 import type { LoggerPlus } from '../../logger/logger-plus.js';
 import type { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import type { TraceContextProvider } from '../../trace/trace-context.provider.js';
@@ -79,8 +79,8 @@ export abstract class KeycloakBaseService {
     traceContextProvider: TraceContextProvider,
     protected readonly http: HttpService,
   ) {
-    const { clientId, secret } = keycloakConnectOptions;
-    const authorization = Buffer.from(`${clientId}:${secret}`, 'utf8').toString('base64');
+    const { clientId, clientSecret } = keycloakConfig;
+    const authorization = Buffer.from(`${clientId}:${clientSecret}`, 'utf8').toString('base64');
     this.loginHeaders = {
       Authorization: `Basic ${authorization}`,
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -114,7 +114,7 @@ export abstract class KeycloakBaseService {
     behavior: { mapTo?: 'null-on-401' | 'throw-on-error' } = { mapTo: 'throw-on-error' },
   ): Promise<T> {
     const headers: Record<string, string> = { ...cfg.headers };
-    const baseURL = keycloakConnectOptions.authServerUrl;
+    const baseURL = keycloakConfig.url;
 
     if (cfg.adminAuth !== false) {
       const token = await this.getAdminToken();
@@ -208,7 +208,7 @@ export abstract class KeycloakBaseService {
         `/realms/master/protocol/openid-connect/token`,
         params.toString(),
         {
-          baseURL: keycloakConnectOptions.authServerUrl,
+          baseURL: keycloakConfig.url,
           headers: this.loginHeaders,
         },
       ),

@@ -27,7 +27,6 @@ import { BadUserInputException } from '../utils/error.util.js';
 import { UseInterceptors } from '@nestjs/common';
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import type { CookieOptions, Request, Response } from 'express';
-import { Public } from 'nest-keycloak-connect';
 
 /**
  * Represents the standard GraphQL execution context used by resolvers.
@@ -170,7 +169,6 @@ export class AuthMutationResolver {
    * @throws {@link BadUserInputError} If credentials are invalid.
    */
   @Mutation(() => TokenPayload, { name: 'login' })
-  @Public()
   async login(
     @Args('input', { type: () => LogInInput }) input: LogInInput,
     @Context() ctx: GqlCtx,
@@ -185,13 +183,13 @@ export class AuthMutationResolver {
 
     setCookieSafe(
       ctx?.res,
-      'kc_access_token',
+      'access_token',
       result.accessToken,
       cookieOpts(result.expiresIn * 1000),
     );
     setCookieSafe(
       ctx?.res,
-      'kc_refresh_token',
+      'refresh_token',
       result.refreshToken,
       cookieOpts(result.refreshExpiresIn * 1000),
     );
@@ -211,7 +209,6 @@ export class AuthMutationResolver {
    * @throws {@link BadUserInputError} If the refresh token is invalid or expired.
    */
   @Mutation(() => TokenPayload, { name: 'refresh' })
-  @Public()
   async refresh(
     @Args('refreshToken', { type: () => String, nullable: true })
     refreshToken: string | null,
@@ -228,13 +225,13 @@ export class AuthMutationResolver {
 
     setCookieSafe(
       ctx?.res,
-      'kc_access_token',
+      'access_token',
       result.accessToken,
       cookieOpts(result.expiresIn * 1000),
     );
     setCookieSafe(
       ctx?.res,
-      'kc_refresh_token',
+      'refresh_token',
       result.refreshToken,
       cookieOpts(result.refreshExpiresIn * 1000),
     );
@@ -249,14 +246,13 @@ export class AuthMutationResolver {
    * @returns {@link SuccessPayload} indicating operation status.
    */
   @Mutation(() => SuccessPayload, { name: 'logout' })
-  @Public()
   async logout(@Context() ctx: GqlCtx): Promise<SuccessPayload> {
     const cookieReq: CookieReq = ctx.req;
     const value = cookieReq.cookies?.kc_refresh_token;
     await this.authService.logout(value);
 
-    clearCookieSafe(ctx?.res, 'kc_access_token');
-    clearCookieSafe(ctx?.res, 'kc_refresh_token');
+    clearCookieSafe(ctx?.res, 'access_token');
+    clearCookieSafe(ctx?.res, 'refresh_token');
 
     return { ok: true, message: 'Successfully logged out.' };
   }

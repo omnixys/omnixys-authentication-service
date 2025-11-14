@@ -1,3 +1,5 @@
+// TODO resolve eslint
+
 /**
  * @license GPL-3.0-or-later
  * Copyright (C) 2025 Caleb Gyamfi - Omnixys Technologies
@@ -15,7 +17,8 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-import { keycloakConnectOptions, paths } from '../../config/keycloak.js';
+import { Public } from '../../auth/decorators/public.decorator.js';
+import { keycloakConfig, paths } from '../../config/keycloak.js';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
 import type { KeycloakToken } from '../models/dtos/kc-token.dto.js';
@@ -43,6 +46,7 @@ export class AuthWriteService extends KeycloakBaseService {
    * Password-Login (ROPC).
    * @returns TokenPayload oder null (bei invalid_grant)
    */
+  @Public()
   async login({ username, password }: LogInInput): Promise<TokenPayload> {
     return this.withSpan('authentication.login', async () => {
       if (!username || !password) {
@@ -71,6 +75,7 @@ export class AuthWriteService extends KeycloakBaseService {
   /**
    * Refresh-Flow.
    */
+  @Public()
   async refresh(refresh_token: string | undefined): Promise<TokenPayload | null> {
     return this.withSpan('authentication.refresh', async () => {
       if (!refresh_token) {
@@ -97,13 +102,14 @@ export class AuthWriteService extends KeycloakBaseService {
   /**
    * Logout (Refresh-Token invalidieren).
    */
+  @Public()
   async logout(refreshToken: string | undefined): Promise<void> {
     return this.withSpan('authentication.logout', async () => {
       if (!refreshToken) {
         return;
       }
       const body = new URLSearchParams({
-        client_id: keycloakConnectOptions.clientId ?? '',
+        client_id: keycloakConfig.clientId ?? '',
         refresh_token: refreshToken,
       });
       await this.kcRequest('post', paths.logout, {
