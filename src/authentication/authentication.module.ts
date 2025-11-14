@@ -15,6 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
+import { AuthModule } from '../auth/auth.module.js';
 import { CoreHttpModule } from '../http.module.js';
 import { LoggerModule } from '../logger/logger.module.js';
 import { KafkaModule } from '../messaging/kafka.module.js';
@@ -28,27 +29,9 @@ import { AuthWriteService } from './services/authentication-write.service.js';
 import { KeycloakReadService } from './services/read.service.js';
 import { UserWriteService } from './services/user-write.service.js';
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard, KeycloakConnectModule, RoleGuard } from 'nest-keycloak-connect';
 
 @Module({
-  imports: [KafkaModule, CoreHttpModule],
-  providers: [KeycloakReadService, UserWriteService, AdminWriteService, AuthWriteService],
-  exports: [KeycloakReadService, UserWriteService, AdminWriteService, AuthWriteService],
-})
-class ConfigModule {}
-
-@Module({
-  imports: [
-    KafkaModule,
-    LoggerModule,
-    TraceModule,
-    CoreHttpModule,
-    KeycloakConnectModule.registerAsync({
-      useExisting: KeycloakReadService,
-      imports: [ConfigModule],
-    }),
-  ],
+  imports: [KafkaModule, LoggerModule, TraceModule, CoreHttpModule, AuthModule],
   providers: [
     KeycloakReadService,
     UserWriteService,
@@ -58,23 +41,7 @@ class ConfigModule {}
     AuthMutationResolver,
     UserMutationResolver,
     AdminMutationResolver,
-    {
-      // fuer @UseGuards(AuthGuard)
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
-    {
-      // fuer @Roles({ roles: ['admin'] }) einschl. @Public() und @AllowAnyRole()
-      provide: APP_GUARD,
-      useClass: RoleGuard,
-    },
   ],
-  exports: [
-    KeycloakConnectModule,
-    KeycloakReadService,
-    UserWriteService,
-    AdminWriteService,
-    AuthWriteService,
-  ],
+  exports: [KeycloakReadService, UserWriteService, AdminWriteService, AuthWriteService],
 })
 export class AuthenticationModule {}

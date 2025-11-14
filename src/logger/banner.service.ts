@@ -82,7 +82,7 @@ export class BannerService implements OnApplicationBootstrap {
       this.#logger.info(chalk.cyan('Custom Log Level: ') + chalk.yellow(logger.logLevel));
     }
     this.#logger.info(chalk.green('==============KEYCLOAK==========='));
-    this.#logger.info(chalk.cyan('URI: ') + chalk.yellow(keycloak.authServerUrl));
+    this.#logger.info(chalk.cyan('URI: ') + chalk.yellow(keycloak.url));
     this.#logger.info(chalk.cyan('Realm: ') + chalk.yellow(keycloak.realm));
     this.#logger.info(chalk.cyan('client: ') + chalk.yellow(keycloak.clientId));
     this.#logger.info(chalk.cyan('Keys path: ') + chalk.yellow(keysPath));

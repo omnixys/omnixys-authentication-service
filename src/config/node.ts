@@ -17,9 +17,8 @@
 
 import { env } from './env.js';
 import { httpsOptions } from './https.js';
-import { keycloakConnectOptions } from './keycloak.js';
+import { keycloakConfig } from './keycloak.js';
 import type { HttpsOptions } from '@nestjs/common/interfaces/external/https-options.interface.js';
-import type { KeycloakConnectConfig } from 'nest-keycloak-connect';
 import { hostname } from 'node:os';
 
 export interface NodeConfig {
@@ -30,7 +29,7 @@ export interface NodeConfig {
   tempo: string;
   protocoll: boolean;
   keysPath: string;
-  keycloak: KeycloakConnectConfig;
+  keycloak: typeof keycloakConfig;
   logger: LogDetail;
   serviceName: string;
   kafkaUri: string;
@@ -76,7 +75,7 @@ export const nodeConfig: NodeConfig = {
   tempo: TEMPO_URI,
   protocoll: HTTPS,
   keysPath: KEYS_PATH,
-  keycloak: keycloakConnectOptions,
+  keycloak: keycloakConfig,
   logger: {
     logDefault: LOG_DEFAULT,
     logDir: LOG_DIRECTORY,

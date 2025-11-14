@@ -39,7 +39,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
-import { Public } from 'nest-keycloak-connect';
 
 @Resolver()
 @UseInterceptors(ResponseTimeInterceptor)
@@ -118,7 +117,6 @@ export class UserMutationResolver {
   }
 
   @Mutation(() => TokenPayload, { name: 'userSignUp' })
-  @Public()
   async userSignIn(
     @Args('input', { type: () => UserSignUpInput }) input: UserSignUpInput,
     @Context() ctx: GqlCtx,
@@ -142,7 +140,6 @@ export class UserMutationResolver {
   }
 
   @Mutation(() => SignUpPayload, { name: 'guestSignUp' })
-  @Public()
   async guestSignIn(
     @Args('input', { type: () => GuestSignUpInput }) input: GuestSignUpInput,
   ): Promise<SignUpPayload> {

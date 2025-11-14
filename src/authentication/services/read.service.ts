@@ -15,7 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-import { keycloakConnectOptions, paths } from '../../config/keycloak.js';
+import { keycloakConfig, paths } from '../../config/keycloak.js';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
 import type { KeycloakTokenPayload } from '../models/dtos/kc-token.dto.js';
@@ -26,7 +26,6 @@ import { KeycloakBaseService } from './keycloak-base.service.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as jose from 'jose';
-import type { KeycloakConnectOptions, KeycloakConnectOptionsFactory } from 'nest-keycloak-connect';
 
 /**
  * @file Read-Only Zugriff auf Keycloak (Admin-API & Token-Lesen).
@@ -34,17 +33,13 @@ import type { KeycloakConnectOptions, KeycloakConnectOptionsFactory } from 'nest
  *  - UserInfo aus Access-Token (JWT Verify)
  */
 @Injectable()
-export class KeycloakReadService
-  extends KeycloakBaseService
-  implements KeycloakConnectOptionsFactory
-{
+export class KeycloakReadService extends KeycloakBaseService {
   constructor(logger: LoggerPlusService, trace: TraceContextProvider, http: HttpService) {
     super(logger, trace, http);
   }
 
-  /** Optionen für nest-keycloak-connect */
-  createKeycloakConnectOptions(): KeycloakConnectOptions {
-    return keycloakConnectOptions;
+  createKeycloakConnectOptions(): typeof keycloakConfig {
+    return keycloakConfig;
   }
 
   /**

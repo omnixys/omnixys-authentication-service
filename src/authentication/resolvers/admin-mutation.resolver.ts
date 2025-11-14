@@ -17,7 +17,6 @@
 
 import { UseInterceptors } from '@nestjs/common';
 import { Args, Context, ID, Mutation, Resolver } from '@nestjs/graphql';
-import { Public } from 'nest-keycloak-connect';
 
 import { getLogger } from '../../logger/get-logger.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
@@ -78,7 +77,6 @@ export class AdminMutationResolver {
    * @returns A boolean value indicating whether the update was successful.
    */
   @Mutation(() => Boolean, { name: 'adminUpdateUser' })
-  @Public()
   async updateUser(
     @Args('id', { type: () => ID }) id: string,
     @Args('input', { type: () => UpdateUserInput }) input: UpdateUserInput,
@@ -102,7 +100,6 @@ export class AdminMutationResolver {
    * @returns A boolean value indicating whether the password was updated successfully.
    */
   @Mutation(() => Boolean, { name: 'adminChangePassword' })
-  @Public()
   async changeUserPassword(
     @Args('input', { type: () => UpdateUserPasswordInput })
     input: UpdateUserPasswordInput,
@@ -121,7 +118,6 @@ export class AdminMutationResolver {
    * @returns A boolean value indicating whether the user was deleted successfully.
    */
   @Mutation(() => Boolean, { name: 'deleteUser' })
-  @Public()
   async deleteUser(
     @Args('id', { type: () => ID }) id: string,
   ): Promise<boolean> {
@@ -174,7 +170,6 @@ export class AdminMutationResolver {
   }
 
   @Mutation(() => TokenPayload, { name: 'adminSignUp' })
-  @Public()
   async adminSignIn(
     @Args('input', { type: () => AdminSignUpInput }) input: AdminSignUpInput,
     @Context() ctx: GqlCtx,

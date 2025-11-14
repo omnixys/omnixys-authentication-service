@@ -17,37 +17,25 @@
 
 import { env } from './env.js';
 import { httpsOptions } from './https.js';
-import {
-  type KeycloakConnectConfig,
-  PolicyEnforcementMode,
-  TokenValidation,
-} from 'nest-keycloak-connect';
 import { Agent } from 'node:https';
 
 const { KC_CLIENT_ID, KC_REALM, KC_URL, KC_CLIENT_SECRET } = env;
-const authServerUrl = KC_URL;
-const realm = KC_REALM;
-const clientId = KC_CLIENT_ID;
-const tokenValidation = TokenValidation.ONLINE;
 
-export const keycloakConnectOptions: KeycloakConnectConfig = {
-  authServerUrl,
-  realm,
-  clientId,
-  secret:
-    KC_CLIENT_SECRET ?? 'ERROR: Umgebungsvariable CLIENT_SECRET nicht gesetzt!',
-  policyEnforcement: PolicyEnforcementMode.PERMISSIVE,
-  tokenValidation,
+export const keycloakConfig = {
+  url: KC_URL,
+  realm: KC_REALM,
+  clientId: KC_CLIENT_ID,
+  clientSecret: KC_CLIENT_SECRET,
 };
 
 /** Pfade für den REST-Client zu Keycloak */
 export const paths = {
-  accessToken: `realms/${realm}/protocol/openid-connect/token`,
-  logout: `realms/${realm}/protocol/openid-connect/logout`,
-  userInfo: `realms/${realm}/protocol/openid-connect/userinfo`,
-  introspect: `realms/${realm}/protocol/openid-connect/token/introspect`,
-  users: `admin/realms/${realm}/users`,
-  roles: `admin/realms/${realm}/roles`,
+  accessToken: `realms/${keycloakConfig.realm}/protocol/openid-connect/token`,
+  logout: `realms/${keycloakConfig.realm}/protocol/openid-connect/logout`,
+  userInfo: `realms/${keycloakConfig.realm}/protocol/openid-connect/userinfo`,
+  introspect: `realms/${keycloakConfig.realm}/protocol/openid-connect/token/introspect`,
+  users: `admin/realms/${keycloakConfig.realm}/users`,
+  roles: `admin/realms/${keycloakConfig.realm}/roles`,
 };
 
 /** Agent für Axios für Requests bei selbstsigniertem Zertifikat */

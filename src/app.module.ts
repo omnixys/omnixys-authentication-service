@@ -27,6 +27,7 @@ import { ApolloFederationDriver, ApolloFederationDriverConfig } from '@nestjs/ap
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
+import { FastifyRequest, FastifyReply } from 'fastify';
 
 const { SCHEMA_TARGET } = env;
 
@@ -56,7 +57,8 @@ const { SCHEMA_TARGET } = env;
         playground: cfg.get('GRAPHQL_PLAYGROUND') === 'true',
         csrfPrevention: false,
         introspection: true,
-        context: ({ req, res }: { req: Request; res: Response }) => ({
+
+        context: ({ req, res }: { req: FastifyRequest; res: FastifyReply }) => ({
           req,
           res,
         }),
