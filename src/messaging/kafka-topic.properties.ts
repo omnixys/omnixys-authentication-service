@@ -29,7 +29,7 @@ export const KafkaTopics = {
     addUser: 'invitation.add.user',
   },
   user: {
-    sendUserId: 'user.send.Id',
+    sendUserId: `user.sendId.${SERVICE}`,
   },
   notification: {
     sendCredentials: 'notification.notify.user',

@@ -1,27 +1,14 @@
 /**
  * @license GPL-3.0-or-later
- * Copyright (C) 2025 Caleb Gyamfi - Omnixys Technologies
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * For more information, visit <https://www.gnu.org/licenses/>.
+ * © 2025 Caleb Gyamfi - Omnixys Technologies
  */
 
-// src/observability/otel.ts
-import { LoggerPlus } from '../logger/logger-plus.js';
-import { env } from './env.js';
 import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+
 import {
   detectResources,
   envDetector,
@@ -31,30 +18,28 @@ import {
   resourceFromAttributes,
   defaultResource,
 } from '@opentelemetry/resources';
+
+import { AsyncHooksContextManager } from '@opentelemetry/context-async-hooks';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 
+import { LoggerPlus } from '../logger/logger-plus.js';
+import { env } from './env.js';
+
+// OTLP Collector – NICHT Tempo
+const OTEL_COLLECTOR = 'http://localhost:4318/v1/traces';
+
+const { SERVICE } = env;
+
 diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
+
 const logger = new LoggerPlus('otel.ts');
 
-const traceExporter = new OTLPTraceExporter({
-  url: env.TEMPO_URI,
-});
-
-const prometheusExporter = new PrometheusExporter(
-  {
-    port: 9464,
-    endpoint: '/metrics',
-  },
-  () => {
-    logger.log(
-      '✅ Prometheus exporter läuft auf http://localhost:9464/metrics',
-    );
-  },
-);
-
-let sdk: NodeSDK; // <<< global deklariert
+let sdk: NodeSDK | undefined;
 
 export async function startOtelSDK(): Promise<void> {
+  logger.log('🔧 Starte OpenTelemetry Initialisierung…');
+
+  // ----------------- Resource Detection ------------------
   const detected = detectResources({
     detectors: [envDetector, hostDetector, osDetector, processDetector],
   });
@@ -63,28 +48,58 @@ export async function startOtelSDK(): Promise<void> {
     .merge(detected)
     .merge(
       resourceFromAttributes({
-        'service.name': 'shopping-cart-service',
+        'service.name': SERVICE ?? 'undefined-service',
+        'service.namespace': 'omnixys',
+        'service.instance.id': process.pid,
       }),
     );
 
+  // ---------------- Exporter ------------------------------
+  const traceExporter = new OTLPTraceExporter({
+    url: OTEL_COLLECTOR,
+  });
+
+  const prometheusExporter = new PrometheusExporter(
+    {
+      port: 9464,
+      endpoint: '/metrics',
+    },
+    () => {
+      logger.log('📊 Prometheus läuft auf http://localhost:9464/metrics');
+    },
+  );
+
+  // ---------------- Context Propagation ------------------
+  const contextManager = new AsyncHooksContextManager().enable();
+
+  // ---------------- SDK Init -----------------------------
   sdk = new NodeSDK({
-    traceExporter,
-    metricReader: prometheusExporter,
     resource,
-    instrumentations: [getNodeAutoInstrumentations()],
+    contextManager,
+    traceExporter,
+
+    metricReaders: [prometheusExporter],
+
+    instrumentations: getNodeAutoInstrumentations({
+      '@opentelemetry/instrumentation-http': { enabled: true },
+      '@opentelemetry/instrumentation-nestjs-core': { enabled: true },
+      '@opentelemetry/instrumentation-express': { enabled: true },
+      '@opentelemetry/instrumentation-kafkajs': { enabled: true },
+    }),
   });
 
   sdk.start();
-  logger.log(
-    '✅ OpenTelemetry gestartet – mit service.name = shopping-cart-service',
-  );
+
+  logger.log(`✅ OpenTelemetry gestartet – service="${SERVICE}"`);
+  logger.log(`➡ Export → OTel Collector: ${OTEL_COLLECTOR}`);
 }
 
 export async function shutdownOtelSDK(): Promise<void> {
-  if (sdk) {
-    await sdk.shutdown();
-    logger.log('🛑 OpenTelemetry SDK gestoppt');
-  } else {
-    console.warn('⚠️ OpenTelemetry SDK war nicht initialisiert');
+  if (!sdk) {
+    return;
   }
+
+  logger.log('🛑 Stoppe OpenTelemetry SDK…');
+  await sdk.shutdown();
+  logger.log('🧹 OpenTelemetry SDK wurde sauber gestoppt.');
 }

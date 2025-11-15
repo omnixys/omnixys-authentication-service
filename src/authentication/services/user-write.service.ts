@@ -55,7 +55,7 @@ export class UserWriteService extends KeycloakBaseService {
    * User anlegen (mit invitationId/phoneNumber Attributen) + Rolle + Kafka-Events.
    */
   async guestSignUp(input: GuestSignUpDTO | GuestSignUpInput): Promise<SignUpPayload> {
-    return this.withSpan('authentication.signUp', async () => {
+    return this.withSpan('authentication.signUp', async (span) => {
       void this.logger.debug('signUp: input=%o', input);
 
       const { firstName, lastName, email, invitationId, phoneNumbers } = input;
@@ -97,11 +97,11 @@ export class UserWriteService extends KeycloakBaseService {
       // Rolle zuweisen
       await this.adminService.assignRealmRoleToUser(userId, Role.USER);
 
-      const traceCtx = this.traceContext.getContext();
+      const sc = span.spanContext();
       void this.kafka.sendUserId(
         { id: userId, firstName, lastName, email, phoneNumbers, invitationId },
         'authentication.guestSignUp',
-        traceCtx,
+        { traceId: sc.traceId, spanId: sc.spanId },
       );
       // TODO kafka nachrichten implementieren
       return { userId, username, password };
@@ -109,7 +109,7 @@ export class UserWriteService extends KeycloakBaseService {
   }
 
   async userSignUp(input: UserSignUpInput): Promise<TokenPayload> {
-    return this.withSpan('authentication.signUp', async () => {
+    return this.withSpan('authentication.signUp', async (span) => {
       void this.logger.debug('signUp: input=%o', input);
 
       const { firstName, lastName, email, username, password, phoneNumbers } = input;
@@ -141,12 +141,12 @@ export class UserWriteService extends KeycloakBaseService {
       // Rolle zuweisen
       await this.adminService.assignRealmRoleToUser(userId, Role.USER);
 
-      const traceCtx = this.traceContext.getContext();
+      const sc = span.spanContext();
 
       void this.kafka.sendUserId(
         { id: userId, firstName, lastName, email, phoneNumbers },
         'authentication.userSignUp',
-        traceCtx,
+        { traceId: sc.traceId, spanId: sc.spanId },
       );
       // TODO kafka nachrichten implementieren
 
