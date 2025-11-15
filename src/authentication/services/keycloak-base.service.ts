@@ -24,7 +24,7 @@ import type { Role, RoleData } from '../models/enums/role.enum.js';
 import { ROLE_NAME_MAP } from '../models/enums/role.enum.js';
 import type { HttpService } from '@nestjs/axios';
 import { BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import type { Tracer } from '@opentelemetry/api';
+import type { Span, Tracer } from '@opentelemetry/api';
 import { context as otelContext, trace } from '@opentelemetry/api';
 import * as jose from 'jose';
 import { firstValueFrom } from 'rxjs';
@@ -302,13 +302,14 @@ export abstract class KeycloakBaseService {
    * @param fn - The async function to execute.
    * @returns The result of the async function.
    */
-  protected async withSpan<T>(name: string, fn: () => Promise<T>): Promise<T> {
+  protected async withSpan<T>(name: string, fn: (span: Span) => Promise<T>): Promise<T> {
     const span = this.tracer.startSpan(name);
+
     try {
-      return await otelContext.with(trace.setSpan(otelContext.active(), span), fn);
-    } catch (err) {
-      void this.logger.error('%s failed: %s', name, (err as Error).message);
-      throw err;
+      return await otelContext.with(
+        trace.setSpan(otelContext.active(), span),
+        () => fn(span), // <-- typesicher
+      );
     } finally {
       span.end();
     }

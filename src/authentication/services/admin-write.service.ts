@@ -49,7 +49,7 @@ export class AdminWriteService extends KeycloakBaseService {
   }
 
   async adminSignUp(input: AdminSignUpInput): Promise<TokenPayload> {
-    return this.withSpan('authentication.signUp', async () => {
+    return this.withSpan('authentication.signUp', async (_span) => {
       const { firstName, lastName, email, username, password } = input;
       void this.logger.debug('signUp: input=%o', input);
 

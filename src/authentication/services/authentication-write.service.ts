@@ -48,7 +48,7 @@ export class AuthWriteService extends KeycloakBaseService {
    */
   @Public()
   async login({ username, password }: LogInInput): Promise<TokenPayload> {
-    return this.withSpan('authentication.login', async () => {
+    return this.withSpan('authentication.login', async (_span) => {
       if (!username || !password) {
         throw new UnauthorizedException('username oder passwort fehlt!');
       }
@@ -77,7 +77,7 @@ export class AuthWriteService extends KeycloakBaseService {
    */
   @Public()
   async refresh(refresh_token: string | undefined): Promise<TokenPayload | null> {
-    return this.withSpan('authentication.refresh', async () => {
+    return this.withSpan('authentication.refresh', async (_span) => {
       if (!refresh_token) {
         return null;
       }
@@ -104,7 +104,7 @@ export class AuthWriteService extends KeycloakBaseService {
    */
   @Public()
   async logout(refreshToken: string | undefined): Promise<void> {
-    return this.withSpan('authentication.logout', async () => {
+    return this.withSpan('authentication.logout', async (_span) => {
       if (!refreshToken) {
         return;
       }
