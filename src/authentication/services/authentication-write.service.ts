@@ -25,7 +25,7 @@ import type { KeycloakToken } from '../models/dtos/kc-token.dto.js';
 import type { LogInInput } from '../models/inputs/log-in.input.js';
 import { toToken } from '../models/mappers/token.mapper.js';
 import type { TokenPayload } from '../models/payloads/token.payload.js';
-import { KeycloakBaseService } from './keycloak-base.service.js';
+import { AuthenticateBaseService } from './keycloak-base.service.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
@@ -37,7 +37,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
  *  - Kafka-Events bei signUp
  */
 @Injectable()
-export class AuthWriteService extends KeycloakBaseService {
+export class AuthWriteService extends AuthenticateBaseService {
   constructor(logger: LoggerPlusService, trace: TraceContextProvider, http: HttpService) {
     super(logger, trace, http);
   }

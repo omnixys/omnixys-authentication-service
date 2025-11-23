@@ -15,14 +15,14 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-import { User } from '../entitys/user.entity.js';
+import { KcUser } from '../entitys/user.entity.js';
 import { TokenPayload } from './token.payload.js';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class SignUpPayload {
-  @Field(() => User, { nullable: true })
-  user?: User;
+  @Field(() => KcUser, { nullable: true })
+  user?: KcUser;
 
   @Field(() => String)
   password!: string;

@@ -19,7 +19,7 @@ import { Role } from '../enums/role.enum.js';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class User {
+export class KcUser {
   @Field(() => ID)
   id!: string;
 

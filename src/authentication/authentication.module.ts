@@ -26,14 +26,14 @@ import { AuthQueryResolver } from './resolvers/authentication-query.resolver.js'
 import { UserMutationResolver } from './resolvers/user-mutation.resolver.js';
 import { AdminWriteService } from './services/admin-write.service.js';
 import { AuthWriteService } from './services/authentication-write.service.js';
-import { KeycloakReadService } from './services/read.service.js';
+import { AuthenticateReadService } from './services/read.service.js';
 import { UserWriteService } from './services/user-write.service.js';
 import { Module } from '@nestjs/common';
 
 @Module({
   imports: [KafkaModule, LoggerModule, TraceModule, CoreHttpModule, AuthModule],
   providers: [
-    KeycloakReadService,
+    AuthenticateReadService,
     UserWriteService,
     AdminWriteService,
     AuthWriteService,
@@ -42,6 +42,6 @@ import { Module } from '@nestjs/common';
     UserMutationResolver,
     AdminMutationResolver,
   ],
-  exports: [KeycloakReadService, UserWriteService, AdminWriteService, AuthWriteService],
+  exports: [AuthenticateReadService, UserWriteService, AdminWriteService, AuthWriteService],
 })
 export class AuthenticationModule {}

@@ -25,7 +25,7 @@ import { TokenPayload } from '../models/payloads/token.payload.js';
 import { AuthWriteService } from '../services/authentication-write.service.js';
 import { BadUserInputException } from '../utils/error.util.js';
 import { UseInterceptors } from '@nestjs/common';
-import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Context, ID, Mutation, Resolver } from '@nestjs/graphql';
 import type { CookieOptions, Request, Response } from 'express';
 
 /**
@@ -210,8 +210,8 @@ export class AuthMutationResolver {
    */
   @Mutation(() => TokenPayload, { name: 'refresh' })
   async refresh(
-    @Args('refreshToken', { type: () => String, nullable: true })
-    refreshToken: string | null,
+    @Args('refreshToken', { type: () => ID })
+    refreshToken: string,
     @Context() ctx: GqlCtx,
   ): Promise<TokenPayload> {
     const cookieReq: CookieReq = ctx.req;

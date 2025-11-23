@@ -15,7 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-import { PhoneKind } from '../enums/phone-kind.enum.js';
+import { PhoneNumberType } from '../enums/phone-number-type.enum.js';
 import { Field, InputType } from '@nestjs/graphql';
 import { IsEnum, IsOptional, IsString, Matches } from 'class-validator';
 
@@ -23,14 +23,14 @@ export const PHONE_RE = /^\+?[0-9 .\-()]{6,20}$/;
 
 @InputType()
 export class PhoneNumberInput {
-  @Field(() => PhoneKind)
-  @IsEnum(PhoneKind)
-  kind!: PhoneKind;
+  @Field(() => PhoneNumberType)
+  @IsEnum(PhoneNumberType)
+  type!: PhoneNumberType;
 
   @Field(() => String)
   @IsString()
   @Matches(PHONE_RE, { message: 'invalid phone number format' })
-  value!: string;
+  number!: string;
 
   @Field(() => String, { nullable: true })
   @IsOptional()

@@ -15,6 +15,11 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
+import {
+  CurrentUser,
+  CurrentUserData,
+} from '../../auth/decorators/current-user.decorator.js';
+import { CookieAuthGuard } from '../../auth/guards/cookie-auth.guard.js';
 import { getLogger } from '../../logger/get-logger.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
 import {
@@ -26,7 +31,6 @@ import { UpdateMyProfileInput } from '../models/inputs/user-update.input.js';
 import { SignUpPayload } from '../models/payloads/sign-in.payload.js';
 import { SuccessPayload } from '../models/payloads/success.payload.js';
 import { TokenPayload } from '../models/payloads/token.payload.js';
-import { AdminWriteService } from '../services/admin-write.service.js';
 import { UserWriteService } from '../services/user-write.service.js';
 import {
   cookieOpts,
@@ -36,6 +40,7 @@ import {
 import {
   BadRequestException,
   UnauthorizedException,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
@@ -45,10 +50,7 @@ import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 export class UserMutationResolver {
   private readonly logger = getLogger(UserMutationResolver.name);
 
-  constructor(
-    private readonly userService: UserWriteService,
-    private readonly adminService: AdminWriteService,
-  ) {}
+  constructor(private readonly userService: UserWriteService) {}
 
   @Mutation(() => SuccessPayload)
   async changeMyPassword(
@@ -101,18 +103,17 @@ export class UserMutationResolver {
   }
 
   @Mutation(() => SuccessPayload)
+  @UseGuards(CookieAuthGuard)
   async updateMyProfile(
     @Args('input') input: UpdateMyProfileInput,
-    @Context() ctx: GqlCtx,
+    @CurrentUser() currentUser: CurrentUserData,
   ): Promise<{ ok: boolean; message: string }> {
-    const user = ctx?.req.user;
-
-    if (!user?.sub) {
+    if (!currentUser?.id) {
       // Kein authentifizierter Nutzer im Kontext
       throw new UnauthorizedException('Not authenticated');
     }
 
-    await this.adminService.updateUser(user.sub, input);
+    await this.userService.update(currentUser.id, input);
     return { ok: true, message: 'Profile updated' };
   }
 
@@ -126,13 +127,13 @@ export class UserMutationResolver {
 
     setCookieSafe(
       ctx?.res,
-      'kc_access_token',
+      'access_token',
       result.accessToken,
       cookieOpts(result.expiresIn * 1000),
     );
     setCookieSafe(
       ctx?.res,
-      'kc_refresh_token',
+      'refresh_token',
       result.refreshToken,
       cookieOpts(result.refreshExpiresIn * 1000),
     );

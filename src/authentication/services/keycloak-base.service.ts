@@ -45,7 +45,7 @@ const { KC_ADMIN_PASSWORD, KC_ADMIN_USERNAME } = env;
  *
  * This class only provides shared infrastructure, not business logic.
  */
-export abstract class KeycloakBaseService {
+export abstract class AuthenticateBaseService {
   /** Basic authentication headers for token/logout requests. */
   protected readonly loginHeaders: Record<string, string>;
 

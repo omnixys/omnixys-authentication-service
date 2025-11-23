@@ -20,9 +20,9 @@ import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
 import type { KeycloakTokenPayload } from '../models/dtos/kc-token.dto.js';
 import type { KeycloakUser } from '../models/dtos/kc-user.dto.js';
-import type { User } from '../models/entitys/user.entity.js';
+import type { KcUser } from '../models/entitys/user.entity.js';
 import { toUser, toUsers } from '../models/mappers/user.mapper.js';
-import { KeycloakBaseService } from './keycloak-base.service.js';
+import { AuthenticateBaseService } from './keycloak-base.service.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as jose from 'jose';
@@ -33,7 +33,7 @@ import * as jose from 'jose';
  *  - UserInfo aus Access-Token (JWT Verify)
  */
 @Injectable()
-export class KeycloakReadService extends KeycloakBaseService {
+export class AuthenticateReadService extends AuthenticateBaseService {
   constructor(logger: LoggerPlusService, trace: TraceContextProvider, http: HttpService) {
     super(logger, trace, http);
   }
@@ -45,7 +45,7 @@ export class KeycloakReadService extends KeycloakBaseService {
   /**
    * Liste aller Realm-Benutzer.
    */
-  async findAllUsers(): Promise<User[]> {
+  async findAllUsers(): Promise<KcUser[]> {
     void this.logger.debug('finde alle User');
     const raw = await this.kcRequest<KeycloakUser[]>('get', paths.users);
     const users = toUsers(raw);
@@ -55,7 +55,7 @@ export class KeycloakReadService extends KeycloakBaseService {
   /**
    * Benutzer per ID (exakt).
    */
-  async findById(id: string): Promise<User> {
+  async findById(id: string): Promise<KcUser> {
     void this.logger.debug('findById: id=%s', id);
     const rawData = await this.kcRequest<KeycloakUser>(
       'get',
@@ -76,7 +76,7 @@ export class KeycloakReadService extends KeycloakBaseService {
     return user;
   }
 
-  async findByUsername(username: string): Promise<User> {
+  async findByUsername(username: string): Promise<KcUser> {
     this.logger.debug('findByUsername: username=%s', username);
 
     const rawList = await this.kcRequest<KeycloakUser[]>('get', paths.users, {
@@ -103,7 +103,7 @@ export class KeycloakReadService extends KeycloakBaseService {
   /**
    * Benutzerinfo aus verifiziertem JWT.
    */
-  async getUserInfo(accessToken: string): Promise<User> {
+  async getUserInfo(accessToken: string): Promise<KcUser> {
     const decoded = jose.decodeJwt(accessToken);
     const iss = decoded.iss;
     if (!iss) {

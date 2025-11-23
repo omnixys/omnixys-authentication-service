@@ -19,15 +19,18 @@ import { paths } from '../../config/keycloak.js';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { KafkaProducerService } from '../../messaging/kafka-producer.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
+import { KeycloakUserPatch } from '../models/dtos/kc-user.dto.js';
 import { GuestSignUpDTO } from '../models/dtos/sign-up.dto.js';
 import { updatePasswortDTO } from '../models/dtos/update-password.dto.js';
 import { Role } from '../models/enums/role.enum.js';
 import { GuestSignUpInput, UserSignUpInput } from '../models/inputs/sign-up.input.js';
+import { UpdateMyProfileInput } from '../models/inputs/user-update.input.js';
 import { SignUpPayload } from '../models/payloads/sign-in.payload.js';
 import { TokenPayload } from '../models/payloads/token.payload.js';
 import { AdminWriteService } from './admin-write.service.js';
 import { AuthWriteService } from './authentication-write.service.js';
-import { KeycloakBaseService } from './keycloak-base.service.js';
+import { AuthenticateBaseService } from './keycloak-base.service.js';
+import { AuthenticateReadService } from './read.service.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
@@ -39,7 +42,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
  *  - Kafka-Events bei signUp
  */
 @Injectable()
-export class UserWriteService extends KeycloakBaseService {
+export class UserWriteService extends AuthenticateBaseService {
   constructor(
     logger: LoggerPlusService,
     trace: TraceContextProvider,
@@ -47,6 +50,7 @@ export class UserWriteService extends KeycloakBaseService {
     private readonly kafka: KafkaProducerService,
     private authService: AuthWriteService,
     private adminService: AdminWriteService,
+    private authenticateReadService: AuthenticateReadService,
   ) {
     super(logger, trace, http);
   }
@@ -98,8 +102,16 @@ export class UserWriteService extends KeycloakBaseService {
       await this.adminService.assignRealmRoleToUser(userId, Role.USER);
 
       const sc = span.spanContext();
-      void this.kafka.sendUserId(
-        { id: userId, firstName, lastName, email, phoneNumbers, invitationId },
+      void this.kafka.createUser(
+        {
+          id: userId,
+          username,
+          firstName,
+          lastName,
+          email: finalEmail,
+          phoneNumbers,
+          invitationId,
+        },
         'authentication.guestSignUp',
         { traceId: sc.traceId, spanId: sc.spanId },
       );
@@ -143,8 +155,8 @@ export class UserWriteService extends KeycloakBaseService {
 
       const sc = span.spanContext();
 
-      void this.kafka.sendUserId(
-        { id: userId, firstName, lastName, email, phoneNumbers },
+      void this.kafka.createUser(
+        { id: userId, username, firstName, lastName, email, phoneNumbers },
         'authentication.userSignUp',
         { traceId: sc.traceId, spanId: sc.spanId },
       );
@@ -203,5 +215,32 @@ export class UserWriteService extends KeycloakBaseService {
     const email = input.email ?? `${username}@omnixys.com`;
     const password = Math.random().toString(36).slice(-8);
     return { username, email, password };
+  }
+
+  async update(id: string, input: UpdateMyProfileInput): Promise<void> {
+    return this.withSpan('authentication.userUpdate', async (span) => {
+      const { firstName, lastName, email } = input;
+      // 1) Bestehenden User laden (für Merge)
+      const kcUser = await this.authenticateReadService.findById(id);
+
+      // 6) KC-User Patch – nur attributes setzen, wenn wir wirklich was schreiben wollen
+      const patch: KeycloakUserPatch = {
+        firstName: firstName ?? kcUser.firstName,
+        lastName: lastName ?? kcUser.lastName,
+        email: email ?? kcUser.email,
+      };
+
+      await this.kcRequest('put', `${paths.users}/${encodeURIComponent(id)}`, {
+        data: patch,
+        headers: await this.adminJsonHeaders(),
+      });
+
+      const sc = span.spanContext();
+      void this.kafka.updateUser(
+        { id, firstName: patch.firstName, lastName: patch.lastName, email: patch.email },
+        'authentication.userSignUp',
+        { traceId: sc.traceId, spanId: sc.spanId },
+      );
+    });
   }
 }

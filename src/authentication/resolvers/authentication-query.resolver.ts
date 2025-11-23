@@ -28,9 +28,9 @@ import { HeaderAuthGuard } from '../../auth/guards/header-auth.guard.js';
 import { RoleGuard } from '../../auth/guards/role.guard.js';
 import { getLogger } from '../../logger/get-logger.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
-import { User } from '../models/entitys/user.entity.js';
+import { KcUser } from '../models/entitys/user.entity.js';
 import { toEnumRoles } from '../models/enums/role.enum.js';
-import { KeycloakReadService } from '../services/read.service.js';
+import { AuthenticateReadService } from '../services/read.service.js';
 import {
   BadRequestException,
   UnauthorizedException,
@@ -43,7 +43,7 @@ import { Args, ID, Query, Resolver } from '@nestjs/graphql';
  * @file GraphQL-Resolver für **lesende** Authentication-Abfragen (ME/USERS).
  *
  * @remarks
- * - Nutzt den {@link KeycloakReadService} für sämtliche Leseoperationen.
+ * - Nutzt den {@link AuthenticateReadService} für sämtliche Leseoperationen.
  * - Liest das Access-Token bevorzugt aus dem HttpOnly-Cookie `kc_access_token`,
  *   alternativ aus dem optionalen Query-Argument `token`.
  * - Öffentliche Endpunkte sind mit `@Public()` gekennzeichnet.
@@ -63,12 +63,12 @@ import { Args, ID, Query, Resolver } from '@nestjs/graphql';
 export class AuthQueryResolver {
   private readonly logger = getLogger(AuthQueryResolver.name);
 
-  constructor(private readonly read: KeycloakReadService) {}
+  constructor(private readonly read: AuthenticateReadService) {}
 
   /**
    * Liste aller Benutzer im Realm.
    *
-   * @returns Array von {@link User}
+   * @returns Array von {@link KcUser}
    *
    * @example
    * ```graphql
@@ -77,8 +77,8 @@ export class AuthQueryResolver {
    * }
    * ```
    */
-  @Query(() => [User], { name: 'users' })
-  async getUsers(): Promise<User[]> {
+  @Query(() => [KcUser], { name: 'kc_users' })
+  async getUsers(): Promise<KcUser[]> {
     this.logger.debug('Get All Users');
     return this.read.findAllUsers();
   }
@@ -97,10 +97,12 @@ export class AuthQueryResolver {
    * }
    * ```
    */
-  @Query(() => User, { name: 'meByToken' })
+  @Query(() => KcUser, { name: 'meByToken' })
   @UseGuards(HeaderAuthGuard, RoleGuard)
   @Public()
-  async meByToken(@CurrentUser() currentUser: CurrentUserData): Promise<User> {
+  async meByToken(
+    @CurrentUser() currentUser: CurrentUserData,
+  ): Promise<KcUser> {
     this.logger.debug('meByToken() invoked');
 
     if (!currentUser) {
@@ -121,10 +123,10 @@ export class AuthQueryResolver {
     return { ...user, roles: toEnumRoles(currentUser.roles) };
   }
 
-  @Query(() => User, { name: 'me' })
+  @Query(() => KcUser, { name: 'me' })
   @UseGuards(CookieAuthGuard, RoleGuard)
   @Roles('ADMIN', 'USER')
-  async me(@CurrentUser() currentUser: CurrentUserData): Promise<User> {
+  async me(@CurrentUser() currentUser: CurrentUserData): Promise<KcUser> {
     this.logger.debug('me By Cookie');
 
     if (!currentUser) {
@@ -158,16 +160,16 @@ export class AuthQueryResolver {
    * }
    * ```
    */
-  @Query(() => User, { name: 'getById' })
-  async getById(@Args('id', { type: () => ID }) id: string): Promise<User> {
+  @Query(() => KcUser, { name: 'getById' })
+  async getById(@Args('id', { type: () => ID }) id: string): Promise<KcUser> {
     this.logger.debug('getById: id=%s', id);
     return this.read.findById(id);
   }
 
-  @Query(() => User, { name: 'getByUsername' })
+  @Query(() => KcUser, { name: 'getByUsername' })
   async getByUsername(
     @Args('username', { type: () => String }) username: string,
-  ): Promise<User> {
+  ): Promise<KcUser> {
     this.logger.debug('getByUsername: username=%s', username);
     return this.read.findByUsername(username);
   }

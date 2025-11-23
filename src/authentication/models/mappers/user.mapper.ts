@@ -17,7 +17,7 @@
 
 import type { KeycloakTokenPayload } from '../dtos/kc-token.dto.js';
 import type { KeycloakUser } from '../dtos/kc-user.dto.js';
-import type { User } from '../entitys/user.entity.js';
+import type { KcUser } from '../entitys/user.entity.js';
 import type { Role } from '../enums/role.enum.js';
 import { toEnumRoles } from '../enums/role.enum.js';
 
@@ -39,7 +39,7 @@ function isKeycloakUser(
  * - attributes: phoneNumbers[] (frei), privatePhone/workPhone/whatsappPhone (single)
  * - ticketIds[]/invitationIds[]
  */
-function fromKeycloakUser(u: KeycloakUser): User {
+function fromKeycloakUser(u: KeycloakUser): KcUser {
   return {
     id: u.id ?? 'N/A',
     username: u.username,
@@ -53,7 +53,7 @@ function fromKeycloakUser(u: KeycloakUser): User {
  * Aus Access-Token → Domain
  * - nutzt camelCase Claims aus deinem ClientScope („checkpoint-main-extra“)
  */
-function fromTokenPayload(p: KeycloakTokenPayload): User {
+function fromTokenPayload(p: KeycloakTokenPayload): KcUser {
   const realmRolesStr: string[] = Array.isArray(p.realm_access?.roles)
     ? p.realm_access.roles
     : [];
@@ -72,14 +72,14 @@ function fromTokenPayload(p: KeycloakTokenPayload): User {
 }
 
 /** Liste von Admin-API-Usern → Domain */
-export function toUsers(usersRaw: readonly KeycloakUser[]): User[] {
+export function toUsers(usersRaw: readonly KeycloakUser[]): KcUser[] {
   return usersRaw.map(fromKeycloakUser);
 }
 
 /** Overloads */
-export function toUser(src: KeycloakUser): User;
-export function toUser(src: KeycloakTokenPayload): User;
-export function toUser(src: KeycloakUser | KeycloakTokenPayload): User {
+export function toUser(src: KeycloakUser): KcUser;
+export function toUser(src: KeycloakTokenPayload): KcUser;
+export function toUser(src: KeycloakUser | KeycloakTokenPayload): KcUser {
   return isKeycloakUser(src) ? fromKeycloakUser(src) : fromTokenPayload(src);
 }
 
@@ -102,10 +102,10 @@ export function toUser(src: KeycloakUser | KeycloakTokenPayload): User {
 
 /** Optionaler Wrapper (falls du es so in DI/Docs magst) */
 export class UserMappers {
-  static toUsers(usersRaw: readonly KeycloakUser[]): User[] {
+  static toUsers(usersRaw: readonly KeycloakUser[]): KcUser[] {
     return toUsers(usersRaw);
   }
-  static toUser(src: KeycloakUser | KeycloakTokenPayload): User {
+  static toUser(src: KeycloakUser | KeycloakTokenPayload): KcUser {
     return toUser(src);
   }
 }

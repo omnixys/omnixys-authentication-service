@@ -27,7 +27,7 @@ export interface KeycloakUser {
 }
 
 export interface KeycloakUserPatch {
-  username: string;
+  username?: string;
   firstName: string;
   lastName: string;
   email: string;

@@ -17,10 +17,21 @@
 
 import { registerEnumType } from '@nestjs/graphql';
 
-export enum PhoneKind {
+/**
+ * Enum for different phone number categories.
+ * Mirrors the Prisma enum `PhoneType`.
+ */
+export enum PhoneNumberType {
+  WHATSAPP = 'WHATSAPP',
+  MOBILE = 'MOBILE',
   PRIVATE = 'PRIVATE',
   WORK = 'WORK',
-  WHATSAPP = 'WHATSAPP',
+  HOME = 'HOME',
   OTHER = 'OTHER',
 }
-registerEnumType(PhoneKind, { name: 'PhoneKind' });
+
+// Register enum for GraphQL usage
+registerEnumType(PhoneNumberType, {
+  name: 'PhoneNumberType',
+  description: 'Specifies the type/category of a phone number.',
+});

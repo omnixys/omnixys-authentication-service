@@ -24,7 +24,7 @@ import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.
 import { Role } from '../models/enums/role.enum.js';
 import { AdminSignUpInput } from '../models/inputs/sign-up.input.js';
 import {
-  UpdateUserInput,
+  UpdateKcUserInput,
   UpdateUserPasswordInput,
 } from '../models/inputs/update-user.input.js';
 import { TokenPayload } from '../models/payloads/token.payload.js';
@@ -73,13 +73,13 @@ export class AdminMutationResolver {
    * @public
    *
    * @param id - The unique Keycloak user ID.
-   * @param input - The {@link UpdateUserInput} containing profile changes.
+   * @param input - The {@link UpdateKcUserInput} containing profile changes.
    * @returns A boolean value indicating whether the update was successful.
    */
   @Mutation(() => Boolean, { name: 'adminUpdateUser' })
   async updateUser(
     @Args('id', { type: () => ID }) id: string,
-    @Args('input', { type: () => UpdateUserInput }) input: UpdateUserInput,
+    @Args('input', { type: () => UpdateKcUserInput }) input: UpdateKcUserInput,
   ): Promise<boolean> {
     this.logger.debug('adminUpdateUser: id=%s', id);
     await this.adminService.updateUser(id, input);
@@ -117,7 +117,7 @@ export class AdminMutationResolver {
    * @param id - The unique Keycloak user ID to delete.
    * @returns A boolean value indicating whether the user was deleted successfully.
    */
-  @Mutation(() => Boolean, { name: 'deleteUser' })
+  @Mutation(() => Boolean, { name: 'deleteKcUser' })
   async deleteUser(
     @Args('id', { type: () => ID }) id: string,
   ): Promise<boolean> {

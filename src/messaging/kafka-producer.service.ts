@@ -13,7 +13,7 @@
  * See the GNU General Public License for more details.
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
-import { UserDTO } from '../authentication/models/dtos/user.dto.js';
+import { UserDTO, UserUpdateDTO } from '../authentication/models/dtos/user.dto.js';
 import { LoggerPlusService, setGlobalKafkaProducer } from '../logger/logger-plus.service.js';
 import type { TraceContext } from '../trace/trace-context.util.js';
 import type { KafkaEnvelope } from './decorators/kafka-envelope.type.js';
@@ -72,7 +72,29 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  async sendUserId(payload: UserDTO, service: string, trace?: TraceContext): Promise<void> {
+  async createUser(payload: UserDTO, service: string, trace?: TraceContext): Promise<void> {
+    const envelope: KafkaEnvelope<typeof payload> = {
+      event: 'createUser',
+      service,
+      version: 'v1',
+      trace,
+      payload,
+    };
+    await this.send(KafkaTopics.user.createUser, envelope, trace);
+  }
+
+  async deleteUser(payload: { id: string }, service: string, trace?: TraceContext): Promise<void> {
+    const envelope: KafkaEnvelope<typeof payload> = {
+      event: 'deleteUser',
+      service,
+      version: 'v1',
+      trace,
+      payload,
+    };
+    await this.send(KafkaTopics.user.deleteUser, envelope, trace);
+  }
+
+  async updateUser(payload: UserUpdateDTO, service: string, trace?: TraceContext): Promise<void> {
     const envelope: KafkaEnvelope<typeof payload> = {
       event: 'sendUserId',
       service,
@@ -80,7 +102,7 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
       trace,
       payload,
     };
-    await this.send(KafkaTopics.user.sendUserId, envelope, trace);
+    await this.send(KafkaTopics.user.updateUser, envelope, trace);
   }
 
   async disconnect(): Promise<void> {

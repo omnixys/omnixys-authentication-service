@@ -17,6 +17,7 @@
 
 import { paths } from '../../config/keycloak.js';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
+import { KafkaProducerService } from '../../messaging/kafka-producer.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
 import { KeycloakUserPatch } from '../models/dtos/kc-user.dto.js';
 import { Role } from '../models/enums/role.enum.js';
@@ -24,8 +25,8 @@ import type { AdminSignUpInput } from '../models/inputs/sign-up.input.js';
 import { UpdateMyProfileInput } from '../models/inputs/user-update.input.js';
 import type { TokenPayload } from '../models/payloads/token.payload.js';
 import { AuthWriteService } from './authentication-write.service.js';
-import { KeycloakBaseService } from './keycloak-base.service.js';
-import { KeycloakReadService } from './read.service.js';
+import { AuthenticateBaseService } from './keycloak-base.service.js';
+import { AuthenticateReadService } from './read.service.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
@@ -37,13 +38,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
  *  - Kafka-Events bei signUp
  */
 @Injectable()
-export class AdminWriteService extends KeycloakBaseService {
+export class AdminWriteService extends AuthenticateBaseService {
   constructor(
     logger: LoggerPlusService,
     trace: TraceContextProvider,
     private authService: AuthWriteService,
-    private readonly readService: KeycloakReadService,
+    private readonly readService: AuthenticateReadService,
     http: HttpService,
+    private readonly kafka: KafkaProducerService,
   ) {
     super(logger, trace, http);
   }
@@ -90,7 +92,16 @@ export class AdminWriteService extends KeycloakBaseService {
    * Benutzer löschen.
    */
   async deleteUser(id: string): Promise<void> {
-    await this.kcRequest('delete', `${paths.users}/${encodeURIComponent(id)}`);
+    return this.withSpan('authentication.signUp', async (span) => {
+      await this.kcRequest('delete', `${paths.users}/${encodeURIComponent(id)}`);
+
+      const sc = span.spanContext();
+
+      void this.kafka.deleteUser({ id }, 'authentication.deleteUser', {
+        traceId: sc.traceId,
+        spanId: sc.spanId,
+      });
+    });
   }
 
   /**
