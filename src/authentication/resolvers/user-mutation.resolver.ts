@@ -22,13 +22,9 @@ import {
 import { CookieAuthGuard } from '../../auth/guards/cookie-auth.guard.js';
 import { getLogger } from '../../logger/get-logger.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
-import {
-  GuestSignUpInput,
-  UserSignUpInput,
-} from '../models/inputs/sign-up.input.js';
+import { UserSignUpInput } from '../models/inputs/sign-up.input.js';
 import { ChangeMyPasswordInput } from '../models/inputs/update-password.input.js';
 import { UpdateMyProfileInput } from '../models/inputs/user-update.input.js';
-import { SignUpPayload } from '../models/payloads/sign-in.payload.js';
 import { SuccessPayload } from '../models/payloads/success.payload.js';
 import { TokenPayload } from '../models/payloads/token.payload.js';
 import { UserWriteService } from '../services/user-write.service.js';
@@ -53,13 +49,12 @@ export class UserMutationResolver {
   constructor(private readonly userService: UserWriteService) {}
 
   @Mutation(() => SuccessPayload)
+  @UseGuards(CookieAuthGuard)
   async changeMyPassword(
     @Args('input') input: ChangeMyPasswordInput,
-    @Context() ctx: GqlCtx,
+    @CurrentUser() user: CurrentUserData,
   ): Promise<SuccessPayload> {
-    const user = ctx?.req.user;
-
-    if (!user?.sub) {
+    if (!user?.id) {
       // Kein authentifizierter Nutzer im Kontext
       throw new UnauthorizedException('Not authenticated');
     }
@@ -140,12 +135,12 @@ export class UserMutationResolver {
     return result;
   }
 
-  @Mutation(() => SignUpPayload, { name: 'guestSignUp' })
-  async guestSignIn(
-    @Args('input', { type: () => GuestSignUpInput }) input: GuestSignUpInput,
-  ): Promise<SignUpPayload> {
-    this.logger.debug('signIn: input=%o', input);
-    const result = await this.userService.guestSignUp(input);
-    return result;
-  }
+  // @Mutation(() => SignUpPayload, { name: 'guestSignUp' })
+  // async guestSignIn(
+  //   @Args('input', { type: () => GuestSignUpInput }) input: GuestSignUpInput,
+  // ): Promise<SignUpPayload> {
+  //   this.logger.debug('signIn: input=%o', input);
+  //   const result = await this.userService.guestSignUp(input);
+  //   return result;
+  // }
 }

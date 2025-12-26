@@ -20,18 +20,20 @@ import { CoreHttpModule } from '../http.module.js';
 import { LoggerModule } from '../logger/logger.module.js';
 import { KafkaModule } from '../messaging/kafka.module.js';
 import { TraceModule } from '../trace/trace.module.js';
+import { ValkeyModule } from '../valkey/valkey.module.js';
 import { AdminMutationResolver } from './resolvers/admin-mutation.resolver.js';
 import { AuthMutationResolver } from './resolvers/authentication-mutation.resolver.js';
 import { AuthQueryResolver } from './resolvers/authentication-query.resolver.js';
 import { UserMutationResolver } from './resolvers/user-mutation.resolver.js';
 import { AdminWriteService } from './services/admin-write.service.js';
 import { AuthWriteService } from './services/authentication-write.service.js';
+import { PendingContactService } from './services/pending-contact.service.js';
 import { AuthenticateReadService } from './services/read.service.js';
 import { UserWriteService } from './services/user-write.service.js';
 import { Module } from '@nestjs/common';
 
 @Module({
-  imports: [KafkaModule, LoggerModule, TraceModule, CoreHttpModule, AuthModule],
+  imports: [KafkaModule, LoggerModule, TraceModule, CoreHttpModule, AuthModule, ValkeyModule],
   providers: [
     AuthenticateReadService,
     UserWriteService,
@@ -41,7 +43,14 @@ import { Module } from '@nestjs/common';
     AuthMutationResolver,
     UserMutationResolver,
     AdminMutationResolver,
+    PendingContactService,
   ],
-  exports: [AuthenticateReadService, UserWriteService, AdminWriteService, AuthWriteService],
+  exports: [
+    AuthenticateReadService,
+    UserWriteService,
+    AdminWriteService,
+    AuthWriteService,
+    PendingContactService,
+  ],
 })
 export class AuthenticationModule {}

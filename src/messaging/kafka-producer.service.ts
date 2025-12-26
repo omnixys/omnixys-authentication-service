@@ -13,6 +13,7 @@
  * See the GNU General Public License for more details.
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
+import { CreateTicketDTO } from '../authentication/models/dtos/create-ticket.dto.js';
 import { UserDTO, UserUpdateDTO } from '../authentication/models/dtos/user.dto.js';
 import { LoggerPlusService, setGlobalKafkaProducer } from '../logger/logger-plus.service.js';
 import type { TraceContext } from '../trace/trace-context.util.js';
@@ -83,6 +84,47 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
     await this.send(KafkaTopics.user.createUser, envelope, trace);
   }
 
+  async notifyUser(
+    payload: {
+      userId: string;
+      password: string;
+      username: string;
+      invitationId: string;
+      firstName: string;
+      lastName: string;
+    },
+    service: string,
+    trace?: TraceContext,
+  ): Promise<void> {
+    const envelope: KafkaEnvelope<typeof payload> = {
+      event: 'notifyUser',
+      service,
+      version: 'v1',
+      trace,
+      payload,
+    };
+    await this.send(KafkaTopics.notification.sendCredentials, envelope, trace);
+  }
+
+  async addEventRole(
+    payload: {
+      userId: string;
+      eventId: string;
+      actorId: string;
+    },
+    service: string,
+    trace?: TraceContext,
+  ): Promise<void> {
+    const envelope: KafkaEnvelope<typeof payload> = {
+      event: 'addEventId',
+      service,
+      version: 'v1',
+      trace,
+      payload,
+    };
+    await this.send(KafkaTopics.event.addUserRole, envelope, trace);
+  }
+
   async deleteUser(payload: { id: string }, service: string, trace?: TraceContext): Promise<void> {
     const envelope: KafkaEnvelope<typeof payload> = {
       event: 'deleteUser',
@@ -103,6 +145,22 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
       payload,
     };
     await this.send(KafkaTopics.user.updateUser, envelope, trace);
+  }
+
+  async createTicket(
+    payload: CreateTicketDTO,
+    service: string,
+    trace?: TraceContext,
+  ): Promise<void> {
+    const envelope: KafkaEnvelope<typeof payload> = {
+      event: 'createTicket',
+      service,
+      version: 'v1',
+      trace,
+      payload,
+    };
+    this.logger.debug('kafkaTopic: %s', KafkaTopics.ticket.createTicket);
+    await this.send(KafkaTopics.ticket.createTicket, envelope, trace);
   }
 
   async disconnect(): Promise<void> {

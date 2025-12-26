@@ -19,12 +19,13 @@ import { paths } from '../../config/keycloak.js';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { KafkaProducerService } from '../../messaging/kafka-producer.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
-import { KeycloakUserPatch } from '../models/dtos/kc-user.dto.js';
+import { KeycloakUser, KeycloakUserPatch } from '../models/dtos/kc-user.dto.js';
 import { GuestSignUpDTO } from '../models/dtos/sign-up.dto.js';
 import { updatePasswortDTO } from '../models/dtos/update-password.dto.js';
-import { Role } from '../models/enums/role.enum.js';
-import { GuestSignUpInput, UserSignUpInput } from '../models/inputs/sign-up.input.js';
+import { RealmRole } from '../models/enums/role.enum.js';
+import { UserSignUpInput } from '../models/inputs/sign-up.input.js';
 import { UpdateMyProfileInput } from '../models/inputs/user-update.input.js';
+import { toUsers } from '../models/mappers/user.mapper.js';
 import { SignUpPayload } from '../models/payloads/sign-in.payload.js';
 import { TokenPayload } from '../models/payloads/token.payload.js';
 import { AdminWriteService } from './admin-write.service.js';
@@ -58,11 +59,12 @@ export class UserWriteService extends AuthenticateBaseService {
   /**
    * User anlegen (mit invitationId/phoneNumber Attributen) + Rolle + Kafka-Events.
    */
-  async guestSignUp(input: GuestSignUpDTO | GuestSignUpInput): Promise<SignUpPayload> {
+  async guestSignUp(input: GuestSignUpDTO): Promise<SignUpPayload> {
     return this.withSpan('authentication.signUp', async (span) => {
       void this.logger.debug('signUp: input=%o', input);
 
-      const { firstName, lastName, email, invitationId, phoneNumbers } = input;
+      const { firstName, lastName, email, invitationId, phoneNumbers, eventId, seatId, actorId } =
+        input;
 
       const {
         username,
@@ -99,7 +101,7 @@ export class UserWriteService extends AuthenticateBaseService {
       }
 
       // Rolle zuweisen
-      await this.adminService.assignRealmRoleToUser(userId, Role.USER);
+      await this.adminService.assignRealmRoleToUser(userId, RealmRole.USER);
 
       const sc = span.spanContext();
       void this.kafka.createUser(
@@ -115,7 +117,45 @@ export class UserWriteService extends AuthenticateBaseService {
         'authentication.guestSignUp',
         { traceId: sc.traceId, spanId: sc.spanId },
       );
-      // TODO kafka nachrichten implementieren
+
+      void this.kafka.notifyUser(
+        {
+          userId,
+          username,
+          password,
+          invitationId,
+          firstName,
+          lastName,
+        },
+        'authentication.notifyUser',
+        { traceId: sc.traceId, spanId: sc.spanId },
+      );
+
+      void this.kafka.addEventRole(
+        {
+          userId,
+          eventId,
+          actorId: actorId ?? '0',
+        },
+        'authentication.addEventRole',
+        { traceId: sc.traceId, spanId: sc.spanId },
+      );
+
+      if (seatId && actorId) {
+        void this.kafka.createTicket(
+          {
+            eventId,
+            invitationId,
+            guestProfileId: userId,
+            seatId,
+            actorId,
+          },
+          'authentication.createTicket',
+          { traceId: sc.traceId, spanId: sc.spanId },
+        );
+      }
+
+      console.debug({ userId, username, password });
       return { userId, username, password };
     });
   }
@@ -151,7 +191,7 @@ export class UserWriteService extends AuthenticateBaseService {
       }
 
       // Rolle zuweisen
-      await this.adminService.assignRealmRoleToUser(userId, Role.USER);
+      await this.adminService.assignRealmRoleToUser(userId, RealmRole.USER);
 
       const sc = span.spanContext();
 
@@ -192,7 +232,7 @@ export class UserWriteService extends AuthenticateBaseService {
   /**
    * Realm-Rolle von User entfernen.
    */
-  async removeRealmRoleFromUser(userId: string, roleName: Role | string): Promise<void> {
+  async removeRealmRoleFromUser(userId: string, roleName: RealmRole | string): Promise<void> {
     const role = await this.getRealmRole(roleName);
     await this.kcRequest(
       'delete',
@@ -210,11 +250,59 @@ export class UserWriteService extends AuthenticateBaseService {
     const base = (input.lastName.slice(0, 2) + input.firstName.slice(0, 2))
       .toLowerCase()
       .replace(/[^a-z0-9]/g, '');
-    const suffix = Math.floor(1000 + Math.random() * 9000).toString();
-    const username = `${base}${suffix}`;
-    const email = input.email ?? `${username}@omnixys.com`;
-    const password = Math.random().toString(36).slice(-8);
-    return { username, email, password };
+
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000).toString();
+    const baseUsername = `${base}${randomSuffix}`;
+
+    let username = baseUsername;
+    let email = input.email ?? `${username}@omnixys.com`;
+
+    // Max fallback attempts
+    for (let i = 0; i < 10; i++) {
+      const usernameTaken = await this.userExistsByUsername(username);
+      const emailTaken = await this.userExistsByEmail(email);
+
+      if (!usernameTaken && !emailTaken) {
+        const password = Math.random().toString(36).slice(-8);
+        return { username, email, password };
+      }
+
+      // FALLBACK
+      const suffix = i + 1;
+
+      if (usernameTaken) {
+        username = `${baseUsername}-${suffix}`;
+      }
+
+      if (emailTaken) {
+        const [name, domain] = (input.email ?? `${baseUsername}@omnixys.com`).split('@');
+        email = `${name}+${suffix}@${domain}`;
+      }
+    }
+
+    throw new Error(
+      `Could not generate unique username/email for ${input.firstName} ${input.lastName} after 10 attempts.`,
+    );
+  }
+
+  /** Check if Keycloak already has a user with this username */
+  private async userExistsByUsername(username: string): Promise<boolean> {
+    const raw = await this.kcRequest<KeycloakUser[]>('get', paths.users, {
+      params: { username, exact: true },
+      headers: await this.adminJsonHeaders(),
+    });
+    const users = toUsers(raw);
+    return Array.isArray(users) && users.length > 0;
+  }
+
+  /** Check if Keycloak already has a user with this email */
+  private async userExistsByEmail(email: string): Promise<boolean> {
+    const raw = await this.kcRequest<KeycloakUser[]>('get', paths.users, {
+      params: { email, exact: true },
+      headers: await this.adminJsonHeaders(),
+    });
+    const users = toUsers(raw);
+    return Array.isArray(users) && users.length > 0;
   }
 
   async update(id: string, input: UpdateMyProfileInput): Promise<void> {

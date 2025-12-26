@@ -15,6 +15,11 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
+import {
+  CurrentUser,
+  CurrentUserData,
+} from '../../auth/decorators/current-user.decorator.js';
+import { CookieAuthGuard } from '../../auth/guards/cookie-auth.guard.js';
 import { env } from '../../config/env.js';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
@@ -24,8 +29,8 @@ import { SuccessPayload } from '../models/payloads/success.payload.js';
 import { TokenPayload } from '../models/payloads/token.payload.js';
 import { AuthWriteService } from '../services/authentication-write.service.js';
 import { BadUserInputException } from '../utils/error.util.js';
-import { UseInterceptors } from '@nestjs/common';
-import { Args, Context, ID, Mutation, Resolver } from '@nestjs/graphql';
+import { UseGuards, UseInterceptors } from '@nestjs/common';
+import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import type { CookieOptions, Request, Response } from 'express';
 
 /**
@@ -45,8 +50,8 @@ export interface GqlCtx {
  */
 export interface CookieReq {
   cookies: {
-    kc_access_token: string;
-    kc_refresh_token: string;
+    access_token: string;
+    refresh_token: string;
   };
 }
 
@@ -61,7 +66,7 @@ export function readAccessTokenFromCookie(ctx: GqlCtx): string | undefined {
     return undefined;
   }
   const cookieReq: CookieReq = ctx.req;
-  const value = cookieReq.cookies?.kc_access_token;
+  const value = cookieReq.cookies?.access_token;
   return typeof value === 'string' ? value : undefined;
 }
 
@@ -85,6 +90,7 @@ export function readAccessTokenFromCookie(ctx: GqlCtx): string | undefined {
 
 const { NODE_ENV } = env;
 
+const isProd = NODE_ENV === 'production';
 /**
  * Creates a configured set of cookie options based on the runtime environment.
  *
@@ -93,8 +99,9 @@ const { NODE_ENV } = env;
  */
 export const cookieOpts = (maxAgeMs?: number): CookieOptions => ({
   httpOnly: true,
-  secure: NODE_ENV === 'production',
-  sameSite: NODE_ENV === 'production' ? 'lax' : 'lax',
+  secure: isProd, // MUST be secure in production
+  sameSite: isProd ? 'none' : 'lax', // cross-site cookies require "none"
+  domain: isProd ? '.omnixys.com' : undefined, // allow subdomains
   path: '/',
   maxAge: maxAgeMs ?? undefined,
 });
@@ -209,16 +216,19 @@ export class AuthMutationResolver {
    * @throws {@link BadUserInputError} If the refresh token is invalid or expired.
    */
   @Mutation(() => TokenPayload, { name: 'refresh' })
+  @UseGuards(CookieAuthGuard)
   async refresh(
-    @Args('refreshToken', { type: () => ID })
-    refreshToken: string,
+    @CurrentUser() user: CurrentUserData,
     @Context() ctx: GqlCtx,
   ): Promise<TokenPayload> {
-    const cookieReq: CookieReq = ctx.req;
-    const cookieValue = cookieReq.cookies?.kc_refresh_token;
-    const token: string = refreshToken ?? cookieValue;
+    this.logger.debug(
+      '[authentication-mutation.resolver.ts] Refresh %s accessToken...',
+      user.username,
+    );
 
-    const result = await this.authService.refresh(token);
+    const refreshToken = user.refresh_token;
+
+    const result = await this.authService.refresh(refreshToken);
     if (!result) {
       throw new BadUserInputException('Invalid or expired refresh token.');
     }
@@ -235,6 +245,8 @@ export class AuthMutationResolver {
       result.refreshToken,
       cookieOpts(result.refreshExpiresIn * 1000),
     );
+
+    this.logger.info('[authentication-mutation.resolver.ts] Refresh Success!');
     return result;
   }
 
@@ -248,7 +260,7 @@ export class AuthMutationResolver {
   @Mutation(() => SuccessPayload, { name: 'logout' })
   async logout(@Context() ctx: GqlCtx): Promise<SuccessPayload> {
     const cookieReq: CookieReq = ctx.req;
-    const value = cookieReq.cookies?.kc_refresh_token;
+    const value = cookieReq.cookies?.refresh_token;
     await this.authService.logout(value);
 
     clearCookieSafe(ctx?.res, 'access_token');

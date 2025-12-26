@@ -21,7 +21,7 @@ import { Args, Context, ID, Mutation, Resolver } from '@nestjs/graphql';
 import { getLogger } from '../../logger/get-logger.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
 
-import { Role } from '../models/enums/role.enum.js';
+import { RealmRole } from '../models/enums/role.enum.js';
 import { AdminSignUpInput } from '../models/inputs/sign-up.input.js';
 import {
   UpdateKcUserInput,
@@ -136,13 +136,13 @@ export class AdminMutationResolver {
    * @protected
    *
    * @param id - The unique Keycloak user ID.
-   * @param roleName - The {@link Role} enum representing the role to assign.
+   * @param roleName - The {@link RealmRole} enum representing the role to assign.
    * @returns A boolean value indicating whether the role was successfully assigned.
    */
   @Mutation(() => Boolean, { name: 'assignRealmRole' })
   async assignRealmRole(
     @Args('id', { type: () => ID }) id: string,
-    @Args('roleName', { type: () => Role }) roleName: Role,
+    @Args('roleName', { type: () => RealmRole }) roleName: RealmRole,
   ): Promise<boolean> {
     this.logger.debug('assignRealmRole: userId=%s, role=%s', id, roleName);
     await this.adminService.assignRealmRoleToUser(id, roleName);
@@ -156,13 +156,13 @@ export class AdminMutationResolver {
    * @protected
    *
    * @param id - The unique Keycloak user ID.
-   * @param roleName - The {@link Role} enum representing the role to remove.
+   * @param roleName - The {@link RealmRole} enum representing the role to remove.
    * @returns A boolean value indicating whether the role was successfully removed.
    */
   @Mutation(() => Boolean, { name: 'removeRealmRole' })
   async removeRealmRole(
     @Args('id', { type: () => ID }) id: string,
-    @Args('roleName', { type: () => Role }) roleName: Role,
+    @Args('roleName', { type: () => RealmRole }) roleName: RealmRole,
   ): Promise<boolean> {
     this.logger.debug('removeRealmRole: userId=%s, role=%s', id, roleName);
     await this.adminService.removeRealmRoleFromUser(id, roleName);
@@ -179,13 +179,13 @@ export class AdminMutationResolver {
 
     setCookieSafe(
       ctx?.res,
-      'kc_access_token',
+      'access_token',
       result.accessToken,
       cookieOpts(result.expiresIn * 1000),
     );
     setCookieSafe(
       ctx?.res,
-      'kc_refresh_token',
+      'refresh_token',
       result.refreshToken,
       cookieOpts(result.refreshExpiresIn * 1000),
     );

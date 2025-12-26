@@ -20,7 +20,7 @@ import { keycloakConfig, paths } from '../../config/keycloak.js';
 import type { LoggerPlus } from '../../logger/logger-plus.js';
 import type { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import type { TraceContextProvider } from '../../trace/trace-context.provider.js';
-import type { Role, RoleData } from '../models/enums/role.enum.js';
+import type { RealmRole, RoleData } from '../models/enums/role.enum.js';
 import { ROLE_NAME_MAP } from '../models/enums/role.enum.js';
 import type { HttpService } from '@nestjs/axios';
 import { BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
@@ -111,7 +111,12 @@ export abstract class AuthenticateBaseService {
       headers?: Record<string, string>;
       adminAuth?: boolean;
     } = {},
-    behavior: { mapTo?: 'null-on-401' | 'throw-on-error' } = { mapTo: 'throw-on-error' },
+    behavior: {
+      mapTo?: 'null-on-401' | 'throw-on-error';
+      returnNullOn409?: boolean;
+    } = {
+      mapTo: 'throw-on-error',
+    },
   ): Promise<T> {
     const headers: Record<string, string> = { ...cfg.headers };
     const baseURL = keycloakConfig.url;
@@ -160,6 +165,16 @@ export abstract class AuthenticateBaseService {
       }
       if (status === 404) {
         throw new NotFoundException(msg);
+      }
+      if (status === 409 && behavior.returnNullOn409) {
+        // do NOT throw → caller needs this info for fallback logic
+        this.logger.warn(
+          'KC 409 Conflict on %s %s → returning null for fallback logic: %o',
+          method.toUpperCase(),
+          url,
+          msg,
+        );
+        return null as T;
       }
       if (status >= 400 && status < 500) {
         throw new BadRequestException(msg);
@@ -242,7 +257,7 @@ export abstract class AuthenticateBaseService {
    * @returns The corresponding Keycloak role data.
    * @throws {NotFoundException} If the role does not exist.
    */
-  protected async getRealmRole(roleName: Role | string): Promise<RoleData> {
+  protected async getRealmRole(roleName: RealmRole | string): Promise<RoleData> {
     const effective = this.mapRoleInput(roleName);
     try {
       const role = await this.kcRequest<RoleData>(
@@ -290,8 +305,8 @@ export abstract class AuthenticateBaseService {
    * @param input - The role enum or string.
    * @returns The mapped role name.
    */
-  protected mapRoleInput(input: Role | string): string {
-    const key = String(input).toUpperCase() as Role;
+  protected mapRoleInput(input: RealmRole | string): string {
+    const key = String(input).toUpperCase() as RealmRole;
     return ROLE_NAME_MAP[key] ?? String(input);
   }
 

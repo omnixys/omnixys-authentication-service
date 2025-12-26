@@ -18,7 +18,7 @@
 import type { KeycloakTokenPayload } from '../dtos/kc-token.dto.js';
 import type { KeycloakUser } from '../dtos/kc-user.dto.js';
 import type { KcUser } from '../entitys/user.entity.js';
-import type { Role } from '../enums/role.enum.js';
+import type { RealmRole } from '../enums/role.enum.js';
 import { toEnumRoles } from '../enums/role.enum.js';
 
 /**
@@ -59,7 +59,7 @@ function fromTokenPayload(p: KeycloakTokenPayload): KcUser {
     : [];
 
   // Merge + Enum-Normalisierung
-  const roles: Role[] = toEnumRoles([...realmRolesStr]);
+  const roles: RealmRole[] = toEnumRoles([...realmRolesStr]);
 
   return {
     id: p.sub ?? 'N/A',

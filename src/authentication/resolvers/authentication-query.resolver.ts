@@ -123,7 +123,7 @@ export class AuthQueryResolver {
     return { ...user, roles: toEnumRoles(currentUser.roles) };
   }
 
-  @Query(() => KcUser, { name: 'me' })
+  @Query(() => KcUser, { name: 'meAuth' })
   @UseGuards(CookieAuthGuard, RoleGuard)
   @Roles('ADMIN', 'USER')
   async me(@CurrentUser() currentUser: CurrentUserData): Promise<KcUser> {

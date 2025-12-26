@@ -25,16 +25,20 @@ const { SERVICE } = env;
  * Dient der Typsicherheit, Übersichtlichkeit und Wiederverwendbarkeit in Publishern und Handlern.
  */
 export const KafkaTopics = {
-  invitation: {
-    addUser: 'invitation.add.user',
-  },
+  invitation: {},
   user: {
     createUser: `user.create.${SERVICE}`,
     updateUser: `user.update.${SERVICE}`,
     deleteUser: `user.delete.${SERVICE}`,
   },
   notification: {
-    sendCredentials: 'notification.notify.user',
+    sendCredentials: `notification.notify.${SERVICE}`,
+  },
+  event: {
+    addUserRole: `event.addRole.${SERVICE}`,
+  },
+  ticket: {
+    createTicket: `${SERVICE}.create.ticket`,
   },
   [SERVICE]: {
     create: `${SERVICE}.create.user`,
@@ -42,6 +46,7 @@ export const KafkaTopics = {
     addAttribute: `${SERVICE}.add-attribute.user`,
     setAttribute: `${SERVICE}.set-attribute.user`,
     signUp: `${SERVICE}.signUp.user`,
+    createGuest: `invitation.createGuest.${SERVICE}`,
   },
   logstream: {
     log: `logstream.log.${SERVICE}`,
@@ -116,4 +121,20 @@ export function getTopic<K extends keyof (typeof KafkaTopics)[typeof SERVICE]>(
     );
   }
   return topic; // 🔹 garantiert string
+}
+
+export function getTopics<K extends keyof (typeof KafkaTopics)[typeof SERVICE]>(
+  ...keys: K[]
+): string[] {
+  const topics = getServiceTopics();
+
+  return keys.map((key) => {
+    const topic = topics[key];
+    if (!topic) {
+      throw new Error(
+        `Kafka topic "${String(key)}" not defined for service "${String(SERVICE)}"`,
+      );
+    }
+    return topic;
+  });
 }

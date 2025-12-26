@@ -22,30 +22,30 @@ export interface RoleData {
   name: string;
 }
 
-export enum Role {
+export enum RealmRole {
   ADMIN = 'ADMIN',
   USER = 'USER',
 }
-registerEnumType(Role, { name: 'Role' });
+registerEnumType(RealmRole, { name: 'RealmRole' });
 
 /** Enum → tatsächlicher Keycloak-Rollenname (meist lowercase in KC) */
-export const ENUM_TO_KC: Record<Role, string> = {
-  [Role.ADMIN]: 'ADMIN',
-  [Role.USER]: 'USER',
+export const ENUM_TO_KC: Record<RealmRole, string> = {
+  [RealmRole.ADMIN]: 'ADMIN',
+  [RealmRole.USER]: 'USER',
 };
 
 /** Keycloak-Name/String → Enum (robust & case-insensitive) */
-export const KC_TO_ENUM: Record<string, Role> = {
-  admin: Role.ADMIN,
-  ADMIN: Role.ADMIN,
-  user: Role.USER,
-  USER: Role.USER,
+export const KC_TO_ENUM: Record<string, RealmRole> = {
+  admin: RealmRole.ADMIN,
+  ADMIN: RealmRole.ADMIN,
+  user: RealmRole.USER,
+  USER: RealmRole.USER,
 
   // hier ggf. Synonyme ergänzen, falls ihr andere Bezeichnungen nutzt
 };
 
 /** Ein String → Enum (oder null bei unbekannt) */
-export function roleStrToEnum(s: string | undefined | null): Role | null {
+export function roleStrToEnum(s: string | undefined | null): RealmRole | null {
   if (!s) {
     return null;
   }
@@ -54,9 +54,11 @@ export function roleStrToEnum(s: string | undefined | null): Role | null {
 }
 
 /** Strings → dedupliziertes Enum-Array */
-export function toEnumRoles(list: Array<string | null | undefined>): Role[] {
-  const out: Role[] = [];
-  const seen = new Set<Role>();
+export function toEnumRoles(
+  list: Array<string | null | undefined>,
+): RealmRole[] {
+  const out: RealmRole[] = [];
+  const seen = new Set<RealmRole>();
   for (const raw of list) {
     const r = roleStrToEnum(raw ?? undefined);
     if (r && !seen.has(r)) {
@@ -68,12 +70,12 @@ export function toEnumRoles(list: Array<string | null | undefined>): Role[] {
 }
 
 /** Enum → Keycloak-String */
-export function enumToKcName(r: Role): string {
+export function enumToKcName(r: RealmRole): string {
   return ENUM_TO_KC[r] ?? String(r).toLowerCase();
 }
 
 /** Mapping deines internen Role-Typs → tatsächlicher Rollenname in Keycloak */
-export const ROLE_NAME_MAP: Record<Role, string> = {
-  ADMIN: Role.ADMIN,
-  USER: Role.USER,
+export const ROLE_NAME_MAP: Record<RealmRole, string> = {
+  ADMIN: RealmRole.ADMIN,
+  USER: RealmRole.USER,
 };

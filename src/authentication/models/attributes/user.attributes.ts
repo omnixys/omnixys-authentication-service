@@ -17,7 +17,7 @@
 
 // Zentrales, typsicheres Attribut-Schema für Keycloak-User-Attributes
 
-import type { Role } from '../enums/role.enum.js';
+import type { RealmRole } from '../enums/role.enum.js';
 
 export const PHONE_RE = /^\+?[0-9 .\-()]{6,20}$/;
 
@@ -48,7 +48,7 @@ export type KcAttributeInput = Partial<
   {
     [K in SingleValuedKey]: string | null | undefined;
   } & {
-    [K in MultiValuedKey]: string | string[] | null | undefined | Role;
+    [K in MultiValuedKey]: string | string[] | null | undefined | RealmRole;
   }
 >;
 

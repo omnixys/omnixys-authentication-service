@@ -20,7 +20,7 @@ import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { KafkaProducerService } from '../../messaging/kafka-producer.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
 import { KeycloakUserPatch } from '../models/dtos/kc-user.dto.js';
-import { Role } from '../models/enums/role.enum.js';
+import { RealmRole } from '../models/enums/role.enum.js';
 import type { AdminSignUpInput } from '../models/inputs/sign-up.input.js';
 import { UpdateMyProfileInput } from '../models/inputs/user-update.input.js';
 import type { TokenPayload } from '../models/payloads/token.payload.js';
@@ -81,7 +81,7 @@ export class AdminWriteService extends AuthenticateBaseService {
       }
 
       // Rolle zuweisen
-      await this.assignRealmRoleToUser(userId, Role.ADMIN);
+      await this.assignRealmRoleToUser(userId, RealmRole.ADMIN);
 
       const token = await this.authService.login({ username, password });
       return token;
@@ -135,7 +135,7 @@ export class AdminWriteService extends AuthenticateBaseService {
   /**
    * Realm-Rolle einem User zuweisen.
    */
-  async assignRealmRoleToUser(userId: string, roleName: Role): Promise<void> {
+  async assignRealmRoleToUser(userId: string, roleName: RealmRole): Promise<void> {
     const current = await this.getUserRealmRoles(userId);
 
     if (current.some((r) => r.name === this.mapRoleInput(roleName))) {
@@ -154,7 +154,7 @@ export class AdminWriteService extends AuthenticateBaseService {
   /**
    * Realm-Rolle von User entfernen.
    */
-  async removeRealmRoleFromUser(userId: string, roleName: Role | string): Promise<void> {
+  async removeRealmRoleFromUser(userId: string, roleName: RealmRole | string): Promise<void> {
     const role = await this.getRealmRole(roleName);
     await this.kcRequest(
       'delete',

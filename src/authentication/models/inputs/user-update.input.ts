@@ -15,7 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-import { Role } from '../enums/role.enum.js';
+import { RealmRole } from '../enums/role.enum.js';
 import { Field, ID, InputType } from '@nestjs/graphql';
 
 @InputType()
@@ -38,6 +38,6 @@ export class AdminUpdateUserInput extends UpdateMyProfileInput {
   @Field(() => ID)
   userId!: string;
 
-  @Field(() => Role)
+  @Field(() => RealmRole)
   role?: string;
 }

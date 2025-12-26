@@ -41,13 +41,13 @@ export class AdminSignUpInput {
 
 @InputType()
 export class UserSignUpInput {
-  @Field(() => String, { nullable: true })
+  @Field(() => String)
   username!: string;
 
   @Field(() => String, { nullable: true })
   email?: string;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => String)
   password!: string;
 
   @Field(() => String)
@@ -73,6 +73,12 @@ export class GuestSignUpInput {
 
   @Field(() => String)
   invitationId!: string;
+
+  @Field(() => String, { nullable: true })
+  seatId?: string;
+
+  @Field(() => String)
+  eventId!: string;
 
   @Field(() => [PhoneNumberInput], { nullable: true })
   phoneNumbers?: PhoneNumberInput[];

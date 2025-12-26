@@ -15,7 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-import { Role } from '../enums/role.enum.js';
+import { RealmRole } from '../enums/role.enum.js';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
@@ -35,6 +35,6 @@ export class KcUser {
   @Field(() => String)
   email!: string;
 
-  @Field(() => [Role], { nullable: true })
-  roles?: Role[];
+  @Field(() => [RealmRole], { nullable: true })
+  roles?: RealmRole[];
 }
