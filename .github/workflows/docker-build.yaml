@@ -87,6 +87,10 @@ jobs:
     steps:
       - name: 🧾 Checkout repository
         uses: actions/checkout@v4
+      
+
+      - name: Echo vars
+        run: echo "Current version is $CURRENT_VERSION"
 
       # - name: 🔍 Read CURRENT_VERSION from repo variable
       #   id: repovar
