@@ -176,8 +176,6 @@ jobs:
           KC_FEATURES: scripts
           KC_HTTP_ENABLED: true
           KC_HOSTNAME_STRICT_HTTPS: false
-        volumes:
-          - "$(pwd)/__tests__/keycloak/camunda-platform-realm.json:/opt/keycloak/data/import/camunda-platform-realm.json:ro"
 
     steps:
       - name: 🧾 Checkout Repository
