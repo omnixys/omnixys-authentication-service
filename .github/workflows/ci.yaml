@@ -110,15 +110,13 @@ jobs:
           - 6380:6379
         env:
           VALKEY_PASSWORD:  ${{ env.VALKEY_PASSWORD }}
-        options: >-
-          --health-cmd="valkey-cli -a $VALKEY_PASSWORD ping | grep PONG"
-          --health-interval=5s
-          --health-timeout=3s
-          --health-retries=10
-        command: >
-          valkey-server
-          --appendonly yes
-          --requirepass $VALKEY_PASSWORD
+          options: >-
+            --requirepass $VALKEY_PASSWORD
+            --appendonly yes
+            --health-cmd="valkey-cli -a $VALKEY_PASSWORD ping | grep PONG"
+            --health-interval=5s
+            --health-timeout=3s
+            --health-retries=10
 
 
       zookeeper:
@@ -152,10 +150,18 @@ jobs:
 
       keycloak:
         image: quay.io/keycloak/keycloak:26.4
-        command: start-dev --import-realm --http-port=8080
+        options: >-
+          --health-cmd="exec 3<>/dev/tcp/localhost/8080"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+          --health-start-period=20s
+          start-dev
+          --http-port=8080
+          --import-realm
         ports:
           - "8080:8080"
-        environment:
+        env:
           KC_BOOTSTRAP_ADMIN_USERNAME: ${{ env.KC_ADMIN_USERNAME }}
           KC_BOOTSTRAP_ADMIN_PASSWORD: ${{ env.KC_ADMIN_PASSWORD }}
           KC_DB: postgres
@@ -171,9 +177,7 @@ jobs:
           KC_HTTP_ENABLED: true
           KC_HOSTNAME_STRICT_HTTPS: false
         volumes:
-          - type: bind
-            source: $(pwd)/__tests__/keycloak/camunda-platform-realm.json
-            target: /opt/keycloak/data/import/camunda-platform-realm.json
+          - "$(pwd)/__tests__/keycloak/camunda-platform-realm.json:/opt/keycloak/data/import/camunda-platform-realm.json:ro"
 
     steps:
       - name: 🧾 Checkout Repository
