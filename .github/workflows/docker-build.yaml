@@ -30,14 +30,13 @@ permissions:
   contents: read
   packages: write
   id-token: write
-  actions: read
 
 env:
   COSIGN_EXPERIMENTAL: 'true'
   IMAGE_NAME: ${{ secrets.DOCKER_USER }}/${{ secrets.SERVICE }}-service
   IMAGE_NAME_REPOSITORY: ghcr.io/${{ github.repository }}
 
-  GH_PAT: ${{ secrets.GH_PAT }}
+  BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
   DOCKER_USER: ${{ secrets.DOCKER_USER }}
   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
@@ -84,24 +83,18 @@ jobs:
       - name: 🧾 Checkout repository
         uses: actions/checkout@v4
 
-      # - name: 🔍 Read CURRENT_VERSION from repo variable
-      #   id: repovar
-      #   run: |
-      #     OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
-      #     REPO=$(echo "${{ github.repository }}" | cut -d'/' -f2)
-      #     VALUE=$(curl -s \
-      #       -H "Authorization: Bearer ${{ github.token }}" \
-      #       -H "Accept: application/vnd.github+json" \
-      #       https://api.github.com/repos/${OWNER}/${REPO}/actions/variables/CURRENT_VERSION \
-      #       | jq -r '.value')
-      #     echo "version=$VALUE" >> $GITHUB_OUTPUT
-      #     echo "Current repo-level version: $VALUE"
-
-      - name: 📦 Expose CURRENT_VERSION
+      - name: 🔍 Read CURRENT_VERSION from repo variable
         id: repovar
         run: |
-          echo "version=${{ vars.CURRENT_VERSION }}" >> $GITHUB_OUTPUT
-          echo "Current repo-level version: ${{ vars.CURRENT_VERSION }}"
+          OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
+          REPO=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          VALUE=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.BOT_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${OWNER}/${REPO}/actions/variables/CURRENT_VERSION \
+            | jq -r '.value')
+          echo "version=$VALUE" >> $GITHUB_OUTPUT
+          echo "Current repo-level version: $VALUE"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -172,7 +165,7 @@ jobs:
           OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
           REPO=$(echo "${{ github.repository }}" | cut -d'/' -f2)
           VALUE=$(curl -s \
-            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "Authorization: Bearer ${{ secrets.BOT_TOKEN }}" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/${OWNER}/${REPO}/actions/variables/CURRENT_VERSION \
             | jq -r '.value')
