@@ -30,6 +30,7 @@ permissions:
   contents: read
   packages: write
   id-token: write
+  actions: read
 
 env:
   COSIGN_EXPERIMENTAL: 'true'
@@ -73,7 +74,7 @@ env:
 jobs:
   push-docker:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    name: 🐳 Build & Push Multi-Arch Images (Parallel)
+    name: 🐳 Build & Push Multi-Arch Images (Docker)
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -89,7 +90,7 @@ jobs:
           OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
           REPO=$(echo "${{ github.repository }}" | cut -d'/' -f2)
           VALUE=$(curl -s \
-            -H "Authorization: Bearer ${{ secrets.GH_PAT }}" \
+            -H "Authorization: Bearer ${{ github.token }}" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/${OWNER}/${REPO}/actions/variables/CURRENT_VERSION \
             | jq -r '.value')
@@ -149,7 +150,7 @@ jobs:
 
   push-github:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    name: 🐳 Build & Push Multi-Arch Images
+    name: 🐳 Build & Push Multi-Arch Images (Github)
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -165,7 +166,7 @@ jobs:
           OWNER=$(echo "${{ github.repository }}" | cut -d'/' -f1)
           REPO=$(echo "${{ github.repository }}" | cut -d'/' -f2)
           VALUE=$(curl -s \
-            -H "Authorization: Bearer ${{ secrets.GH_PAT }}" \
+            -H "Authorization: Bearer ${{ github.token }}" \
             -H "Accept: application/vnd.github+json" \
             https://api.github.com/repos/${OWNER}/${REPO}/actions/variables/CURRENT_VERSION \
             | jq -r '.value')
