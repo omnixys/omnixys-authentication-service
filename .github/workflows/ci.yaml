@@ -181,18 +181,6 @@ jobs:
           docker run -d --name keycloak -p 18080:8080 \
            -e KC_BOOTSTRAP_ADMIN_USERNAME=${{ env.KC_ADMIN_USERNAME }} \
            -e KC_BOOTSTRAP_ADMIN_PASSWORD=${{ env.KC_ADMIN_PASSWORD }} \
-           -e KC_DB: postgres \
-           -e KC_DB_USERNAME: keycloak \
-           -e KC_DB_PASSWORD: ${{ env.KC_DB_PASSWORD }} \
-           -e KC_DB_URL_HOST: postgres \
-           -e KC_DB_URL_PORT: 5432 \
-           -e KC_DB_URL_DATABASE: keycloak \
-           -e KC_DB_SCHEMA: keycloak   \
-           -e KC_HEALTH_ENABLED: "true" \
-           -e KC_METRICS_ENABLED: "false" \
-           -e KC_FEATURES: scripts \
-           -e KC_HTTP_ENABLED: true \
-           -e KC_HOSTNAME_STRICT_HTTPS: false \
            -v "$(pwd)/__tests__/keycloak/nexys-realm.json:/opt/keycloak/data/import/nexys-realm.json:ro" \
            --tmpfs /opt/keycloak/data:rw,size=200m \
            quay.io/keycloak/keycloak:26.4 \
@@ -201,7 +189,7 @@ jobs:
 
           echo "⏳ Waiting for Keycloak..."
           for i in {1..40}; do
-            if  curl -fs http://localhost:8080/realms/master >/dev/null 2>&1; then
+            if  curl -fs http://localhost:18080/realms/master >/dev/null 2>&1; then
               echo "✅ Base realm 'master' available (after $i checks)"
               break
             fi
@@ -213,7 +201,7 @@ jobs:
           for i in {1..60}; do
             status=$(curl -s -o /dev/null -w "%{http_code}" \
               -H "Accept: application/json" \
-              http://localhost:8080/realms/nexys || echo 000)
+              http://localhost:18080/realms/nexys || echo 000)
 
             if [ "$status" = "200" ]; then
               echo "✅ Realm 'nexys' reachable (HTTP $status after $i tries)"
