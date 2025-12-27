@@ -1,0 +1,225 @@
+# @license GPL-3.0-or-later
+# Copyright (C) 2025 Caleb Gyamfi - Omnixys Technologies
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# For more information, visit <https://www.gnu.org/licenses/>.
+#
+# Omnixys Workflow Suite – ci.yml
+# Purpose: Continuous Integration pipeline for all pushes and pull requests.
+# Language: Node / TypeScript (pnpm)
+
+name: Continuous Integration – Omnixys
+
+on:
+  push:
+    branches:
+      - main
+      - '!release'
+  pull_request:
+    branches:
+      - '**'
+      - '!release'
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  OMNIXYS_ADMIN_USERNAME: ${{ secrets.OMNIXYS_ADMIN_USERNAME }}
+  OMNIXYS_ADMIN_PASSWORD: ${{ secrets.OMNIXYS_ADMIN_PASSWORD }}
+  OMNIXYS_USER_USERNAME: ${{ secrets.OMNIXYS_USER_USERNAME }}
+  OMNIXYS_USER_PASSWORD: ${{ secrets.OMNIXYS_USER_PASSWORD }}
+  OMNIXYS_EMAIL_DOMAIN: ${{ secrets.OMNIXYS_EMAIL_DOMAIN }}
+
+  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+  POSTGRES_SQL_HOST: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5433/${{ secrets.POSTGRES_DB }}
+
+  KAFKA_BROKER: ${{ secrets.KAFKA_BROKER }}
+  TEMPO_URI: ${{ secrets.TEMPO_URI }}
+
+  KC_DB_PASSWORD: ${{ secrets.KC_DB_PASSWORD }}
+  KC_ADMIN_USERNAME: ${{ secrets.KC_ADMIN_USERNAME }}
+  KC_ADMIN_PASSWORD: ${{ secrets.KC_ADMIN_PASSWORD }}
+  KC_URL: ${{ secrets.KC_TEST_URL }}
+  KC_REALM: ${{ secrets.KC_REALM }}
+  KC_CLIENT_ID: ${{ secrets.KC_CLIENT_ID }}
+  KC_CLIENT_SECRET: ${{ secrets.KC_CLIENT_SECRET }}
+
+  KEYS_PATH: ${{ secrets.KEYS_PATH }}
+  SERVICE: ${{ secrets.SERVICE }}
+  PORT: ${{ secrets.PORT }}
+  GRAPHQL_PLAYGROUND: ${{ secrets.GRAPHQL_PLAYGROUND }}
+  NODE_ENV: ${{ secrets.NODE_ENV }}
+  HTTPS: ${{ secrets.HTTPS }}
+
+  LOG_LEVEL: ${{ secrets.LOG_LEVEL }}
+  LOG_PRETTY: ${{ secrets.LOG_PRETTY }}
+  LOG_DEFAULT: ${{ secrets.LOG_DEFAULT }}
+  LOG_DIRECTORY: ${{ secrets.LOG_DIRECTORY }}
+  LOG_FILE_DEFAULT_NAME: ${{ secrets.LOG_FILE_DEFAULT_NAME }}
+
+  VALKEY_PASSWORD: ${{ secrets.VALKEY_PASSWORD }}
+
+  POSTGRES_TEST_USER: ${{ secrets.POSTGRES_TEST_USER }}
+  POSTGRES_TEST_PASSWORD: ${{ secrets.POSTGRES_TEST_PASSWORD }}
+  POSTGRES_TEST_DB: ${{ secrets.POSTGRES_TEST_DB }}
+  POSTGRES_TEST_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5433/${{ secrets.POSTGRES_DB }}
+
+jobs:
+  ci:
+    name: Run Lint, Build, Test, and Typecheck
+    runs-on: ubuntu-latest
+    if: >
+      !contains(github.event.head_commit.message, 'chore(version)') &&
+      !contains(github.event.head_commit.message, 'docs(changelog)')
+
+    strategy:
+      matrix:
+        node-version: [24.10.0]
+
+    services:
+      postgres:
+        image: postgres:18
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+          TZ: Europe/Berlin
+        options: >-
+          --health-cmd="pg_isready -U postgres -d postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        
+      valkey:
+        image: valkey/valkey:latest
+        ports:
+          - 6380:6379
+        env:
+          VALKEY_PASSWORD:  ${{ env.VALKEY_PASSWORD }}
+        options: >-
+          --health-cmd="valkey-cli -a $VALKEY_PASSWORD ping | grep PONG"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=10
+        command: >
+          valkey-server
+          --appendonly yes
+          --requirepass $VALKEY_PASSWORD
+
+
+      zookeeper:
+        image: wurstmeister/zookeeper
+        ports:
+          - 2181:2181
+        env:
+          ALLOW_ANONYMOUS_LOGIN: yes
+        options: >-
+          --health-cmd "echo ruok | nc localhost 2181 | grep imok"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+      kafka:
+        image: wurstmeister/kafka
+        env:
+          KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        ports:
+          - 9092:9092
+        options: >-
+          --hostname kafka
+          --health-cmd "bash -c 'nc -z localhost 9092 || exit 1'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 15
+          --health-start-period 20s
+
+      keycloak:
+        image: quay.io/keycloak/keycloak:26.4
+        command: start-dev --import-realm --http-port=8080
+        ports:
+          - "8080:8080"
+        environment:
+          KC_BOOTSTRAP_ADMIN_USERNAME: ${{ env.KC_ADMIN_USERNAME }}
+          KC_BOOTSTRAP_ADMIN_PASSWORD: ${{ env.KC_ADMIN_PASSWORD }}
+          KC_DB: postgres
+          KC_DB_USERNAME: keycloak
+          KC_DB_PASSWORD: ${{ env.KC_DB_PASSWORD }}
+          KC_DB_URL_HOST: postgres
+          KC_DB_URL_PORT: 5432
+          KC_DB_URL_DATABASE: keycloak
+          KC_DB_SCHEMA: keycloak  
+          KC_HEALTH_ENABLED: "true"
+          KC_METRICS_ENABLED: "false"
+          KC_FEATURES: scripts
+          KC_HTTP_ENABLED: true
+          KC_HOSTNAME_STRICT_HTTPS: false
+        volumes:
+          - type: bind
+            source: $(pwd)/__tests__/keycloak/camunda-platform-realm.json
+            target: /opt/keycloak/data/import/camunda-platform-realm.json
+
+    steps:
+      - name: 🧾 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ⚙️ Enable Corepack (pnpm)
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      - name: ⚙️ Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: ♻️ Restore pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - name: 📦 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔍 Lint check
+        run: pnpm lint
+
+      - name: 🧱 Build project
+        run: pnpm build
+
+      - name: 🧪 Run tests
+        run: pnpm t
+
+      - name: 🔤 Typecheck
+        run: npx tsc
+
+      - name: 📊 Upload coverage to Codecov
+        if: success()
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./__tests__/reports/e2e/coverage/lcov.info
+          flags: unittests
+          fail_ci_if_error: false
