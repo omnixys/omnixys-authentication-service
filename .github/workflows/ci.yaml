@@ -178,7 +178,7 @@ jobs:
 
       - name: 🚀 Start Keycloak (26.4)
         run: |
-          docker run -d --name keycloak -p 18080:8080 \
+          docker run -d --name keycloak -p 8080:8080 \
            -e KC_BOOTSTRAP_ADMIN_USERNAME=${{ env.KC_ADMIN_USERNAME }} \
            -e KC_BOOTSTRAP_ADMIN_PASSWORD=${{ env.KC_ADMIN_PASSWORD }} \
            -v "$(pwd)/__tests__/keycloak/nexys-realm.json:/opt/keycloak/data/import/nexys-realm.json:ro" \
