@@ -148,35 +148,6 @@ jobs:
           --health-retries 15
           --health-start-period 20s
 
-      keycloak:
-        image: quay.io/keycloak/keycloak:26.4
-        options: >-
-          --health-cmd="exec 3<>/dev/tcp/localhost/8080"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
-          --health-start-period=20s
-          start-dev
-          --http-port=8080
-          --import-realm
-        ports:
-          - "8080:8080"
-        env:
-          KC_BOOTSTRAP_ADMIN_USERNAME: ${{ env.KC_ADMIN_USERNAME }}
-          KC_BOOTSTRAP_ADMIN_PASSWORD: ${{ env.KC_ADMIN_PASSWORD }}
-          KC_DB: postgres
-          KC_DB_USERNAME: keycloak
-          KC_DB_PASSWORD: ${{ env.KC_DB_PASSWORD }}
-          KC_DB_URL_HOST: postgres
-          KC_DB_URL_PORT: 5432
-          KC_DB_URL_DATABASE: keycloak
-          KC_DB_SCHEMA: keycloak  
-          KC_HEALTH_ENABLED: "true"
-          KC_METRICS_ENABLED: "false"
-          KC_FEATURES: scripts
-          KC_HTTP_ENABLED: true
-          KC_HOSTNAME_STRICT_HTTPS: false
-
     steps:
       - name: 🧾 Checkout Repository
         uses: actions/checkout@v4
@@ -204,6 +175,60 @@ jobs:
 
       - name: 📦 Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: 🚀 Start Keycloak (26.4)
+        run: |
+          docker run -d --name keycloak -p 18080:8080 \
+           -e KC_BOOTSTRAP_ADMIN_USERNAME=${{ env.KC_ADMIN_USERNAME }} \
+           -e KC_BOOTSTRAP_ADMIN_PASSWORD=${{ env.KC_ADMIN_PASSWORD }} \
+           -e KC_DB: postgres \
+           -e KC_DB_USERNAME: keycloak \
+           -e KC_DB_PASSWORD: ${{ env.KC_DB_PASSWORD }} \
+           -e KC_DB_URL_HOST: postgres \
+           -e KC_DB_URL_PORT: 5432 \
+           -e KC_DB_URL_DATABASE: keycloak \
+           -e KC_DB_SCHEMA: keycloak   \
+           -e KC_HEALTH_ENABLED: "true" \
+           -e KC_METRICS_ENABLED: "false" \
+           -e KC_FEATURES: scripts \
+           -e KC_HTTP_ENABLED: true \
+           -e KC_HOSTNAME_STRICT_HTTPS: false \
+           -v "$(pwd)/__tests__/keycloak/nexys-realm.json:/opt/keycloak/data/import/nexys-realm.json:ro" \
+           --tmpfs /opt/keycloak/data:rw,size=200m \
+           quay.io/keycloak/keycloak:26.4 \
+           start-dev --import-realm --http-port=8080
+
+
+          echo "⏳ Waiting for Keycloak..."
+          for i in {1..40}; do
+            if  curl -fs http://localhost:8080/realms/master >/dev/null 2>&1; then
+              echo "✅ Base realm 'master' available (after $i checks)"
+              break
+            fi
+            echo "waiting for master realm ($i/40)..."
+            sleep 5
+          done
+
+          echo "⏳ Waiting for imported realm 'nexys'..."
+          for i in {1..60}; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" \
+              -H "Accept: application/json" \
+              http://localhost:8080/realms/nexys || echo 000)
+
+            if [ "$status" = "200" ]; then
+              echo "✅ Realm 'nexys' reachable (HTTP $status after $i tries)"
+              docker ps
+              exit 0
+            fi
+
+            echo "Realm not yet reachable (status $status, try $i/60)..."
+            sleep 5
+          done
+
+          echo "❌ Keycloak did not become ready in time. Dumping logs..."
+          docker logs keycloak
+          exit 1
+
 
       - name: 🔍 Lint check
         run: pnpm lint
