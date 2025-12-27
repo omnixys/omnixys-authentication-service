@@ -29,7 +29,7 @@ export interface CurrentUserData {
 }
 
 export const CurrentUser = createParamDecorator(
-  (_data: unknown, context: ExecutionContext): CurrentUserData | null => {
+  (_data: unknown, context: ExecutionContext) => {
     const gqlCtx = GqlExecutionContext.create(context);
     const req: FastifyRequest = gqlCtx.getContext().req;
 
