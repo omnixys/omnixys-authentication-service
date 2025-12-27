@@ -198,7 +198,7 @@ jobs:
           done
 
           echo "⏳ Waiting for imported realm 'nexys'..."
-          for i in {1..60}; do
+          for i in {1..3}; do
             status=$(curl -s -o /dev/null -w "%{http_code}" \
               -H "Accept: application/json" \
               http://localhost:8080/realms/nexys || echo 000)
@@ -209,7 +209,7 @@ jobs:
               exit 0
             fi
 
-            echo "Realm not yet reachable (status $status, try $i/60)..."
+            echo "Realm not yet reachable (status $status, try $i/3)..."
             sleep 5
           done
 
