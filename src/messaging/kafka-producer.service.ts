@@ -106,6 +106,28 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
     await this.send(KafkaTopics.notification.sendCredentials, envelope, trace);
   }
 
+//   async sendPasswordResetNotification(
+//     payload: {
+//       userEmail: string;
+//       username: string;
+//       firstName: string;
+//       lastName: string;
+//       securityQuestion: string;
+//       securityAnswer: string;
+//     },
+//     service: string,
+//     trace?: TraceContext,
+//   ): Promise<void> {
+//     const envelope: KafkaEnvelope<typeof payload> = {
+//       event: 'resetPassword',
+//       service,
+//       version: 'v1',
+//       trace,
+//       payload,
+//     };
+// await this.send(KafkaTopics.notification.resetPassword, envelope, trace);
+//   }
+
   async addEventRole(
     payload: {
       userId: string;

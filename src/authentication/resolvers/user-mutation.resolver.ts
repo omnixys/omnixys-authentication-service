@@ -34,7 +34,6 @@ import {
   type GqlCtx,
 } from './authentication-mutation.resolver.js';
 import {
-  BadRequestException,
   UnauthorizedException,
   UseGuards,
   UseInterceptors,
@@ -72,29 +71,6 @@ export class UserMutationResolver {
     });
 
     return { ok: true, message: 'Password updated' };
-  }
-
-  // Versendet Keycloak Execute-Actions-E-Mail (UPDATE_PASSWORD)
-  @Mutation(() => SuccessPayload)
-  async sendPasswordResetEmail(
-    @Context() ctx: GqlCtx,
-  ): Promise<SuccessPayload> {
-    const user = ctx?.req.user;
-    if (!user) {
-      this.logger.warn(
-        'sendPasswordResetEmail() aufgerufen ohne gültigen Benutzer im Kontext',
-      );
-      throw new BadRequestException(
-        'Ungültige Benutzeranfrage – kein User im Kontext',
-      );
-    }
-
-    if (!user?.sub) {
-      // Kein authentifizierter Nutzer im Kontext
-      throw new UnauthorizedException('Not authenticated');
-    }
-    // await this.userService.sendPasswordResetNotification(user.sub);
-    return { ok: true };
   }
 
   @Mutation(() => SuccessPayload)
