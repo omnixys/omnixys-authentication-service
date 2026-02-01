@@ -1,8 +1,11 @@
 name: Deploy Omnixys Service
 
 on:
-  push:
-    branches: [main]
+  # push:
+  #   branches: [main]
+  workflow_run:
+    workflows: ['Docker Build & Push – Omnixys']
+    types: [completed]
 
 env:
   SERVICE: ${{ secrets.SERVICE }}
@@ -11,6 +14,7 @@ env:
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: [self-hosted, omnixys-prod]
     concurrency:
       group: omnixys-prod
@@ -30,4 +34,19 @@ jobs:
 
           echo "🚀 Deploying service: $SERVICE"
           docker pull omnixys/"$SERVICE"-service
-          docker compose up -d "$SERVICE"
+          docker image prune -f
+          docker compose up -d --no-deps "$SERVICE"
+
+          echo "⏳ Waiting for health..."
+          for i in {1..30}; do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' "omnixys-$SERVICE")
+            if [ "$STATUS" = "healthy" ]; then
+              echo "✅ $SERVICE is healthy"
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "❌ $SERVICE did not become healthy"
+          exit 1
+
