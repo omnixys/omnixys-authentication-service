@@ -18,6 +18,7 @@
 import { AdminModule } from './admin/admin.module.js';
 import { AuthenticationModule } from './authentication/authentication.module.js';
 import { env } from './config/env.js';
+import { ScalarsModule } from './core/scalars/scalar.module.js';
 import { HandlerModule } from './handlers/handler.module.js';
 import { HealthModule } from './health/health.module.js';
 import { LoggerModule } from './logger/logger.module.js';
@@ -39,6 +40,7 @@ const { SCHEMA_TARGET } = env;
     AuthenticationModule,
     LoggerModule,
     KafkaModule,
+    ScalarsModule,
     // GraphQLModule.forRoot<ApolloDriverConfig>(graphQlModuleOptions),
     ConfigModule.forRoot({ isGlobal: true }),
     GraphQLModule.forRootAsync<ApolloFederationDriverConfig>({

@@ -15,16 +15,12 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-import { AdminModule } from '../admin/admin.module.js';
-import { AuthenticationModule } from '../authentication/authentication.module.js';
-import { AdminHandler } from './admin.handler.js';
-import { InvitationHandler } from './invitation.handler.js';
-import { UserHandler } from './user.handler.js';
-import { Module } from '@nestjs/common';
+import { PrismaService } from './prisma.service.js';
+import { Global, Module } from '@nestjs/common';
 
+@Global()
 @Module({
-  imports: [AdminModule, AuthenticationModule],
-  providers: [AdminHandler, InvitationHandler, UserHandler],
-  exports: [AdminHandler, InvitationHandler, UserHandler],
+  providers: [PrismaService],
+  exports: [PrismaService],
 })
-export class HandlerModule {}
+export class PrismaModule {}

@@ -82,6 +82,10 @@ export const env = {
   PC_TTL_SEC: Number(process.env.PC_TTL_SEC ?? 60 * 60 * 24 * 30),
   VALKEY_URL: process.env.VALKEY_URL ?? 'valkey://localhost:6380',
   VALKEY_PASSWORD: process.env.VALKEY_PASSWORD ?? 'DeinStarkesPasswort',
+
+  DATABASE_URL: process.env.DATABASE_URL ?? 'DATABASE_URL',
+  DATABASE_URL_LOCALE: process.env.DATABASE_URL_LOCALE ?? 'DATABASE_URL_LOCALE',
+  SHADOW_DATABASE_URL: process.env.SHADOW_DATABASE_URL ?? 'SHADOW_DATABASE_URL',
 } as const;
 
 // /**

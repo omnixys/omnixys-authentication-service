@@ -1,44 +1,62 @@
-// /* eslint-disable @typescript-eslint/explicit-function-return-type */
-// import { KCSignUpDTO } from '../authentication/models/dtos/sign-up.dto.js';
-// import { UserWriteService } from '../authentication/services/user-write.service.js';
-// // import { getLogger } from '../logger/get-logger.js';
-// import {
-//   KafkaHandler,
-//   KafkaEvent,
-// } from '../messaging/decorators/kafka-event.decorator.js';
-// import {
-//   KafkaEventHandler,
-//   KafkaEventContext,
-// } from '../messaging/interface/kafka-event.interface.js';
-// import { getTopic } from '../messaging/kafka-topic.properties.js';
-// import { Injectable } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+import { KCSignUpDTO } from '../authentication/models/dtos/kc-sign-up.dto.js';
+import { RegisterService } from '../authentication/services/register.service.js';
+import { LoggerPlusService } from '../logger/logger-plus.service.js';
+import {
+  KafkaHandler,
+  KafkaEvent,
+} from '../messaging/decorators/kafka-event.decorator.js';
+import {
+  KafkaEventHandler,
+  KafkaEventContext,
+} from '../messaging/interface/kafka-event.interface.js';
+import { getTopic, getTopics } from '../messaging/kafka-topic.properties.js';
+import { Injectable } from '@nestjs/common';
 
-// @KafkaHandler('user')
-// @Injectable()
-// export class UserHandler implements KafkaEventHandler {
-//   // private readonly logger = getLogger(UserHandler.name);
+@KafkaHandler('user')
+@Injectable()
+export class UserHandler implements KafkaEventHandler {
+  private readonly logger;
 
-//   constructor(private readonly userService: UserWriteService) {}
+  constructor(
+    private readonly userService: RegisterService,
+    private readonly loggerService: LoggerPlusService,
+  ) {
+    this.logger = this.loggerService.getLogger(UserHandler.name);
+  }
 
-//   @KafkaEvent(getTopic('create'))
-//   async handle(
-//     topic: string,
-//     data: { payload: KCSignUpDTO },
-//     context: KafkaEventContext,
-//   ): Promise<void> {
-//     console.debug(`Person-Kommando empfangen: ${topic}`);
-//     console.debug('Kontext: %o', context);
+  @KafkaEvent(...getTopics('create', 'createUser'))
+  async handle(
+    topic: string,
+    data: { payload: KCSignUpDTO },
+    context: KafkaEventContext,
+  ): Promise<void> {
+    this.logger.debug(`Person-Kommando empfangen: ${topic}`);
+    this.logger.debug('Kontext: %o', context);
 
-//     switch (topic) {
-//       case getTopic('create'):
-//         await this.create(data);
-//         break;
-//     }
-//   }
+    switch (topic) {
+      case getTopic('create'):
+        await this.create(data);
+        break;
 
-//   private async create(data: { payload: KCSignUpDTO }) {
-//     const input = data.payload;
+      case getTopic('createUser'):
+        await this.createUser(data);
+        break;
 
-//     await this.userService.u(input);
-//   }
-// }
+      default:
+        this.logger.warn(`Unknown authentication topic: ${topic}`);
+    }
+  }
+
+  private async create(data: { payload: KCSignUpDTO }) {
+    const input = data.payload;
+
+    await this.userService.signUp(input);
+  }
+
+  private async createUser(data: { payload: KCSignUpDTO }) {
+    const input = data.payload;
+
+    await this.userService.signUp(input);
+  }
+}

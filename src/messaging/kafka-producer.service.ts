@@ -14,6 +14,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 import { CreateTicketDTO } from '../authentication/models/dtos/create-ticket.dto.js';
+import { UserIdDTO } from '../authentication/models/dtos/kc-sign-up.dto.js';
 import { UserDTO, UserUpdateDTO } from '../authentication/models/dtos/user.dto.js';
 import { LoggerPlusService, setGlobalKafkaProducer } from '../logger/logger-plus.service.js';
 import type { TraceContext } from '../trace/trace-context.util.js';
@@ -73,6 +74,17 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
+  async addUserId(payload: UserIdDTO, service: string, trace?: TraceContext): Promise<void> {
+    const envelope: KafkaEnvelope<typeof payload> = {
+      event: 'addUserId',
+      service,
+      version: 'v1',
+      trace,
+      payload,
+    };
+    await this.send(KafkaTopics.user.addId, envelope, trace);
+  }
+
   async createUser(payload: UserDTO, service: string, trace?: TraceContext): Promise<void> {
     const envelope: KafkaEnvelope<typeof payload> = {
       event: 'createUser',
@@ -106,27 +118,27 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
     await this.send(KafkaTopics.notification.sendCredentials, envelope, trace);
   }
 
-//   async sendPasswordResetNotification(
-//     payload: {
-//       userEmail: string;
-//       username: string;
-//       firstName: string;
-//       lastName: string;
-//       securityQuestion: string;
-//       securityAnswer: string;
-//     },
-//     service: string,
-//     trace?: TraceContext,
-//   ): Promise<void> {
-//     const envelope: KafkaEnvelope<typeof payload> = {
-//       event: 'resetPassword',
-//       service,
-//       version: 'v1',
-//       trace,
-//       payload,
-//     };
-// await this.send(KafkaTopics.notification.resetPassword, envelope, trace);
-//   }
+  //   async sendPasswordResetNotification(
+  //     payload: {
+  //       userEmail: string;
+  //       username: string;
+  //       firstName: string;
+  //       lastName: string;
+  //       securityQuestion: string;
+  //       securityAnswer: string;
+  //     },
+  //     service: string,
+  //     trace?: TraceContext,
+  //   ): Promise<void> {
+  //     const envelope: KafkaEnvelope<typeof payload> = {
+  //       event: 'resetPassword',
+  //       service,
+  //       version: 'v1',
+  //       trace,
+  //       payload,
+  //     };
+  // await this.send(KafkaTopics.notification.resetPassword, envelope, trace);
+  //   }
 
   async addEventRole(
     payload: {

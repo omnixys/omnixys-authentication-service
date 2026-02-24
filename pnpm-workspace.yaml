@@ -1,2 +1,7 @@
 onlyBuiltDependencies:
   - '@apollo/protobufjs'
+  - '@nestjs/core'
+  - '@prisma/engines'
+  - argon2
+  - esbuild
+  - prisma

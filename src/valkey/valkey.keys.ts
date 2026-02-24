@@ -3,4 +3,6 @@ export const ValkeyKey = {
   invitation: (id: string) => `inv:${id}`,
   pendingContact: (id: string) => `inv:pending:${id}`,
   rsvpRateLimit: (guestId: string) => `rsvp:limit:${guestId}`,
+  webauthnRegChallenge: (userId: string) => `webauthn:reg:${userId}`,
+  webauthnAuthChallenge: (userId: string) => `webauthn:auth:${userId}`,
 } as const;

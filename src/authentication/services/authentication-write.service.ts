@@ -17,7 +17,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-import { Public } from '../../auth/decorators/public.decorator.js';
 import { keycloakConfig, paths } from '../../config/keycloak.js';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
@@ -46,7 +45,6 @@ export class AuthWriteService extends AuthenticateBaseService {
    * Password-Login (ROPC).
    * @returns TokenPayload oder null (bei invalid_grant)
    */
-  @Public()
   async login({ username, password }: LogInInput): Promise<TokenPayload> {
     return this.withSpan('authentication.login', async (_span) => {
       if (!username || !password) {
@@ -75,7 +73,6 @@ export class AuthWriteService extends AuthenticateBaseService {
   /**
    * Refresh-Flow.
    */
-  @Public()
   async refresh(refresh_token: string | undefined): Promise<TokenPayload | null> {
     return this.withSpan('authentication.refresh', async (_span) => {
       if (!refresh_token) {
@@ -102,7 +99,6 @@ export class AuthWriteService extends AuthenticateBaseService {
   /**
    * Logout (Refresh-Token invalidieren).
    */
-  @Public()
   async logout(refreshToken: string | undefined): Promise<void> {
     return this.withSpan('authentication.logout', async (_span) => {
       if (!refreshToken) {

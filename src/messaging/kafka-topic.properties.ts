@@ -30,6 +30,7 @@ export const KafkaTopics = {
     createUser: `user.create.${SERVICE}`,
     updateUser: `user.update.${SERVICE}`,
     deleteUser: `user.delete.${SERVICE}`,
+    addId: `user.addId.${SERVICE}`,
   },
   notification: {
     sendCredentials: `notification.notify.${SERVICE}`,
@@ -47,6 +48,7 @@ export const KafkaTopics = {
     setAttribute: `${SERVICE}.set-attribute.user`,
     signUp: `${SERVICE}.signUp.user`,
     createGuest: `invitation.createGuest.${SERVICE}`,
+    createUser: `${SERVICE}.create2.user`,
   },
   logstream: {
     log: `logstream.log.${SERVICE}`,
