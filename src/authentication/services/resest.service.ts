@@ -17,7 +17,7 @@ import { BackupCodeService } from './backup-code.service.js';
 import { HmacService } from './hmac.service.js';
 import { AuthenticateBaseService } from './keycloak-base.service.js';
 import { LockoutService } from './lockout.service.js';
-import { MailService } from './mail.service.js';
+// import { MailService } from './mail.service.js';
 import { SecurityQuestionService } from './security-question.service.js';
 import { TotpService } from './totp.service.js';
 import { WebAuthnService } from './web-authn.service.js';
@@ -36,7 +36,7 @@ export class ResetService extends AuthenticateBaseService {
     private readonly prisma: PrismaService,
     private readonly argon: Argon2Service,
     private readonly lockout: LockoutService,
-    private readonly mailService: MailService,
+    // private readonly mailService: MailService,
     private readonly hmac: HmacService,
     private readonly totpService: TotpService,
     private readonly webAuthnService: WebAuthnService,
@@ -82,7 +82,9 @@ export class ResetService extends AuthenticateBaseService {
         },
       });
 
-      await this.mailService.sendResetEmail(user.email, rawToken);
+      console.log({rawToken})
+
+      // await this.mailService.sendResetEmail(user.email, rawToken);
     });
   }
 
@@ -210,7 +212,7 @@ export class ResetService extends AuthenticateBaseService {
         if (e instanceof BadRequestException) {
           throw e;
         }
-        throw new UnauthorizedException('Step-up verification failed');
+        throw new UnauthorizedException('Step-up verification failed: ' + (e as Error).message);
       }
     });
   }

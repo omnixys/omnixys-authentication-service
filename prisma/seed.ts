@@ -1,11 +1,16 @@
 import { PrismaClient, MfaPreference } from '../src/prisma/generated/client.js';
 import { PrismaPg } from '@prisma/adapter-pg';
-import 'dotenv/config';
 import * as argon2 from 'argon2';
 import { randomBytes } from 'crypto';
+import 'dotenv/config';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
+
+  const memoryCost = Number(process.env.ARGON2_MEMORY ?? 65536);
+  const timeCost = Number(process.env.ARGON2_TIME ?? 3);
+  const parallelism = Number(process.env.ARGON2_PARALLELISM ?? 1);
+  const pepper = process.env.ARGON2_PEPPER ?? '';
 /**
  * Generates random backup codes and hashes them.
  */
@@ -16,6 +21,9 @@ async function generateBackupCodes(userId: string, amount = 5) {
     const raw = randomBytes(4).toString('hex'); // 8 hex chars
     const hash = await argon2.hash(raw, {
       type: argon2.argon2id,
+      memoryCost: memoryCost,
+      timeCost: timeCost,
+      parallelism: parallelism,
     });
 
     console.log(`Backup code for ${userId}:`, raw); // Only for initial seed visibility
@@ -90,6 +98,9 @@ async function main() {
 
   const answerHash = await argon2.hash('omnixys', {
     type: argon2.argon2id,
+    memoryCost: memoryCost,
+    timeCost: timeCost,
+    parallelism: parallelism,
   });
 
   await prisma.securityQuestion.createMany({
