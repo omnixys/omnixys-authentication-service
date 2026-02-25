@@ -57,7 +57,7 @@ env:
   KC_CLIENT_SECRET: ${{ secrets.KC_CLIENT_SECRET }}
 
   KEYS_PATH: ${{ secrets.KEYS_PATH }}
-  SERVICE: ${{ secrets.SERVICE }}
+  SERVICE: ${{ vars.SERVICE }}
   PORT: ${{ secrets.PORT }}
   GRAPHQL_PLAYGROUND: ${{ secrets.GRAPHQL_PLAYGROUND }}
   NODE_ENV: ${{ secrets.NODE_ENV }}
@@ -103,13 +103,13 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
-        
+
       valkey:
         image: valkey/valkey:latest
         ports:
           - 6380:6379
         env:
-          VALKEY_PASSWORD:  ${{ env.VALKEY_PASSWORD }}
+          VALKEY_PASSWORD: ${{ env.VALKEY_PASSWORD }}
           options: >-
             --requirepass $VALKEY_PASSWORD
             --appendonly yes
@@ -117,7 +117,6 @@ jobs:
             --health-interval=5s
             --health-timeout=3s
             --health-retries=10
-
 
       zookeeper:
         image: wurstmeister/zookeeper
@@ -216,7 +215,6 @@ jobs:
           echo "❌ Keycloak did not become ready in time. Dumping logs..."
           docker logs keycloak
           exit 1
-
 
       - name: 🔍 Lint check
         run: pnpm lint
