@@ -148,7 +148,7 @@ export default {
         releaseBodyTemplate: `
 Today, we are excited to share the **v{{version}}** release 🎉
 
-This release includes stability improvements, bug fixes, and internal refinements for the **User Service**.
+This release includes stability improvements, bug fixes, and internal refinements for the **Authentication Service**.
 
 ---
 
@@ -156,8 +156,8 @@ This release includes stability improvements, bug fixes, and internal refinement
 
 ---
 
-📦 **Service:** Omnixys User Service  
-🔗 **Repository:** https://github.com/omnixys/omnixys-user-service  
+📦 **Service:** Omnixys Authentication Service  
+🔗 **Repository:** https://github.com/omnixys/omnixys-authentication-service  
 🧭 **Docs:** https://omnixys.com/docs
 `,
       },
