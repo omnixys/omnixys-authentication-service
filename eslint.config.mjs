@@ -44,6 +44,9 @@ export default tseslint.config(
       '.extras/docker',
       'commitlint.config.mjs',
       'prisma.config.ts',
+      'release.config.js',
+      './.extras/**',
+      './prisma/**',
     ],
   },
 
