@@ -61,6 +61,8 @@ export const ModelName = {
   SecurityQuestion: 'SecurityQuestion',
   PasswordResetToken: 'PasswordResetToken',
   RateLimitBucket: 'RateLimitBucket',
+  KnownDevice: 'KnownDevice',
+  LoginHistory: 'LoginHistory',
 } as const;
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
@@ -110,6 +112,10 @@ export const WebAuthnCredentialScalarFieldEnum = {
   deviceType: 'deviceType',
   backedUp: 'backedUp',
   transports: 'transports',
+  nickname: 'nickname',
+  createdAt: 'createdAt',
+  lastUsedAt: 'lastUsedAt',
+  revokedAt: 'revokedAt',
   userId: 'userId',
 } as const;
 
@@ -162,6 +168,29 @@ export const RateLimitBucketScalarFieldEnum = {
 
 export type RateLimitBucketScalarFieldEnum =
   (typeof RateLimitBucketScalarFieldEnum)[keyof typeof RateLimitBucketScalarFieldEnum];
+
+export const KnownDeviceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  fingerprint: 'fingerprint',
+  firstSeen: 'firstSeen',
+  lastSeen: 'lastSeen',
+} as const;
+
+export type KnownDeviceScalarFieldEnum =
+  (typeof KnownDeviceScalarFieldEnum)[keyof typeof KnownDeviceScalarFieldEnum];
+
+export const LoginHistoryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  ip: 'ip',
+  country: 'country',
+  city: 'city',
+  createdAt: 'createdAt',
+} as const;
+
+export type LoginHistoryScalarFieldEnum =
+  (typeof LoginHistoryScalarFieldEnum)[keyof typeof LoginHistoryScalarFieldEnum];
 
 export const SortOrder = {
   asc: 'asc',

@@ -36,6 +36,10 @@ CREATE TABLE "web_auth_n_credentials" (
     "deviceType" TEXT NOT NULL,
     "backedUp" BOOLEAN NOT NULL,
     "transports" TEXT,
+    "nickname" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "lastUsedAt" TIMESTAMP(3),
+    "revokedAt" TIMESTAMP(3),
     "userId" TEXT NOT NULL,
 
     CONSTRAINT "web_auth_n_credentials_pkey" PRIMARY KEY ("id")
@@ -88,6 +92,29 @@ CREATE TABLE "rate_limit_bucket" (
     CONSTRAINT "rate_limit_bucket_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "KnownDevice" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "fingerprint" TEXT NOT NULL,
+    "firstSeen" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "lastSeen" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "KnownDevice_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "LoginHistory" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "ip" TEXT NOT NULL,
+    "country" TEXT,
+    "city" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "LoginHistory_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "auth_user_email_key" ON "auth_user"("email");
 
@@ -109,6 +136,12 @@ CREATE INDEX "password_reset_token_expiresAt_idx" ON "password_reset_token"("exp
 -- CreateIndex
 CREATE UNIQUE INDEX "rate_limit_bucket_key_key" ON "rate_limit_bucket"("key");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "KnownDevice_userId_fingerprint_key" ON "KnownDevice"("userId", "fingerprint");
+
+-- CreateIndex
+CREATE INDEX "LoginHistory_userId_idx" ON "LoginHistory"("userId");
+
 -- AddForeignKey
 ALTER TABLE "totp_credential" ADD CONSTRAINT "totp_credential_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -123,3 +156,9 @@ ALTER TABLE "security_question" ADD CONSTRAINT "security_question_userId_fkey" F
 
 -- AddForeignKey
 ALTER TABLE "password_reset_token" ADD CONSTRAINT "password_reset_token_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KnownDevice" ADD CONSTRAINT "KnownDevice_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LoginHistory" ADD CONSTRAINT "LoginHistory_userId_fkey" FOREIGN KEY ("userId") REFERENCES "auth_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

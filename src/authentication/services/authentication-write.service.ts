@@ -19,12 +19,16 @@
 
 import { keycloakConfig, paths } from '../../config/keycloak.js';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
+import { PrismaService } from '../../prisma/prisma.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
 import type { KeycloakToken } from '../models/dtos/kc-token.dto.js';
+import { AuthContext } from '../models/entitys/login-context.js';
 import type { LogInInput } from '../models/inputs/log-in.input.js';
 import { toToken } from '../models/mappers/token.mapper.js';
 import type { TokenPayload } from '../models/payloads/token.payload.js';
+import { DeviceService } from './device.service.js';
 import { AuthenticateBaseService } from './keycloak-base.service.js';
+import { RiskEngineService } from './risk-engine.service.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
@@ -37,7 +41,14 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
  */
 @Injectable()
 export class AuthWriteService extends AuthenticateBaseService {
-  constructor(logger: LoggerPlusService, trace: TraceContextProvider, http: HttpService) {
+  constructor(
+    logger: LoggerPlusService,
+    trace: TraceContextProvider,
+    http: HttpService,
+    private readonly risk: RiskEngineService,
+    private readonly deviceService: DeviceService,
+    private readonly prisma: PrismaService,
+  ) {
     super(logger, trace, http);
   }
 
@@ -50,7 +61,6 @@ export class AuthWriteService extends AuthenticateBaseService {
       if (!username || !password) {
         throw new UnauthorizedException('username oder passwort fehlt!');
       }
-
       const body = new URLSearchParams({
         grant_type: 'password',
         username,
@@ -114,5 +124,97 @@ export class AuthWriteService extends AuthenticateBaseService {
         adminAuth: false,
       });
     });
+  }
+
+  async createPasswordlessSession(userId: string): Promise<TokenPayload> {
+    const body = new URLSearchParams({
+      grant_type: 'client_credentials',
+      client_id: keycloakConfig.clientId,
+      client_secret: keycloakConfig.clientSecret,
+    });
+
+    const serviceToken = await this.kcRequest<KeycloakToken>('post', paths.accessToken, {
+      data: body.toString(),
+      headers: this.loginHeaders,
+      adminAuth: false,
+    });
+
+    // Jetzt impersonation:
+    const exchangeBody = new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+      client_id: keycloakConfig.clientId,
+      subject_token: serviceToken.access_token,
+      requested_subject: userId,
+    });
+
+    const exchanged = await this.kcRequest<KeycloakToken>('post', paths.accessToken, {
+      data: exchangeBody.toString(),
+      headers: this.loginHeaders,
+      adminAuth: false,
+    });
+
+    return toToken(exchanged);
+  }
+
+  /**
+   * Password login + adaptive risk.
+   */
+  async loginWithRisk(username: string, password: string, ctx: AuthContext): Promise<TokenPayload> {
+    // 1) Perform Keycloak login
+    const token = await this.login({ username, password });
+
+    // 2) Ensure local auth user exists (your DB, not Keycloak)
+    const email = username; // you use email as username
+    const user =
+      (await this.prisma.authUser.findUnique({ where: { email } })) ??
+      (await this.prisma.authUser.create({
+        data: {
+          email,
+          // mfaPreference default NONE
+        },
+      }));
+
+    // 3) Evaluate risk
+    const risk = await this.risk.evaluate({
+      userId: user.id,
+      ip: ctx.ip,
+      userAgent: ctx.userAgent,
+      acceptLanguage: ctx.acceptLanguage,
+      clientDeviceId: ctx.clientDeviceId,
+      isPasswordless: false,
+      isResetFlow: false,
+      failedAttempts: user.failedAttempts,
+    });
+
+    if (risk.decision === 'BLOCK') {
+      // English comment tailored for VS:
+      // Fail closed on high risk and avoid leaking details.
+      throw new UnauthorizedException('Login blocked');
+    }
+
+    if (risk.decision !== 'NONE') {
+      // English comment tailored for VS:
+      // In v1 we hard-fail and require a step-up flow.
+      // In v2 return a StepUpRequired payload and persist a temporary step-up session.
+      throw new UnauthorizedException(`Step-up required: ${risk.decision}`);
+    }
+
+    // 4) Success → reset failures (optional)
+    if (user.failedAttempts !== 0) {
+      await this.prisma.authUser.update({
+        where: { id: user.id },
+        data: { failedAttempts: 0, lockedUntil: null },
+      });
+    }
+
+    // 5) (Optional) fingerprint is computed but not stored here.
+    void this.deviceService.computeFingerprint({
+      ip: ctx.ip,
+      userAgent: ctx.userAgent,
+      acceptLanguage: ctx.acceptLanguage,
+      clientDeviceId: ctx.clientDeviceId,
+    });
+
+    return token;
   }
 }

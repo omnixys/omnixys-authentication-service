@@ -21,6 +21,7 @@ import {
 } from '../../auth/decorators/current-user.decorator.js';
 import { CookieAuthGuard } from '../../auth/guards/cookie-auth.guard.js';
 import { env } from '../../config/env.js';
+import { JsonScalar } from '../../core/scalars/json.scalar.js';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
 import { KeycloakTokenPayload } from '../models/dtos/kc-token.dto.js';
@@ -28,9 +29,16 @@ import { LogInInput } from '../models/inputs/log-in.input.js';
 import { SuccessPayload } from '../models/payloads/success.payload.js';
 import { TokenPayload } from '../models/payloads/token.payload.js';
 import { AuthWriteService } from '../services/authentication-write.service.js';
+import { WebAuthnService } from '../services/web-authn.service.js';
 import { BadUserInputException } from '../utils/error.util.js';
-import { UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  BadRequestException,
+  UnauthorizedException,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
+import { AuthenticationResponseJSON } from '@simplewebauthn/server';
 import type { CookieOptions, Request, Response } from 'express';
 
 /**
@@ -159,8 +167,37 @@ export class AuthMutationResolver {
   constructor(
     private readonly loggerService: LoggerPlusService,
     private readonly authService: AuthWriteService,
+    private readonly webAuthnService: WebAuthnService,
   ) {
     this.logger = this.loggerService.getLogger(AuthMutationResolver.name);
+  }
+
+  @Mutation(() => TokenPayload, { name: 'login' })
+  async login2(
+    @Args('input', { type: () => LogInInput }) input: LogInInput,
+    @Context() ctx: GqlCtx,
+  ): Promise<TokenPayload> {
+    const ip =
+      (ctx.req.headers['x-forwarded-for'] as string | undefined)
+        ?.split(',')[0]
+        ?.trim() ??
+      ctx.req.socket?.remoteAddress ??
+      undefined;
+
+    const userAgent = ctx.req.headers['user-agent'] ?? undefined;
+    const acceptLanguage = ctx.req.headers['accept-language'] ?? undefined;
+
+    // English comment tailored for VS:
+    // Provide a stable client-generated ID via header for stronger device fingerprinting.
+    const clientDeviceId =
+      (ctx.req.headers['x-device-id'] as string | undefined) ?? undefined;
+
+    return this.authService.loginWithRisk(input.username, input.password, {
+      ip,
+      userAgent,
+      acceptLanguage,
+      clientDeviceId,
+    });
   }
 
   /**
@@ -181,6 +218,7 @@ export class AuthMutationResolver {
     @Context() ctx: GqlCtx,
   ): Promise<TokenPayload> {
     this.logger.debug('login: input=%o', input);
+
     const { username, password } = input;
 
     const result = await this.authService.login({ username, password });
@@ -267,5 +305,54 @@ export class AuthMutationResolver {
     clearCookieSafe(ctx?.res, 'refresh_token');
 
     return { ok: true, message: 'Successfully logged out.' };
+  }
+
+  /* =====================================================
+     STEP 1 – Generate Options
+  ===================================================== */
+
+  @Mutation(() => JsonScalar)
+  async generatePasswordlessOptions(@Args('email') email: string) {
+    return this.webAuthnService.generatePasswordlessOptions(email);
+  }
+
+  /* =====================================================
+     STEP 2 – Verify + Create Session
+  ===================================================== */
+
+  @Mutation(() => TokenPayload)
+  async verifyPasswordlessAuthentication(
+    @Args('response', { type: () => JsonScalar }) response: unknown,
+    @Context() ctx: GqlCtx,
+  ): Promise<TokenPayload> {
+    if (!response || typeof response !== 'object') {
+      throw new BadRequestException('Invalid WebAuthn response');
+    }
+
+    const userId = await this.webAuthnService.verifyPasswordlessAuthentication(
+      response as AuthenticationResponseJSON,
+    );
+
+    if (!userId) {
+      throw new UnauthorizedException('Authentication failed');
+    }
+
+    const token = await this.authService.createPasswordlessSession(userId);
+
+    setCookieSafe(
+      ctx.res,
+      'access_token',
+      token.accessToken,
+      cookieOpts(token.expiresIn * 1000),
+    );
+
+    setCookieSafe(
+      ctx.res,
+      'refresh_token',
+      token.refreshToken,
+      cookieOpts(token.refreshExpiresIn * 1000),
+    );
+
+    return token;
   }
 }

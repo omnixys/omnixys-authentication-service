@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import { PrismaService } from '../../prisma/prisma.service.js';
@@ -20,8 +19,8 @@ import {
   type RegistrationResponseJSON,
   type PublicKeyCredentialCreationOptionsJSON,
   type PublicKeyCredentialRequestOptionsJSON,
-  type Base64URLString,
 } from '@simplewebauthn/server';
+// import { WebAuthnDevicePayload } from '../resolvers/mfa-mutation.resolver.js';
 
 @Injectable()
 export class WebAuthnService {
@@ -30,6 +29,97 @@ export class WebAuthnService {
     private readonly valkey: ValkeyService,
   ) {}
 
+  /* =====================================================
+     DEVICE MANAGEMENT
+  ===================================================== */
+
+  async renameDevice(userId: string, credentialId: string, nickname: string): Promise<boolean> {
+    if (!nickname || nickname.length > 50) {
+      return false;
+    }
+
+    const result = await this.prisma.webAuthnCredential.updateMany({
+      where: {
+        userId,
+        credentialId,
+        revokedAt: null,
+      },
+      data: { nickname },
+    });
+
+    return result.count > 0;
+  }
+
+  async listDevices(userId: string) {
+    return this.prisma.webAuthnCredential.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async revokeDevice(userId: string, credentialId: string): Promise<boolean> {
+    const activeDevices = await this.prisma.webAuthnCredential.count({
+      where: { userId, revokedAt: null },
+    });
+
+    if (activeDevices <= 1) {
+      throw new Error('Cannot revoke last active device');
+    }
+
+    const result = await this.prisma.webAuthnCredential.updateMany({
+      where: {
+        userId,
+        credentialId,
+        revokedAt: null,
+      },
+      data: { revokedAt: new Date() },
+    });
+
+    return result.count > 0;
+  }
+
+  /* =====================================================
+     PASSWORDLESS
+  ===================================================== */
+
+  async generatePasswordlessOptions(
+    email: string,
+  ): Promise<PublicKeyCredentialRequestOptionsJSON | null> {
+    const user = await this.prisma.authUser.findUnique({
+      where: { email },
+      include: { webAuthn: true },
+    });
+
+    if (!user || user.webAuthn.length === 0) {
+      // prevent enumeration
+      return null;
+    }
+
+    const options = await this.generateAuthOptions(user.id);
+    return options;
+  }
+
+  async verifyPasswordlessAuthentication(
+    response: AuthenticationResponseJSON,
+  ): Promise<string | null> {
+    const credential = await this.prisma.webAuthnCredential.findUnique({
+      where: { credentialId: response.id },
+      include: { user: true },
+    });
+
+    if (!credential || credential.revokedAt) {
+      return null;
+    }
+
+    const ok = await this.verifyAuthenticationForUser(credential.userId, response);
+
+    if (!ok) {
+      return null;
+    }
+
+    return credential.userId;
+  }
+
   /* =======================================================
      AUTHENTICATION VERIFY
   ======================================================= */
@@ -37,14 +127,18 @@ export class WebAuthnService {
   async verifyAuthenticationForUser(
     userId: string,
     response: AuthenticationResponseJSON,
-    expectedChallenge: string,
   ): Promise<boolean> {
+    const expectedChallenge = await this.getAuthenticationChallenge(userId);
+
+    if (!expectedChallenge) {
+      return false;
+    }
     if (!response?.id) {
       return false;
     }
 
     const credentialRecord = await this.prisma.webAuthnCredential.findFirst({
-      where: { userId, credentialId: response.id },
+      where: { userId, credentialId: response.id, revokedAt: null },
     });
 
     if (!credentialRecord) {
@@ -74,6 +168,14 @@ export class WebAuthnService {
 
     await this.prisma.webAuthnCredential.update({
       where: { id: credentialRecord.id },
+      data: {
+        counter: verification.authenticationInfo.newCounter,
+        lastUsedAt: new Date(),
+      },
+    });
+
+    await this.prisma.webAuthnCredential.update({
+      where: { id: credentialRecord.id },
       data: { counter: verification.authenticationInfo.newCounter },
     });
 
@@ -91,7 +193,7 @@ export class WebAuthnService {
     email: string,
   ): Promise<PublicKeyCredentialCreationOptionsJSON> {
     const userCredentials = await this.prisma.webAuthnCredential.findMany({
-      where: { userId },
+      where: { userId, revokedAt: null },
     });
 
     const options = await generateRegistrationOptions({
@@ -101,7 +203,7 @@ export class WebAuthnService {
       userName: email,
       attestationType: 'none',
       excludeCredentials: userCredentials.map((c) => ({
-        id: c.credentialId as Base64URLString,
+        id: c.credentialId,
       })),
       authenticatorSelection: {
         residentKey: 'preferred',
@@ -161,13 +263,13 @@ export class WebAuthnService {
 
   async generateAuthOptions(userId: string): Promise<PublicKeyCredentialRequestOptionsJSON> {
     const credentials = await this.prisma.webAuthnCredential.findMany({
-      where: { userId },
+      where: { userId, revokedAt: null },
     });
 
     const options = await generateAuthenticationOptions({
       rpID: process.env.WEBAUTHN_RP_ID!,
       allowCredentials: credentials.map((c) => ({
-        id: c.credentialId as Base64URLString,
+        id: c.credentialId,
       })),
       userVerification: 'required',
     });

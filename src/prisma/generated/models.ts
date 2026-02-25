@@ -14,4 +14,6 @@ export type * from './models/BackupCode.js';
 export type * from './models/SecurityQuestion.js';
 export type * from './models/PasswordResetToken.js';
 export type * from './models/RateLimitBucket.js';
+export type * from './models/KnownDevice.js';
+export type * from './models/LoginHistory.js';
 export type * from './commonInputTypes.js';

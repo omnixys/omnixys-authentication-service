@@ -42,6 +42,10 @@ export type WebAuthnCredentialMinAggregateOutputType = {
   deviceType: string | null;
   backedUp: boolean | null;
   transports: string | null;
+  nickname: string | null;
+  createdAt: Date | null;
+  lastUsedAt: Date | null;
+  revokedAt: Date | null;
   userId: string | null;
 };
 
@@ -53,6 +57,10 @@ export type WebAuthnCredentialMaxAggregateOutputType = {
   deviceType: string | null;
   backedUp: boolean | null;
   transports: string | null;
+  nickname: string | null;
+  createdAt: Date | null;
+  lastUsedAt: Date | null;
+  revokedAt: Date | null;
   userId: string | null;
 };
 
@@ -64,6 +72,10 @@ export type WebAuthnCredentialCountAggregateOutputType = {
   deviceType: number;
   backedUp: number;
   transports: number;
+  nickname: number;
+  createdAt: number;
+  lastUsedAt: number;
+  revokedAt: number;
   userId: number;
   _all: number;
 };
@@ -84,6 +96,10 @@ export type WebAuthnCredentialMinAggregateInputType = {
   deviceType?: true;
   backedUp?: true;
   transports?: true;
+  nickname?: true;
+  createdAt?: true;
+  lastUsedAt?: true;
+  revokedAt?: true;
   userId?: true;
 };
 
@@ -95,6 +111,10 @@ export type WebAuthnCredentialMaxAggregateInputType = {
   deviceType?: true;
   backedUp?: true;
   transports?: true;
+  nickname?: true;
+  createdAt?: true;
+  lastUsedAt?: true;
+  revokedAt?: true;
   userId?: true;
 };
 
@@ -106,6 +126,10 @@ export type WebAuthnCredentialCountAggregateInputType = {
   deviceType?: true;
   backedUp?: true;
   transports?: true;
+  nickname?: true;
+  createdAt?: true;
+  lastUsedAt?: true;
+  revokedAt?: true;
   userId?: true;
   _all?: true;
 };
@@ -217,6 +241,10 @@ export type WebAuthnCredentialGroupByOutputType = {
   deviceType: string;
   backedUp: boolean;
   transports: string | null;
+  nickname: string | null;
+  createdAt: Date;
+  lastUsedAt: Date | null;
+  revokedAt: Date | null;
   userId: string;
   _count: WebAuthnCredentialCountAggregateOutputType | null;
   _avg: WebAuthnCredentialAvgAggregateOutputType | null;
@@ -258,6 +286,18 @@ export type WebAuthnCredentialWhereInput = {
     | Prisma.StringNullableFilter<'WebAuthnCredential'>
     | string
     | null;
+  nickname?: Prisma.StringNullableFilter<'WebAuthnCredential'> | string | null;
+  createdAt?: Prisma.DateTimeFilter<'WebAuthnCredential'> | Date | string;
+  lastUsedAt?:
+    | Prisma.DateTimeNullableFilter<'WebAuthnCredential'>
+    | Date
+    | string
+    | null;
+  revokedAt?:
+    | Prisma.DateTimeNullableFilter<'WebAuthnCredential'>
+    | Date
+    | string
+    | null;
   userId?: Prisma.StringFilter<'WebAuthnCredential'> | string;
   user?: Prisma.XOR<
     Prisma.AuthUserScalarRelationFilter,
@@ -273,6 +313,10 @@ export type WebAuthnCredentialOrderByWithRelationInput = {
   deviceType?: Prisma.SortOrder;
   backedUp?: Prisma.SortOrder;
   transports?: Prisma.SortOrderInput | Prisma.SortOrder;
+  nickname?: Prisma.SortOrderInput | Prisma.SortOrder;
+  createdAt?: Prisma.SortOrder;
+  lastUsedAt?: Prisma.SortOrderInput | Prisma.SortOrder;
+  revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder;
   userId?: Prisma.SortOrder;
   user?: Prisma.AuthUserOrderByWithRelationInput;
 };
@@ -296,6 +340,21 @@ export type WebAuthnCredentialWhereUniqueInput = Prisma.AtLeast<
       | Prisma.StringNullableFilter<'WebAuthnCredential'>
       | string
       | null;
+    nickname?:
+      | Prisma.StringNullableFilter<'WebAuthnCredential'>
+      | string
+      | null;
+    createdAt?: Prisma.DateTimeFilter<'WebAuthnCredential'> | Date | string;
+    lastUsedAt?:
+      | Prisma.DateTimeNullableFilter<'WebAuthnCredential'>
+      | Date
+      | string
+      | null;
+    revokedAt?:
+      | Prisma.DateTimeNullableFilter<'WebAuthnCredential'>
+      | Date
+      | string
+      | null;
     userId?: Prisma.StringFilter<'WebAuthnCredential'> | string;
     user?: Prisma.XOR<
       Prisma.AuthUserScalarRelationFilter,
@@ -313,6 +372,10 @@ export type WebAuthnCredentialOrderByWithAggregationInput = {
   deviceType?: Prisma.SortOrder;
   backedUp?: Prisma.SortOrder;
   transports?: Prisma.SortOrderInput | Prisma.SortOrder;
+  nickname?: Prisma.SortOrderInput | Prisma.SortOrder;
+  createdAt?: Prisma.SortOrder;
+  lastUsedAt?: Prisma.SortOrderInput | Prisma.SortOrder;
+  revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder;
   userId?: Prisma.SortOrder;
   _count?: Prisma.WebAuthnCredentialCountOrderByAggregateInput;
   _avg?: Prisma.WebAuthnCredentialAvgOrderByAggregateInput;
@@ -341,6 +404,24 @@ export type WebAuthnCredentialScalarWhereWithAggregatesInput = {
     | Prisma.StringNullableWithAggregatesFilter<'WebAuthnCredential'>
     | string
     | null;
+  nickname?:
+    | Prisma.StringNullableWithAggregatesFilter<'WebAuthnCredential'>
+    | string
+    | null;
+  createdAt?:
+    | Prisma.DateTimeWithAggregatesFilter<'WebAuthnCredential'>
+    | Date
+    | string;
+  lastUsedAt?:
+    | Prisma.DateTimeNullableWithAggregatesFilter<'WebAuthnCredential'>
+    | Date
+    | string
+    | null;
+  revokedAt?:
+    | Prisma.DateTimeNullableWithAggregatesFilter<'WebAuthnCredential'>
+    | Date
+    | string
+    | null;
   userId?: Prisma.StringWithAggregatesFilter<'WebAuthnCredential'> | string;
 };
 
@@ -352,6 +433,10 @@ export type WebAuthnCredentialCreateInput = {
   deviceType: string;
   backedUp: boolean;
   transports?: string | null;
+  nickname?: string | null;
+  createdAt?: Date | string;
+  lastUsedAt?: Date | string | null;
+  revokedAt?: Date | string | null;
   user: Prisma.AuthUserCreateNestedOneWithoutWebAuthnInput;
 };
 
@@ -363,6 +448,10 @@ export type WebAuthnCredentialUncheckedCreateInput = {
   deviceType: string;
   backedUp: boolean;
   transports?: string | null;
+  nickname?: string | null;
+  createdAt?: Date | string;
+  lastUsedAt?: Date | string | null;
+  revokedAt?: Date | string | null;
   userId: string;
 };
 
@@ -374,6 +463,18 @@ export type WebAuthnCredentialUpdateInput = {
   deviceType?: Prisma.StringFieldUpdateOperationsInput | string;
   backedUp?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   transports?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  lastUsedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+  revokedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
   user?: Prisma.AuthUserUpdateOneRequiredWithoutWebAuthnNestedInput;
 };
 
@@ -385,6 +486,18 @@ export type WebAuthnCredentialUncheckedUpdateInput = {
   deviceType?: Prisma.StringFieldUpdateOperationsInput | string;
   backedUp?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   transports?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  lastUsedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+  revokedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
   userId?: Prisma.StringFieldUpdateOperationsInput | string;
 };
 
@@ -396,6 +509,10 @@ export type WebAuthnCredentialCreateManyInput = {
   deviceType: string;
   backedUp: boolean;
   transports?: string | null;
+  nickname?: string | null;
+  createdAt?: Date | string;
+  lastUsedAt?: Date | string | null;
+  revokedAt?: Date | string | null;
   userId: string;
 };
 
@@ -407,6 +524,18 @@ export type WebAuthnCredentialUpdateManyMutationInput = {
   deviceType?: Prisma.StringFieldUpdateOperationsInput | string;
   backedUp?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   transports?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  lastUsedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+  revokedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
 };
 
 export type WebAuthnCredentialUncheckedUpdateManyInput = {
@@ -417,6 +546,18 @@ export type WebAuthnCredentialUncheckedUpdateManyInput = {
   deviceType?: Prisma.StringFieldUpdateOperationsInput | string;
   backedUp?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   transports?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  lastUsedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+  revokedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
   userId?: Prisma.StringFieldUpdateOperationsInput | string;
 };
 
@@ -438,6 +579,10 @@ export type WebAuthnCredentialCountOrderByAggregateInput = {
   deviceType?: Prisma.SortOrder;
   backedUp?: Prisma.SortOrder;
   transports?: Prisma.SortOrder;
+  nickname?: Prisma.SortOrder;
+  createdAt?: Prisma.SortOrder;
+  lastUsedAt?: Prisma.SortOrder;
+  revokedAt?: Prisma.SortOrder;
   userId?: Prisma.SortOrder;
 };
 
@@ -453,6 +598,10 @@ export type WebAuthnCredentialMaxOrderByAggregateInput = {
   deviceType?: Prisma.SortOrder;
   backedUp?: Prisma.SortOrder;
   transports?: Prisma.SortOrder;
+  nickname?: Prisma.SortOrder;
+  createdAt?: Prisma.SortOrder;
+  lastUsedAt?: Prisma.SortOrder;
+  revokedAt?: Prisma.SortOrder;
   userId?: Prisma.SortOrder;
 };
 
@@ -464,6 +613,10 @@ export type WebAuthnCredentialMinOrderByAggregateInput = {
   deviceType?: Prisma.SortOrder;
   backedUp?: Prisma.SortOrder;
   transports?: Prisma.SortOrder;
+  nickname?: Prisma.SortOrder;
+  createdAt?: Prisma.SortOrder;
+  lastUsedAt?: Prisma.SortOrder;
+  revokedAt?: Prisma.SortOrder;
   userId?: Prisma.SortOrder;
 };
 
@@ -593,6 +746,10 @@ export type WebAuthnCredentialCreateWithoutUserInput = {
   deviceType: string;
   backedUp: boolean;
   transports?: string | null;
+  nickname?: string | null;
+  createdAt?: Date | string;
+  lastUsedAt?: Date | string | null;
+  revokedAt?: Date | string | null;
 };
 
 export type WebAuthnCredentialUncheckedCreateWithoutUserInput = {
@@ -603,6 +760,10 @@ export type WebAuthnCredentialUncheckedCreateWithoutUserInput = {
   deviceType: string;
   backedUp: boolean;
   transports?: string | null;
+  nickname?: string | null;
+  createdAt?: Date | string;
+  lastUsedAt?: Date | string | null;
+  revokedAt?: Date | string | null;
 };
 
 export type WebAuthnCredentialCreateOrConnectWithoutUserInput = {
@@ -666,6 +827,18 @@ export type WebAuthnCredentialScalarWhereInput = {
     | Prisma.StringNullableFilter<'WebAuthnCredential'>
     | string
     | null;
+  nickname?: Prisma.StringNullableFilter<'WebAuthnCredential'> | string | null;
+  createdAt?: Prisma.DateTimeFilter<'WebAuthnCredential'> | Date | string;
+  lastUsedAt?:
+    | Prisma.DateTimeNullableFilter<'WebAuthnCredential'>
+    | Date
+    | string
+    | null;
+  revokedAt?:
+    | Prisma.DateTimeNullableFilter<'WebAuthnCredential'>
+    | Date
+    | string
+    | null;
   userId?: Prisma.StringFilter<'WebAuthnCredential'> | string;
 };
 
@@ -677,6 +850,10 @@ export type WebAuthnCredentialCreateManyUserInput = {
   deviceType: string;
   backedUp: boolean;
   transports?: string | null;
+  nickname?: string | null;
+  createdAt?: Date | string;
+  lastUsedAt?: Date | string | null;
+  revokedAt?: Date | string | null;
 };
 
 export type WebAuthnCredentialUpdateWithoutUserInput = {
@@ -687,6 +864,18 @@ export type WebAuthnCredentialUpdateWithoutUserInput = {
   deviceType?: Prisma.StringFieldUpdateOperationsInput | string;
   backedUp?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   transports?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  lastUsedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+  revokedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
 };
 
 export type WebAuthnCredentialUncheckedUpdateWithoutUserInput = {
@@ -697,6 +886,18 @@ export type WebAuthnCredentialUncheckedUpdateWithoutUserInput = {
   deviceType?: Prisma.StringFieldUpdateOperationsInput | string;
   backedUp?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   transports?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  lastUsedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+  revokedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
 };
 
 export type WebAuthnCredentialUncheckedUpdateManyWithoutUserInput = {
@@ -707,6 +908,18 @@ export type WebAuthnCredentialUncheckedUpdateManyWithoutUserInput = {
   deviceType?: Prisma.StringFieldUpdateOperationsInput | string;
   backedUp?: Prisma.BoolFieldUpdateOperationsInput | boolean;
   transports?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  lastUsedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+  revokedAt?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
 };
 
 export type WebAuthnCredentialSelect<
@@ -721,6 +934,10 @@ export type WebAuthnCredentialSelect<
     deviceType?: boolean;
     backedUp?: boolean;
     transports?: boolean;
+    nickname?: boolean;
+    createdAt?: boolean;
+    lastUsedAt?: boolean;
+    revokedAt?: boolean;
     userId?: boolean;
     user?: boolean | Prisma.AuthUserDefaultArgs<ExtArgs>;
   },
@@ -739,6 +956,10 @@ export type WebAuthnCredentialSelectCreateManyAndReturn<
     deviceType?: boolean;
     backedUp?: boolean;
     transports?: boolean;
+    nickname?: boolean;
+    createdAt?: boolean;
+    lastUsedAt?: boolean;
+    revokedAt?: boolean;
     userId?: boolean;
     user?: boolean | Prisma.AuthUserDefaultArgs<ExtArgs>;
   },
@@ -757,6 +978,10 @@ export type WebAuthnCredentialSelectUpdateManyAndReturn<
     deviceType?: boolean;
     backedUp?: boolean;
     transports?: boolean;
+    nickname?: boolean;
+    createdAt?: boolean;
+    lastUsedAt?: boolean;
+    revokedAt?: boolean;
     userId?: boolean;
     user?: boolean | Prisma.AuthUserDefaultArgs<ExtArgs>;
   },
@@ -771,6 +996,10 @@ export type WebAuthnCredentialSelectScalar = {
   deviceType?: boolean;
   backedUp?: boolean;
   transports?: boolean;
+  nickname?: boolean;
+  createdAt?: boolean;
+  lastUsedAt?: boolean;
+  revokedAt?: boolean;
   userId?: boolean;
 };
 
@@ -785,6 +1014,10 @@ export type WebAuthnCredentialOmit<
   | 'deviceType'
   | 'backedUp'
   | 'transports'
+  | 'nickname'
+  | 'createdAt'
+  | 'lastUsedAt'
+  | 'revokedAt'
   | 'userId',
   ExtArgs['result']['webAuthnCredential']
 >;
@@ -824,6 +1057,10 @@ export type $WebAuthnCredentialPayload<
       deviceType: string;
       backedUp: boolean;
       transports: string | null;
+      nickname: string | null;
+      createdAt: Date;
+      lastUsedAt: Date | null;
+      revokedAt: Date | null;
       userId: string;
     },
     ExtArgs['result']['webAuthnCredential']
@@ -1460,6 +1697,10 @@ export interface WebAuthnCredentialFieldRefs {
   readonly deviceType: Prisma.FieldRef<'WebAuthnCredential', 'String'>;
   readonly backedUp: Prisma.FieldRef<'WebAuthnCredential', 'Boolean'>;
   readonly transports: Prisma.FieldRef<'WebAuthnCredential', 'String'>;
+  readonly nickname: Prisma.FieldRef<'WebAuthnCredential', 'String'>;
+  readonly createdAt: Prisma.FieldRef<'WebAuthnCredential', 'DateTime'>;
+  readonly lastUsedAt: Prisma.FieldRef<'WebAuthnCredential', 'DateTime'>;
+  readonly revokedAt: Prisma.FieldRef<'WebAuthnCredential', 'DateTime'>;
   readonly userId: Prisma.FieldRef<'WebAuthnCredential', 'String'>;
 }
 

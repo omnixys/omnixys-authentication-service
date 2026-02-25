@@ -15,8 +15,10 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
+import { PrismaModule } from '../prisma/prisma.module.js';
 import { HealthController } from './health.controller.js';
 import { KafkaIndicator } from './kafka.indicator.js';
+import { PrismaIndicator } from './prisma.indicator.js';
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -30,8 +32,9 @@ import { TerminusModule } from '@nestjs/terminus';
     }),
     TerminusModule,
     HttpModule,
+    PrismaModule,
   ],
   controllers: [HealthController],
-  providers: [KafkaIndicator],
+  providers: [KafkaIndicator, PrismaIndicator],
 })
 export class HealthModule {}

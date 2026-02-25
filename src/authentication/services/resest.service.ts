@@ -82,7 +82,7 @@ export class ResetService extends AuthenticateBaseService {
         },
       });
 
-      console.log({rawToken})
+      console.log({ rawToken });
 
       // await this.mailService.sendResetEmail(user.email, rawToken);
     });
@@ -142,25 +142,17 @@ export class ResetService extends AuthenticateBaseService {
           }
 
           case 'WEBAUTHN': {
-            const challenge = await this.webAuthnService.getAuthenticationChallenge(token.userId);
-
-            if (!challenge) {
-              throw new UnauthorizedException();
-            }
-
-            // 🔒 Hier weiß TypeScript jetzt:
             // input ist der WEBAUTHN-Typ
             const valid = await this.webAuthnService.verifyAuthenticationForUser(
               token.userId,
               input.credentialResponse as AuthenticationResponseJSON,
-              challenge,
             );
 
             if (!valid) {
               throw new UnauthorizedException();
             }
 
-            await this.webAuthnService.consumeAuthenticationChallenge(token.userId);
+            // await this.webAuthnService.consumeAuthenticationChallenge(token.userId);
 
             break;
           }

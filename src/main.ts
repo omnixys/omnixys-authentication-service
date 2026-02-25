@@ -14,7 +14,6 @@
  *
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
-
 import { AppModule } from './app.module.js';
 import { corsOptions } from './config/cors.js';
 import { startOtelSDK } from './config/otel.js';

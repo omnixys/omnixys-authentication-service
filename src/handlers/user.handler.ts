@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { KCSignUpDTO } from '../authentication/models/dtos/kc-sign-up.dto.js';
 import { RegisterService } from '../authentication/services/register.service.js';
-import { LoggerPlusService } from '../logger/logger-plus.service.js';
 import {
   KafkaHandler,
   KafkaEvent,
-} from '../messaging/decorators/kafka-event.decorator.js';
+} from '../kafka/decorators/kafka-event.decorator.js';
 import {
   KafkaEventHandler,
   KafkaEventContext,
-} from '../messaging/interface/kafka-event.interface.js';
-import { getTopic, getTopics } from '../messaging/kafka-topic.properties.js';
+} from '../kafka/interface/kafka-event.interface.js';
+import { getTopic, getTopics } from '../kafka/kafka-topic.properties.js';
+import { LoggerPlusService } from '../logger/logger-plus.service.js';
 import { Injectable } from '@nestjs/common';
 
 @KafkaHandler('user')

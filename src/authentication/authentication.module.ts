@@ -17,8 +17,8 @@
 
 import { AuthModule } from '../auth/auth.module.js';
 import { CoreHttpModule } from '../http.module.js';
+import { KafkaModule } from '../kafka/kafka.module.js';
 import { LoggerModule } from '../logger/logger.module.js';
-import { KafkaModule } from '../messaging/kafka.module.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { TraceModule } from '../trace/trace.module.js';
 import { ValkeyModule } from '../valkey/valkey.module.js';
@@ -32,7 +32,9 @@ import { AdminWriteService } from './services/admin-write.service.js';
 import { Argon2Service } from './services/argon2.service.js';
 import { AuthWriteService } from './services/authentication-write.service.js';
 import { BackupCodeService } from './services/backup-code.service.js';
+import { DeviceService } from './services/device.service.js';
 import { EncryptionService } from './services/encryption.service.js';
+import { GeoIpService } from './services/geoip.service.js';
 import { HmacService } from './services/hmac.service.js';
 import { LockoutService } from './services/lockout.service.js';
 import { MailService } from './services/mail.service.js';
@@ -40,6 +42,7 @@ import { PendingContactService } from './services/pending-contact.service.js';
 import { AuthenticateReadService } from './services/read.service.js';
 import { RegisterService } from './services/register.service.js';
 import { ResetService } from './services/resest.service.js';
+import { RiskEngineService } from './services/risk-engine.service.js';
 import { SecurityQuestionService } from './services/security-question.service.js';
 import { TotpService } from './services/totp.service.js';
 import { UserWriteService } from './services/user-write.service.js';
@@ -80,6 +83,9 @@ import { Module } from '@nestjs/common';
     MailService,
     HmacService,
     SecurityQuestionService,
+    RiskEngineService,
+    GeoIpService,
+    DeviceService,
   ],
   exports: [
     AuthenticateReadService,

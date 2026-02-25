@@ -79,3 +79,13 @@ export type PasswordResetToken = Prisma.PasswordResetTokenModel;
  *
  */
 export type RateLimitBucket = Prisma.RateLimitBucketModel;
+/**
+ * Model KnownDevice
+ *
+ */
+export type KnownDevice = Prisma.KnownDeviceModel;
+/**
+ * Model LoginHistory
+ *
+ */
+export type LoginHistory = Prisma.LoginHistoryModel;

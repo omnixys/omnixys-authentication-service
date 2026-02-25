@@ -250,6 +250,8 @@ export type AuthUserWhereInput = {
   backupCodes?: Prisma.BackupCodeListRelationFilter;
   securityQuestions?: Prisma.SecurityQuestionListRelationFilter;
   resetTokens?: Prisma.PasswordResetTokenListRelationFilter;
+  knownDevices?: Prisma.KnownDeviceListRelationFilter;
+  loginHistories?: Prisma.LoginHistoryListRelationFilter;
 };
 
 export type AuthUserOrderByWithRelationInput = {
@@ -265,6 +267,8 @@ export type AuthUserOrderByWithRelationInput = {
   backupCodes?: Prisma.BackupCodeOrderByRelationAggregateInput;
   securityQuestions?: Prisma.SecurityQuestionOrderByRelationAggregateInput;
   resetTokens?: Prisma.PasswordResetTokenOrderByRelationAggregateInput;
+  knownDevices?: Prisma.KnownDeviceOrderByRelationAggregateInput;
+  loginHistories?: Prisma.LoginHistoryOrderByRelationAggregateInput;
 };
 
 export type AuthUserWhereUniqueInput = Prisma.AtLeast<
@@ -293,6 +297,8 @@ export type AuthUserWhereUniqueInput = Prisma.AtLeast<
     backupCodes?: Prisma.BackupCodeListRelationFilter;
     securityQuestions?: Prisma.SecurityQuestionListRelationFilter;
     resetTokens?: Prisma.PasswordResetTokenListRelationFilter;
+    knownDevices?: Prisma.KnownDeviceListRelationFilter;
+    loginHistories?: Prisma.LoginHistoryListRelationFilter;
   },
   'id' | 'email'
 >;
@@ -348,6 +354,8 @@ export type AuthUserCreateInput = {
   backupCodes?: Prisma.BackupCodeCreateNestedManyWithoutUserInput;
   securityQuestions?: Prisma.SecurityQuestionCreateNestedManyWithoutUserInput;
   resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput;
+  knownDevices?: Prisma.KnownDeviceCreateNestedManyWithoutUserInput;
+  loginHistories?: Prisma.LoginHistoryCreateNestedManyWithoutUserInput;
 };
 
 export type AuthUserUncheckedCreateInput = {
@@ -363,6 +371,8 @@ export type AuthUserUncheckedCreateInput = {
   backupCodes?: Prisma.BackupCodeUncheckedCreateNestedManyWithoutUserInput;
   securityQuestions?: Prisma.SecurityQuestionUncheckedCreateNestedManyWithoutUserInput;
   resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput;
+  knownDevices?: Prisma.KnownDeviceUncheckedCreateNestedManyWithoutUserInput;
+  loginHistories?: Prisma.LoginHistoryUncheckedCreateNestedManyWithoutUserInput;
 };
 
 export type AuthUserUpdateInput = {
@@ -384,6 +394,8 @@ export type AuthUserUpdateInput = {
   backupCodes?: Prisma.BackupCodeUpdateManyWithoutUserNestedInput;
   securityQuestions?: Prisma.SecurityQuestionUpdateManyWithoutUserNestedInput;
   resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput;
+  knownDevices?: Prisma.KnownDeviceUpdateManyWithoutUserNestedInput;
+  loginHistories?: Prisma.LoginHistoryUpdateManyWithoutUserNestedInput;
 };
 
 export type AuthUserUncheckedUpdateInput = {
@@ -405,6 +417,8 @@ export type AuthUserUncheckedUpdateInput = {
   backupCodes?: Prisma.BackupCodeUncheckedUpdateManyWithoutUserNestedInput;
   securityQuestions?: Prisma.SecurityQuestionUncheckedUpdateManyWithoutUserNestedInput;
   resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput;
+  knownDevices?: Prisma.KnownDeviceUncheckedUpdateManyWithoutUserNestedInput;
+  loginHistories?: Prisma.LoginHistoryUncheckedUpdateManyWithoutUserNestedInput;
 };
 
 export type AuthUserCreateManyInput = {
@@ -646,6 +660,58 @@ export type AuthUserUpdateOneRequiredWithoutResetTokensNestedInput = {
   >;
 };
 
+export type AuthUserCreateNestedOneWithoutKnownDevicesInput = {
+  create?: Prisma.XOR<
+    Prisma.AuthUserCreateWithoutKnownDevicesInput,
+    Prisma.AuthUserUncheckedCreateWithoutKnownDevicesInput
+  >;
+  connectOrCreate?: Prisma.AuthUserCreateOrConnectWithoutKnownDevicesInput;
+  connect?: Prisma.AuthUserWhereUniqueInput;
+};
+
+export type AuthUserUpdateOneRequiredWithoutKnownDevicesNestedInput = {
+  create?: Prisma.XOR<
+    Prisma.AuthUserCreateWithoutKnownDevicesInput,
+    Prisma.AuthUserUncheckedCreateWithoutKnownDevicesInput
+  >;
+  connectOrCreate?: Prisma.AuthUserCreateOrConnectWithoutKnownDevicesInput;
+  upsert?: Prisma.AuthUserUpsertWithoutKnownDevicesInput;
+  connect?: Prisma.AuthUserWhereUniqueInput;
+  update?: Prisma.XOR<
+    Prisma.XOR<
+      Prisma.AuthUserUpdateToOneWithWhereWithoutKnownDevicesInput,
+      Prisma.AuthUserUpdateWithoutKnownDevicesInput
+    >,
+    Prisma.AuthUserUncheckedUpdateWithoutKnownDevicesInput
+  >;
+};
+
+export type AuthUserCreateNestedOneWithoutLoginHistoriesInput = {
+  create?: Prisma.XOR<
+    Prisma.AuthUserCreateWithoutLoginHistoriesInput,
+    Prisma.AuthUserUncheckedCreateWithoutLoginHistoriesInput
+  >;
+  connectOrCreate?: Prisma.AuthUserCreateOrConnectWithoutLoginHistoriesInput;
+  connect?: Prisma.AuthUserWhereUniqueInput;
+};
+
+export type AuthUserUpdateOneRequiredWithoutLoginHistoriesNestedInput = {
+  create?: Prisma.XOR<
+    Prisma.AuthUserCreateWithoutLoginHistoriesInput,
+    Prisma.AuthUserUncheckedCreateWithoutLoginHistoriesInput
+  >;
+  connectOrCreate?: Prisma.AuthUserCreateOrConnectWithoutLoginHistoriesInput;
+  upsert?: Prisma.AuthUserUpsertWithoutLoginHistoriesInput;
+  connect?: Prisma.AuthUserWhereUniqueInput;
+  update?: Prisma.XOR<
+    Prisma.XOR<
+      Prisma.AuthUserUpdateToOneWithWhereWithoutLoginHistoriesInput,
+      Prisma.AuthUserUpdateWithoutLoginHistoriesInput
+    >,
+    Prisma.AuthUserUncheckedUpdateWithoutLoginHistoriesInput
+  >;
+};
+
 export type AuthUserCreateWithoutTotpInput = {
   id?: string;
   email: string;
@@ -658,6 +724,8 @@ export type AuthUserCreateWithoutTotpInput = {
   backupCodes?: Prisma.BackupCodeCreateNestedManyWithoutUserInput;
   securityQuestions?: Prisma.SecurityQuestionCreateNestedManyWithoutUserInput;
   resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput;
+  knownDevices?: Prisma.KnownDeviceCreateNestedManyWithoutUserInput;
+  loginHistories?: Prisma.LoginHistoryCreateNestedManyWithoutUserInput;
 };
 
 export type AuthUserUncheckedCreateWithoutTotpInput = {
@@ -672,6 +740,8 @@ export type AuthUserUncheckedCreateWithoutTotpInput = {
   backupCodes?: Prisma.BackupCodeUncheckedCreateNestedManyWithoutUserInput;
   securityQuestions?: Prisma.SecurityQuestionUncheckedCreateNestedManyWithoutUserInput;
   resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput;
+  knownDevices?: Prisma.KnownDeviceUncheckedCreateNestedManyWithoutUserInput;
+  loginHistories?: Prisma.LoginHistoryUncheckedCreateNestedManyWithoutUserInput;
 };
 
 export type AuthUserCreateOrConnectWithoutTotpInput = {
@@ -720,6 +790,8 @@ export type AuthUserUpdateWithoutTotpInput = {
   backupCodes?: Prisma.BackupCodeUpdateManyWithoutUserNestedInput;
   securityQuestions?: Prisma.SecurityQuestionUpdateManyWithoutUserNestedInput;
   resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput;
+  knownDevices?: Prisma.KnownDeviceUpdateManyWithoutUserNestedInput;
+  loginHistories?: Prisma.LoginHistoryUpdateManyWithoutUserNestedInput;
 };
 
 export type AuthUserUncheckedUpdateWithoutTotpInput = {
@@ -740,6 +812,8 @@ export type AuthUserUncheckedUpdateWithoutTotpInput = {
   backupCodes?: Prisma.BackupCodeUncheckedUpdateManyWithoutUserNestedInput;
   securityQuestions?: Prisma.SecurityQuestionUncheckedUpdateManyWithoutUserNestedInput;
   resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput;
+  knownDevices?: Prisma.KnownDeviceUncheckedUpdateManyWithoutUserNestedInput;
+  loginHistories?: Prisma.LoginHistoryUncheckedUpdateManyWithoutUserNestedInput;
 };
 
 export type AuthUserCreateWithoutWebAuthnInput = {
@@ -754,6 +828,8 @@ export type AuthUserCreateWithoutWebAuthnInput = {
   backupCodes?: Prisma.BackupCodeCreateNestedManyWithoutUserInput;
   securityQuestions?: Prisma.SecurityQuestionCreateNestedManyWithoutUserInput;
   resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput;
+  knownDevices?: Prisma.KnownDeviceCreateNestedManyWithoutUserInput;
+  loginHistories?: Prisma.LoginHistoryCreateNestedManyWithoutUserInput;
 };
 
 export type AuthUserUncheckedCreateWithoutWebAuthnInput = {
@@ -768,6 +844,8 @@ export type AuthUserUncheckedCreateWithoutWebAuthnInput = {
   backupCodes?: Prisma.BackupCodeUncheckedCreateNestedManyWithoutUserInput;
   securityQuestions?: Prisma.SecurityQuestionUncheckedCreateNestedManyWithoutUserInput;
   resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput;
+  knownDevices?: Prisma.KnownDeviceUncheckedCreateNestedManyWithoutUserInput;
+  loginHistories?: Prisma.LoginHistoryUncheckedCreateNestedManyWithoutUserInput;
 };
 
 export type AuthUserCreateOrConnectWithoutWebAuthnInput = {
@@ -816,6 +894,8 @@ export type AuthUserUpdateWithoutWebAuthnInput = {
   backupCodes?: Prisma.BackupCodeUpdateManyWithoutUserNestedInput;
   securityQuestions?: Prisma.SecurityQuestionUpdateManyWithoutUserNestedInput;
   resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput;
+  knownDevices?: Prisma.KnownDeviceUpdateManyWithoutUserNestedInput;
+  loginHistories?: Prisma.LoginHistoryUpdateManyWithoutUserNestedInput;
 };
 
 export type AuthUserUncheckedUpdateWithoutWebAuthnInput = {
@@ -836,6 +916,8 @@ export type AuthUserUncheckedUpdateWithoutWebAuthnInput = {
   backupCodes?: Prisma.BackupCodeUncheckedUpdateManyWithoutUserNestedInput;
   securityQuestions?: Prisma.SecurityQuestionUncheckedUpdateManyWithoutUserNestedInput;
   resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput;
+  knownDevices?: Prisma.KnownDeviceUncheckedUpdateManyWithoutUserNestedInput;
+  loginHistories?: Prisma.LoginHistoryUncheckedUpdateManyWithoutUserNestedInput;
 };
 
 export type AuthUserCreateWithoutBackupCodesInput = {
@@ -850,6 +932,8 @@ export type AuthUserCreateWithoutBackupCodesInput = {
   webAuthn?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput;
   securityQuestions?: Prisma.SecurityQuestionCreateNestedManyWithoutUserInput;
   resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput;
+  knownDevices?: Prisma.KnownDeviceCreateNestedManyWithoutUserInput;
+  loginHistories?: Prisma.LoginHistoryCreateNestedManyWithoutUserInput;
 };
 
 export type AuthUserUncheckedCreateWithoutBackupCodesInput = {
@@ -864,6 +948,8 @@ export type AuthUserUncheckedCreateWithoutBackupCodesInput = {
   webAuthn?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput;
   securityQuestions?: Prisma.SecurityQuestionUncheckedCreateNestedManyWithoutUserInput;
   resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput;
+  knownDevices?: Prisma.KnownDeviceUncheckedCreateNestedManyWithoutUserInput;
+  loginHistories?: Prisma.LoginHistoryUncheckedCreateNestedManyWithoutUserInput;
 };
 
 export type AuthUserCreateOrConnectWithoutBackupCodesInput = {
@@ -912,6 +998,8 @@ export type AuthUserUpdateWithoutBackupCodesInput = {
   webAuthn?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput;
   securityQuestions?: Prisma.SecurityQuestionUpdateManyWithoutUserNestedInput;
   resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput;
+  knownDevices?: Prisma.KnownDeviceUpdateManyWithoutUserNestedInput;
+  loginHistories?: Prisma.LoginHistoryUpdateManyWithoutUserNestedInput;
 };
 
 export type AuthUserUncheckedUpdateWithoutBackupCodesInput = {
@@ -932,6 +1020,8 @@ export type AuthUserUncheckedUpdateWithoutBackupCodesInput = {
   webAuthn?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput;
   securityQuestions?: Prisma.SecurityQuestionUncheckedUpdateManyWithoutUserNestedInput;
   resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput;
+  knownDevices?: Prisma.KnownDeviceUncheckedUpdateManyWithoutUserNestedInput;
+  loginHistories?: Prisma.LoginHistoryUncheckedUpdateManyWithoutUserNestedInput;
 };
 
 export type AuthUserCreateWithoutSecurityQuestionsInput = {
@@ -946,6 +1036,8 @@ export type AuthUserCreateWithoutSecurityQuestionsInput = {
   webAuthn?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput;
   backupCodes?: Prisma.BackupCodeCreateNestedManyWithoutUserInput;
   resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput;
+  knownDevices?: Prisma.KnownDeviceCreateNestedManyWithoutUserInput;
+  loginHistories?: Prisma.LoginHistoryCreateNestedManyWithoutUserInput;
 };
 
 export type AuthUserUncheckedCreateWithoutSecurityQuestionsInput = {
@@ -960,6 +1052,8 @@ export type AuthUserUncheckedCreateWithoutSecurityQuestionsInput = {
   webAuthn?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput;
   backupCodes?: Prisma.BackupCodeUncheckedCreateNestedManyWithoutUserInput;
   resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput;
+  knownDevices?: Prisma.KnownDeviceUncheckedCreateNestedManyWithoutUserInput;
+  loginHistories?: Prisma.LoginHistoryUncheckedCreateNestedManyWithoutUserInput;
 };
 
 export type AuthUserCreateOrConnectWithoutSecurityQuestionsInput = {
@@ -1008,6 +1102,8 @@ export type AuthUserUpdateWithoutSecurityQuestionsInput = {
   webAuthn?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput;
   backupCodes?: Prisma.BackupCodeUpdateManyWithoutUserNestedInput;
   resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput;
+  knownDevices?: Prisma.KnownDeviceUpdateManyWithoutUserNestedInput;
+  loginHistories?: Prisma.LoginHistoryUpdateManyWithoutUserNestedInput;
 };
 
 export type AuthUserUncheckedUpdateWithoutSecurityQuestionsInput = {
@@ -1028,6 +1124,8 @@ export type AuthUserUncheckedUpdateWithoutSecurityQuestionsInput = {
   webAuthn?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput;
   backupCodes?: Prisma.BackupCodeUncheckedUpdateManyWithoutUserNestedInput;
   resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput;
+  knownDevices?: Prisma.KnownDeviceUncheckedUpdateManyWithoutUserNestedInput;
+  loginHistories?: Prisma.LoginHistoryUncheckedUpdateManyWithoutUserNestedInput;
 };
 
 export type AuthUserCreateWithoutResetTokensInput = {
@@ -1042,6 +1140,8 @@ export type AuthUserCreateWithoutResetTokensInput = {
   webAuthn?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput;
   backupCodes?: Prisma.BackupCodeCreateNestedManyWithoutUserInput;
   securityQuestions?: Prisma.SecurityQuestionCreateNestedManyWithoutUserInput;
+  knownDevices?: Prisma.KnownDeviceCreateNestedManyWithoutUserInput;
+  loginHistories?: Prisma.LoginHistoryCreateNestedManyWithoutUserInput;
 };
 
 export type AuthUserUncheckedCreateWithoutResetTokensInput = {
@@ -1056,6 +1156,8 @@ export type AuthUserUncheckedCreateWithoutResetTokensInput = {
   webAuthn?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput;
   backupCodes?: Prisma.BackupCodeUncheckedCreateNestedManyWithoutUserInput;
   securityQuestions?: Prisma.SecurityQuestionUncheckedCreateNestedManyWithoutUserInput;
+  knownDevices?: Prisma.KnownDeviceUncheckedCreateNestedManyWithoutUserInput;
+  loginHistories?: Prisma.LoginHistoryUncheckedCreateNestedManyWithoutUserInput;
 };
 
 export type AuthUserCreateOrConnectWithoutResetTokensInput = {
@@ -1104,6 +1206,8 @@ export type AuthUserUpdateWithoutResetTokensInput = {
   webAuthn?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput;
   backupCodes?: Prisma.BackupCodeUpdateManyWithoutUserNestedInput;
   securityQuestions?: Prisma.SecurityQuestionUpdateManyWithoutUserNestedInput;
+  knownDevices?: Prisma.KnownDeviceUpdateManyWithoutUserNestedInput;
+  loginHistories?: Prisma.LoginHistoryUpdateManyWithoutUserNestedInput;
 };
 
 export type AuthUserUncheckedUpdateWithoutResetTokensInput = {
@@ -1124,6 +1228,216 @@ export type AuthUserUncheckedUpdateWithoutResetTokensInput = {
   webAuthn?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput;
   backupCodes?: Prisma.BackupCodeUncheckedUpdateManyWithoutUserNestedInput;
   securityQuestions?: Prisma.SecurityQuestionUncheckedUpdateManyWithoutUserNestedInput;
+  knownDevices?: Prisma.KnownDeviceUncheckedUpdateManyWithoutUserNestedInput;
+  loginHistories?: Prisma.LoginHistoryUncheckedUpdateManyWithoutUserNestedInput;
+};
+
+export type AuthUserCreateWithoutKnownDevicesInput = {
+  id?: string;
+  email: string;
+  mfaPreference?: $Enums.MfaPreference;
+  failedAttempts?: number;
+  lockedUntil?: Date | string | null;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  totp?: Prisma.TotpCredentialCreateNestedOneWithoutUserInput;
+  webAuthn?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput;
+  backupCodes?: Prisma.BackupCodeCreateNestedManyWithoutUserInput;
+  securityQuestions?: Prisma.SecurityQuestionCreateNestedManyWithoutUserInput;
+  resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput;
+  loginHistories?: Prisma.LoginHistoryCreateNestedManyWithoutUserInput;
+};
+
+export type AuthUserUncheckedCreateWithoutKnownDevicesInput = {
+  id?: string;
+  email: string;
+  mfaPreference?: $Enums.MfaPreference;
+  failedAttempts?: number;
+  lockedUntil?: Date | string | null;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  totp?: Prisma.TotpCredentialUncheckedCreateNestedOneWithoutUserInput;
+  webAuthn?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput;
+  backupCodes?: Prisma.BackupCodeUncheckedCreateNestedManyWithoutUserInput;
+  securityQuestions?: Prisma.SecurityQuestionUncheckedCreateNestedManyWithoutUserInput;
+  resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput;
+  loginHistories?: Prisma.LoginHistoryUncheckedCreateNestedManyWithoutUserInput;
+};
+
+export type AuthUserCreateOrConnectWithoutKnownDevicesInput = {
+  where: Prisma.AuthUserWhereUniqueInput;
+  create: Prisma.XOR<
+    Prisma.AuthUserCreateWithoutKnownDevicesInput,
+    Prisma.AuthUserUncheckedCreateWithoutKnownDevicesInput
+  >;
+};
+
+export type AuthUserUpsertWithoutKnownDevicesInput = {
+  update: Prisma.XOR<
+    Prisma.AuthUserUpdateWithoutKnownDevicesInput,
+    Prisma.AuthUserUncheckedUpdateWithoutKnownDevicesInput
+  >;
+  create: Prisma.XOR<
+    Prisma.AuthUserCreateWithoutKnownDevicesInput,
+    Prisma.AuthUserUncheckedCreateWithoutKnownDevicesInput
+  >;
+  where?: Prisma.AuthUserWhereInput;
+};
+
+export type AuthUserUpdateToOneWithWhereWithoutKnownDevicesInput = {
+  where?: Prisma.AuthUserWhereInput;
+  data: Prisma.XOR<
+    Prisma.AuthUserUpdateWithoutKnownDevicesInput,
+    Prisma.AuthUserUncheckedUpdateWithoutKnownDevicesInput
+  >;
+};
+
+export type AuthUserUpdateWithoutKnownDevicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  email?: Prisma.StringFieldUpdateOperationsInput | string;
+  mfaPreference?:
+    | Prisma.EnumMfaPreferenceFieldUpdateOperationsInput
+    | $Enums.MfaPreference;
+  failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lockedUntil?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  totp?: Prisma.TotpCredentialUpdateOneWithoutUserNestedInput;
+  webAuthn?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput;
+  backupCodes?: Prisma.BackupCodeUpdateManyWithoutUserNestedInput;
+  securityQuestions?: Prisma.SecurityQuestionUpdateManyWithoutUserNestedInput;
+  resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput;
+  loginHistories?: Prisma.LoginHistoryUpdateManyWithoutUserNestedInput;
+};
+
+export type AuthUserUncheckedUpdateWithoutKnownDevicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  email?: Prisma.StringFieldUpdateOperationsInput | string;
+  mfaPreference?:
+    | Prisma.EnumMfaPreferenceFieldUpdateOperationsInput
+    | $Enums.MfaPreference;
+  failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lockedUntil?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  totp?: Prisma.TotpCredentialUncheckedUpdateOneWithoutUserNestedInput;
+  webAuthn?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput;
+  backupCodes?: Prisma.BackupCodeUncheckedUpdateManyWithoutUserNestedInput;
+  securityQuestions?: Prisma.SecurityQuestionUncheckedUpdateManyWithoutUserNestedInput;
+  resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput;
+  loginHistories?: Prisma.LoginHistoryUncheckedUpdateManyWithoutUserNestedInput;
+};
+
+export type AuthUserCreateWithoutLoginHistoriesInput = {
+  id?: string;
+  email: string;
+  mfaPreference?: $Enums.MfaPreference;
+  failedAttempts?: number;
+  lockedUntil?: Date | string | null;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  totp?: Prisma.TotpCredentialCreateNestedOneWithoutUserInput;
+  webAuthn?: Prisma.WebAuthnCredentialCreateNestedManyWithoutUserInput;
+  backupCodes?: Prisma.BackupCodeCreateNestedManyWithoutUserInput;
+  securityQuestions?: Prisma.SecurityQuestionCreateNestedManyWithoutUserInput;
+  resetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutUserInput;
+  knownDevices?: Prisma.KnownDeviceCreateNestedManyWithoutUserInput;
+};
+
+export type AuthUserUncheckedCreateWithoutLoginHistoriesInput = {
+  id?: string;
+  email: string;
+  mfaPreference?: $Enums.MfaPreference;
+  failedAttempts?: number;
+  lockedUntil?: Date | string | null;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  totp?: Prisma.TotpCredentialUncheckedCreateNestedOneWithoutUserInput;
+  webAuthn?: Prisma.WebAuthnCredentialUncheckedCreateNestedManyWithoutUserInput;
+  backupCodes?: Prisma.BackupCodeUncheckedCreateNestedManyWithoutUserInput;
+  securityQuestions?: Prisma.SecurityQuestionUncheckedCreateNestedManyWithoutUserInput;
+  resetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput;
+  knownDevices?: Prisma.KnownDeviceUncheckedCreateNestedManyWithoutUserInput;
+};
+
+export type AuthUserCreateOrConnectWithoutLoginHistoriesInput = {
+  where: Prisma.AuthUserWhereUniqueInput;
+  create: Prisma.XOR<
+    Prisma.AuthUserCreateWithoutLoginHistoriesInput,
+    Prisma.AuthUserUncheckedCreateWithoutLoginHistoriesInput
+  >;
+};
+
+export type AuthUserUpsertWithoutLoginHistoriesInput = {
+  update: Prisma.XOR<
+    Prisma.AuthUserUpdateWithoutLoginHistoriesInput,
+    Prisma.AuthUserUncheckedUpdateWithoutLoginHistoriesInput
+  >;
+  create: Prisma.XOR<
+    Prisma.AuthUserCreateWithoutLoginHistoriesInput,
+    Prisma.AuthUserUncheckedCreateWithoutLoginHistoriesInput
+  >;
+  where?: Prisma.AuthUserWhereInput;
+};
+
+export type AuthUserUpdateToOneWithWhereWithoutLoginHistoriesInput = {
+  where?: Prisma.AuthUserWhereInput;
+  data: Prisma.XOR<
+    Prisma.AuthUserUpdateWithoutLoginHistoriesInput,
+    Prisma.AuthUserUncheckedUpdateWithoutLoginHistoriesInput
+  >;
+};
+
+export type AuthUserUpdateWithoutLoginHistoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  email?: Prisma.StringFieldUpdateOperationsInput | string;
+  mfaPreference?:
+    | Prisma.EnumMfaPreferenceFieldUpdateOperationsInput
+    | $Enums.MfaPreference;
+  failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lockedUntil?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  totp?: Prisma.TotpCredentialUpdateOneWithoutUserNestedInput;
+  webAuthn?: Prisma.WebAuthnCredentialUpdateManyWithoutUserNestedInput;
+  backupCodes?: Prisma.BackupCodeUpdateManyWithoutUserNestedInput;
+  securityQuestions?: Prisma.SecurityQuestionUpdateManyWithoutUserNestedInput;
+  resetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutUserNestedInput;
+  knownDevices?: Prisma.KnownDeviceUpdateManyWithoutUserNestedInput;
+};
+
+export type AuthUserUncheckedUpdateWithoutLoginHistoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  email?: Prisma.StringFieldUpdateOperationsInput | string;
+  mfaPreference?:
+    | Prisma.EnumMfaPreferenceFieldUpdateOperationsInput
+    | $Enums.MfaPreference;
+  failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lockedUntil?:
+    | Prisma.NullableDateTimeFieldUpdateOperationsInput
+    | Date
+    | string
+    | null;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  totp?: Prisma.TotpCredentialUncheckedUpdateOneWithoutUserNestedInput;
+  webAuthn?: Prisma.WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput;
+  backupCodes?: Prisma.BackupCodeUncheckedUpdateManyWithoutUserNestedInput;
+  securityQuestions?: Prisma.SecurityQuestionUncheckedUpdateManyWithoutUserNestedInput;
+  resetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput;
+  knownDevices?: Prisma.KnownDeviceUncheckedUpdateManyWithoutUserNestedInput;
 };
 
 /**
@@ -1135,6 +1449,8 @@ export type AuthUserCountOutputType = {
   backupCodes: number;
   securityQuestions: number;
   resetTokens: number;
+  knownDevices: number;
+  loginHistories: number;
 };
 
 export type AuthUserCountOutputTypeSelect<
@@ -1147,6 +1463,8 @@ export type AuthUserCountOutputTypeSelect<
     | boolean
     | AuthUserCountOutputTypeCountSecurityQuestionsArgs;
   resetTokens?: boolean | AuthUserCountOutputTypeCountResetTokensArgs;
+  knownDevices?: boolean | AuthUserCountOutputTypeCountKnownDevicesArgs;
+  loginHistories?: boolean | AuthUserCountOutputTypeCountLoginHistoriesArgs;
 };
 
 /**
@@ -1202,6 +1520,26 @@ export type AuthUserCountOutputTypeCountResetTokensArgs<
   where?: Prisma.PasswordResetTokenWhereInput;
 };
 
+/**
+ * AuthUserCountOutputType without action
+ */
+export type AuthUserCountOutputTypeCountKnownDevicesArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs =
+    runtime.Types.Extensions.DefaultArgs,
+> = {
+  where?: Prisma.KnownDeviceWhereInput;
+};
+
+/**
+ * AuthUserCountOutputType without action
+ */
+export type AuthUserCountOutputTypeCountLoginHistoriesArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs =
+    runtime.Types.Extensions.DefaultArgs,
+> = {
+  where?: Prisma.LoginHistoryWhereInput;
+};
+
 export type AuthUserSelect<
   ExtArgs extends runtime.Types.Extensions.InternalArgs =
     runtime.Types.Extensions.DefaultArgs,
@@ -1221,6 +1559,8 @@ export type AuthUserSelect<
       | boolean
       | Prisma.AuthUser$securityQuestionsArgs<ExtArgs>;
     resetTokens?: boolean | Prisma.AuthUser$resetTokensArgs<ExtArgs>;
+    knownDevices?: boolean | Prisma.AuthUser$knownDevicesArgs<ExtArgs>;
+    loginHistories?: boolean | Prisma.AuthUser$loginHistoriesArgs<ExtArgs>;
     _count?: boolean | Prisma.AuthUserCountOutputTypeDefaultArgs<ExtArgs>;
   },
   ExtArgs['result']['authUser']
@@ -1290,6 +1630,8 @@ export type AuthUserInclude<
   backupCodes?: boolean | Prisma.AuthUser$backupCodesArgs<ExtArgs>;
   securityQuestions?: boolean | Prisma.AuthUser$securityQuestionsArgs<ExtArgs>;
   resetTokens?: boolean | Prisma.AuthUser$resetTokensArgs<ExtArgs>;
+  knownDevices?: boolean | Prisma.AuthUser$knownDevicesArgs<ExtArgs>;
+  loginHistories?: boolean | Prisma.AuthUser$loginHistoriesArgs<ExtArgs>;
   _count?: boolean | Prisma.AuthUserCountOutputTypeDefaultArgs<ExtArgs>;
 };
 export type AuthUserIncludeCreateManyAndReturn<
@@ -1312,6 +1654,8 @@ export type $AuthUserPayload<
     backupCodes: Prisma.$BackupCodePayload<ExtArgs>[];
     securityQuestions: Prisma.$SecurityQuestionPayload<ExtArgs>[];
     resetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[];
+    knownDevices: Prisma.$KnownDevicePayload<ExtArgs>[];
+    loginHistories: Prisma.$LoginHistoryPayload<ExtArgs>[];
   };
   scalars: runtime.Types.Extensions.GetPayloadResult<
     {
@@ -1925,6 +2269,28 @@ export interface Prisma__AuthUserClient<
   ): Prisma.PrismaPromise<
     | runtime.Types.Result.GetResult<
         Prisma.$PasswordResetTokenPayload<ExtArgs>,
+        T,
+        'findMany',
+        GlobalOmitOptions
+      >
+    | Null
+  >;
+  knownDevices<T extends Prisma.AuthUser$knownDevicesArgs<ExtArgs> = {}>(
+    args?: Prisma.Subset<T, Prisma.AuthUser$knownDevicesArgs<ExtArgs>>,
+  ): Prisma.PrismaPromise<
+    | runtime.Types.Result.GetResult<
+        Prisma.$KnownDevicePayload<ExtArgs>,
+        T,
+        'findMany',
+        GlobalOmitOptions
+      >
+    | Null
+  >;
+  loginHistories<T extends Prisma.AuthUser$loginHistoriesArgs<ExtArgs> = {}>(
+    args?: Prisma.Subset<T, Prisma.AuthUser$loginHistoriesArgs<ExtArgs>>,
+  ): Prisma.PrismaPromise<
+    | runtime.Types.Result.GetResult<
+        Prisma.$LoginHistoryPayload<ExtArgs>,
         T,
         'findMany',
         GlobalOmitOptions
@@ -2576,6 +2942,68 @@ export type AuthUser$resetTokensArgs<
   distinct?:
     | Prisma.PasswordResetTokenScalarFieldEnum
     | Prisma.PasswordResetTokenScalarFieldEnum[];
+};
+
+/**
+ * AuthUser.knownDevices
+ */
+export type AuthUser$knownDevicesArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs =
+    runtime.Types.Extensions.DefaultArgs,
+> = {
+  /**
+   * Select specific fields to fetch from the KnownDevice
+   */
+  select?: Prisma.KnownDeviceSelect<ExtArgs> | null;
+  /**
+   * Omit specific fields from the KnownDevice
+   */
+  omit?: Prisma.KnownDeviceOmit<ExtArgs> | null;
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.KnownDeviceInclude<ExtArgs> | null;
+  where?: Prisma.KnownDeviceWhereInput;
+  orderBy?:
+    | Prisma.KnownDeviceOrderByWithRelationInput
+    | Prisma.KnownDeviceOrderByWithRelationInput[];
+  cursor?: Prisma.KnownDeviceWhereUniqueInput;
+  take?: number;
+  skip?: number;
+  distinct?:
+    | Prisma.KnownDeviceScalarFieldEnum
+    | Prisma.KnownDeviceScalarFieldEnum[];
+};
+
+/**
+ * AuthUser.loginHistories
+ */
+export type AuthUser$loginHistoriesArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs =
+    runtime.Types.Extensions.DefaultArgs,
+> = {
+  /**
+   * Select specific fields to fetch from the LoginHistory
+   */
+  select?: Prisma.LoginHistorySelect<ExtArgs> | null;
+  /**
+   * Omit specific fields from the LoginHistory
+   */
+  omit?: Prisma.LoginHistoryOmit<ExtArgs> | null;
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LoginHistoryInclude<ExtArgs> | null;
+  where?: Prisma.LoginHistoryWhereInput;
+  orderBy?:
+    | Prisma.LoginHistoryOrderByWithRelationInput
+    | Prisma.LoginHistoryOrderByWithRelationInput[];
+  cursor?: Prisma.LoginHistoryWhereUniqueInput;
+  take?: number;
+  skip?: number;
+  distinct?:
+    | Prisma.LoginHistoryScalarFieldEnum
+    | Prisma.LoginHistoryScalarFieldEnum[];
 };
 
 /**

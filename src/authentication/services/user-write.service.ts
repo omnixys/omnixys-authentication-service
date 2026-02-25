@@ -16,8 +16,8 @@
  */
 
 import { paths } from '../../config/keycloak.js';
+import { KafkaProducerService } from '../../kafka/kafka-producer.service.js';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
-import { KafkaProducerService } from '../../messaging/kafka-producer.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
 import { KeycloakUser, KeycloakUserPatch } from '../models/dtos/kc-user.dto.js';
 import { GuestSignUpDTO } from '../models/dtos/sign-up.dto.js';

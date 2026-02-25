@@ -1,7 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Resolver, Mutation, Args } from '@nestjs/graphql';
+import {
+  Resolver,
+  Mutation,
+  Args,
+  Field,
+  ObjectType,
+  Query,
+} from '@nestjs/graphql';
 
-import { BadRequestException, UnauthorizedException, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  BadRequestException,
+  UnauthorizedException,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 
 import { BackupCodeService } from '../services/backup-code.service.js';
 import { TotpService } from '../services/totp.service.js';
@@ -14,8 +26,37 @@ import {
 import { CookieAuthGuard } from '../../auth/guards/cookie-auth.guard.js';
 import { JsonScalar } from '../../core/scalars/json.scalar.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
+import { PrismaService } from '../../prisma/prisma.service.js';
+import { MfaPreference } from '../models/dtos/reset-verification-result.dto.js';
 import { TotpSetupPayload } from '../models/payloads/mfa.types.js';
-import { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server';
+import {
+  AuthenticationResponseJSON,
+  RegistrationResponseJSON,
+} from '@simplewebauthn/server';
+
+@ObjectType()
+export class WebAuthnDevicePayload {
+  @Field()
+  credentialId!: string;
+
+  @Field({ nullable: true })
+  nickname?: string;
+
+  @Field()
+  deviceType!: string;
+
+  @Field()
+  backedUp!: boolean;
+
+  @Field()
+  createdAt!: Date;
+
+  @Field({ nullable: true })
+  lastUsedAt?: Date;
+
+  @Field({ nullable: true })
+  revokedAt?: Date;
+}
 
 @Resolver()
 @UseGuards(CookieAuthGuard)
@@ -25,22 +66,50 @@ export class MfaMutationResolver {
     private readonly totpService: TotpService,
     private readonly webAuthnService: WebAuthnService,
     private readonly backupCodeService: BackupCodeService,
+    private readonly prisma: PrismaService,
   ) {}
 
-  // @Mutation(() => Boolean)
-  // async setMfaPreference(
-  //   @CurrentUser() currentUser: CurrentUserData,
-  //   @Args('method') method: string,
-  // ): Promise<boolean> {
-  //  const userId = currentUser.id;
+  @Mutation(() => Boolean)
+  async setMfaPreference(
+    @CurrentUser() user: CurrentUserData,
+    @Args('method', { type: () => MfaPreference })
+    method: MfaPreference,
+  ): Promise<boolean> {
+    await this.prisma.authUser.update({
+      where: { id: user.id },
+      data: { mfaPreference: method },
+    });
 
-  //   await this.prisma.authUser.update({
-  //     where: { id: userId },
-  //     data: { mfaPreference: method },
-  //   });
+    return true;
+  }
 
-  //   return true;
-  // }
+  @Query(() => [WebAuthnDevicePayload])
+  async listWebAuthnDevices(@CurrentUser() currentUser: CurrentUserData) {
+    // : Promise<WebAuthnDevicePayload[]>
+    const userId = currentUser.id;
+
+    return this.webAuthnService.listDevices(userId);
+  }
+
+  @Mutation(() => Boolean)
+  async revokeWebAuthnCredential(
+    @CurrentUser() currentUser: CurrentUserData,
+    @Args('credentialId') credentialId: string,
+  ): Promise<boolean> {
+    const userId = currentUser.id;
+
+    if (!credentialId) {
+      throw new BadRequestException('Missing credentialId');
+    }
+
+    const ok = await this.webAuthnService.revokeDevice(userId, credentialId);
+
+    if (!ok) {
+      throw new UnauthorizedException('Device not found or already revoked');
+    }
+
+    return true;
+  }
 
   /* =======================================================
      TOTP
@@ -96,10 +165,6 @@ export class MfaMutationResolver {
   }
 
   /* =======================================================
-     BACKUP CODES
-  ======================================================= */
-
-  /* =======================================================
      WEBAUTHN AUTHENTICATION (Step-up / Login verification)
   ======================================================= */
 
@@ -124,28 +189,21 @@ export class MfaMutationResolver {
       throw new BadRequestException('Invalid WebAuthn response');
     }
 
-    const challenge =
-      await this.webAuthnService.getAuthenticationChallenge(userId);
-    if (!challenge) {
-      // English comment tailored for VS:
-      // Missing challenge usually means it expired or was already consumed.
-      throw new UnauthorizedException('WebAuthn challenge expired');
-    }
-
     const ok = await this.webAuthnService.verifyAuthenticationForUser(
       userId,
       response as AuthenticationResponseJSON,
-      challenge,
     );
 
     if (!ok) {
       throw new UnauthorizedException('WebAuthn verification failed');
     }
 
-    await this.webAuthnService.consumeAuthenticationChallenge(userId);
-
     return true;
   }
+
+  /* =======================================================
+     BACKUP CODES
+  ======================================================= */
 
   @Mutation(() => [String])
   async regenerateBackupCodes(
@@ -154,5 +212,27 @@ export class MfaMutationResolver {
     const userId = currentUser.id;
 
     return this.backupCodeService.generate(userId);
+  }
+
+  /* =====================================================
+   DEVICE RENAME
+===================================================== */
+  @Mutation(() => Boolean)
+  async renameWebAuthnCredential(
+    @CurrentUser() currentUser: CurrentUserData,
+    @Args('credentialId') credentialId: string,
+    @Args('nickname') nickname: string,
+  ): Promise<boolean> {
+    const ok = await this.webAuthnService.renameDevice(
+      currentUser.id,
+      credentialId,
+      nickname,
+    );
+
+    if (!ok) {
+      throw new BadRequestException('Rename failed');
+    }
+
+    return true;
   }
 }

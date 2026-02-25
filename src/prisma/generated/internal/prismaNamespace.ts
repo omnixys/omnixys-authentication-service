@@ -419,6 +419,8 @@ export const ModelName = {
   SecurityQuestion: 'SecurityQuestion',
   PasswordResetToken: 'PasswordResetToken',
   RateLimitBucket: 'RateLimitBucket',
+  KnownDevice: 'KnownDevice',
+  LoginHistory: 'LoginHistory',
 } as const;
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
@@ -447,7 +449,9 @@ export type TypeMap<
       | 'backupCode'
       | 'securityQuestion'
       | 'passwordResetToken'
-      | 'rateLimitBucket';
+      | 'rateLimitBucket'
+      | 'knownDevice'
+      | 'loginHistory';
     txIsolationLevel: TransactionIsolationLevel;
   };
   model: {
@@ -983,6 +987,158 @@ export type TypeMap<
         };
       };
     };
+    KnownDevice: {
+      payload: Prisma.$KnownDevicePayload<ExtArgs>;
+      fields: Prisma.KnownDeviceFieldRefs;
+      operations: {
+        findUnique: {
+          args: Prisma.KnownDeviceFindUniqueArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnownDevicePayload> | null;
+        };
+        findUniqueOrThrow: {
+          args: Prisma.KnownDeviceFindUniqueOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnownDevicePayload>;
+        };
+        findFirst: {
+          args: Prisma.KnownDeviceFindFirstArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnownDevicePayload> | null;
+        };
+        findFirstOrThrow: {
+          args: Prisma.KnownDeviceFindFirstOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnownDevicePayload>;
+        };
+        findMany: {
+          args: Prisma.KnownDeviceFindManyArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnownDevicePayload>[];
+        };
+        create: {
+          args: Prisma.KnownDeviceCreateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnownDevicePayload>;
+        };
+        createMany: {
+          args: Prisma.KnownDeviceCreateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        createManyAndReturn: {
+          args: Prisma.KnownDeviceCreateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnownDevicePayload>[];
+        };
+        delete: {
+          args: Prisma.KnownDeviceDeleteArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnownDevicePayload>;
+        };
+        update: {
+          args: Prisma.KnownDeviceUpdateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnownDevicePayload>;
+        };
+        deleteMany: {
+          args: Prisma.KnownDeviceDeleteManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateMany: {
+          args: Prisma.KnownDeviceUpdateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateManyAndReturn: {
+          args: Prisma.KnownDeviceUpdateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnownDevicePayload>[];
+        };
+        upsert: {
+          args: Prisma.KnownDeviceUpsertArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnownDevicePayload>;
+        };
+        aggregate: {
+          args: Prisma.KnownDeviceAggregateArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKnownDevice>;
+        };
+        groupBy: {
+          args: Prisma.KnownDeviceGroupByArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.KnownDeviceGroupByOutputType>[];
+        };
+        count: {
+          args: Prisma.KnownDeviceCountArgs<ExtArgs>;
+          result:
+            | runtime.Types.Utils.Optional<Prisma.KnownDeviceCountAggregateOutputType>
+            | number;
+        };
+      };
+    };
+    LoginHistory: {
+      payload: Prisma.$LoginHistoryPayload<ExtArgs>;
+      fields: Prisma.LoginHistoryFieldRefs;
+      operations: {
+        findUnique: {
+          args: Prisma.LoginHistoryFindUniqueArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginHistoryPayload> | null;
+        };
+        findUniqueOrThrow: {
+          args: Prisma.LoginHistoryFindUniqueOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginHistoryPayload>;
+        };
+        findFirst: {
+          args: Prisma.LoginHistoryFindFirstArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginHistoryPayload> | null;
+        };
+        findFirstOrThrow: {
+          args: Prisma.LoginHistoryFindFirstOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginHistoryPayload>;
+        };
+        findMany: {
+          args: Prisma.LoginHistoryFindManyArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginHistoryPayload>[];
+        };
+        create: {
+          args: Prisma.LoginHistoryCreateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginHistoryPayload>;
+        };
+        createMany: {
+          args: Prisma.LoginHistoryCreateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        createManyAndReturn: {
+          args: Prisma.LoginHistoryCreateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginHistoryPayload>[];
+        };
+        delete: {
+          args: Prisma.LoginHistoryDeleteArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginHistoryPayload>;
+        };
+        update: {
+          args: Prisma.LoginHistoryUpdateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginHistoryPayload>;
+        };
+        deleteMany: {
+          args: Prisma.LoginHistoryDeleteManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateMany: {
+          args: Prisma.LoginHistoryUpdateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateManyAndReturn: {
+          args: Prisma.LoginHistoryUpdateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginHistoryPayload>[];
+        };
+        upsert: {
+          args: Prisma.LoginHistoryUpsertArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LoginHistoryPayload>;
+        };
+        aggregate: {
+          args: Prisma.LoginHistoryAggregateArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLoginHistory>;
+        };
+        groupBy: {
+          args: Prisma.LoginHistoryGroupByArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.LoginHistoryGroupByOutputType>[];
+        };
+        count: {
+          args: Prisma.LoginHistoryCountArgs<ExtArgs>;
+          result:
+            | runtime.Types.Utils.Optional<Prisma.LoginHistoryCountAggregateOutputType>
+            | number;
+        };
+      };
+    };
   };
 } & {
   other: {
@@ -1053,6 +1209,10 @@ export const WebAuthnCredentialScalarFieldEnum = {
   deviceType: 'deviceType',
   backedUp: 'backedUp',
   transports: 'transports',
+  nickname: 'nickname',
+  createdAt: 'createdAt',
+  lastUsedAt: 'lastUsedAt',
+  revokedAt: 'revokedAt',
   userId: 'userId',
 } as const;
 
@@ -1105,6 +1265,29 @@ export const RateLimitBucketScalarFieldEnum = {
 
 export type RateLimitBucketScalarFieldEnum =
   (typeof RateLimitBucketScalarFieldEnum)[keyof typeof RateLimitBucketScalarFieldEnum];
+
+export const KnownDeviceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  fingerprint: 'fingerprint',
+  firstSeen: 'firstSeen',
+  lastSeen: 'lastSeen',
+} as const;
+
+export type KnownDeviceScalarFieldEnum =
+  (typeof KnownDeviceScalarFieldEnum)[keyof typeof KnownDeviceScalarFieldEnum];
+
+export const LoginHistoryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  ip: 'ip',
+  country: 'country',
+  city: 'city',
+  createdAt: 'createdAt',
+} as const;
+
+export type LoginHistoryScalarFieldEnum =
+  (typeof LoginHistoryScalarFieldEnum)[keyof typeof LoginHistoryScalarFieldEnum];
 
 export const SortOrder = {
   asc: 'asc',
@@ -1341,6 +1524,8 @@ export type GlobalOmitConfig = {
   securityQuestion?: Prisma.SecurityQuestionOmit;
   passwordResetToken?: Prisma.PasswordResetTokenOmit;
   rateLimitBucket?: Prisma.RateLimitBucketOmit;
+  knownDevice?: Prisma.KnownDeviceOmit;
+  loginHistory?: Prisma.LoginHistoryOmit;
 };
 
 /* Types for Logging */
