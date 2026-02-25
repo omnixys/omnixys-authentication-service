@@ -2,6 +2,13 @@
 
 All notable changes in this project will be documented in this file.
 
+## <small>1.0.1 (2026-02-25)</small>
+
+- fix(ci): update CI ([ac9375da285ed4719572798672d28cdb51757327](https://github.com/omnixys/omnixys-authentication-service/commit/ac9375da285ed4719572798672d28cdb51757327))
+- ci(deploy): fix deploy.yml ([797850d4504801d5836f31afd06f74ad615df4fb](https://github.com/omnixys/omnixys-authentication-service/commit/797850d4504801d5836f31afd06f74ad615df4fb))
+- ci(deploy): test deploy.yml ([7f1a15878f85418bc5d81e2fe8f99a12b3a383f7](https://github.com/omnixys/omnixys-authentication-service/commit/7f1a15878f85418bc5d81e2fe8f99a12b3a383f7))
+- chore(husky): update husky ([15d89f9816f20fcdefad95cb179becc1a1b5d745](https://github.com/omnixys/omnixys-authentication-service/commit/15d89f9816f20fcdefad95cb179becc1a1b5d745))
+
 ## 1.0.0 (2026-02-25)
 
 - feat(auth): add admin-secured meByToken query and improve user-role handling ([a4b0b6ce4394fa55137629e947bc83e4de19923e](https://github.com/omnixys/omnixys-authentication-service/commit/a4b0b6ce4394fa55137629e947bc83e4de19923e))
