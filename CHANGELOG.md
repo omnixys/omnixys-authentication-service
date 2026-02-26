@@ -2,6 +2,10 @@
 
 All notable changes in this project will be documented in this file.
 
+## <small>1.0.2 (2026-02-26)</small>
+
+- fix(release-ci): fix Release CI Job ([e1b2c43b2708250b0915402e489cce7aa8743929](https://github.com/omnixys/omnixys-authentication-service/commit/e1b2c43b2708250b0915402e489cce7aa8743929))
+
 ## <small>1.0.1 (2026-02-25)</small>
 
 - fix(ci): update CI ([ac9375da285ed4719572798672d28cdb51757327](https://github.com/omnixys/omnixys-authentication-service/commit/ac9375da285ed4719572798672d28cdb51757327))
