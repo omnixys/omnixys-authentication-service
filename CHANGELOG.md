@@ -2,6 +2,11 @@
 
 All notable changes in this project will be documented in this file.
 
+## <small>1.0.3 (2026-02-26)</small>
+
+- Merge branch 'main' of https://github.com/omnixys/omnixys-authentication-service ([74e5a281d052de0015b350f1a82bdb40513d269c](https://github.com/omnixys/omnixys-authentication-service/commit/74e5a281d052de0015b350f1a82bdb40513d269c))
+- fix(release-ci): add @semantic-release/npm ([4e6dcdea40e53f6dfa932a2764b9fd9114033bc2](https://github.com/omnixys/omnixys-authentication-service/commit/4e6dcdea40e53f6dfa932a2764b9fd9114033bc2))
+
 ## <small>1.0.2 (2026-02-26)</small>
 
 - fix(release-ci): fix Release CI Job ([e1b2c43b2708250b0915402e489cce7aa8743929](https://github.com/omnixys/omnixys-authentication-service/commit/e1b2c43b2708250b0915402e489cce7aa8743929))
