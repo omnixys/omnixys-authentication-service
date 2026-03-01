@@ -1,7 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { paths } from '../../config/keycloak.js';
 import { KafkaProducerService } from '../../kafka/kafka-producer.service.js';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
+import { MfaPreference } from '../../prisma/generated/enums.js';
+import { PrismaService } from '../../prisma/prisma.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
+import { ValkeyService } from '../../valkey/valkey.service.js';
 import { KCSignUpDTO } from '../models/dtos/kc-sign-up.dto.js';
 import { RealmRole } from '../models/enums/role.enum.js';
 import { TokenPayload } from '../models/payloads/token.payload.js';
@@ -10,6 +17,7 @@ import { AuthWriteService } from './authentication-write.service.js';
 import { AuthenticateBaseService } from './keycloak-base.service.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class RegisterService extends AuthenticateBaseService {
@@ -20,11 +28,36 @@ export class RegisterService extends AuthenticateBaseService {
     private readonly kafka: KafkaProducerService,
     private authService: AuthWriteService,
     private adminService: AdminWriteService,
+    private prisma: PrismaService,
+    private readonly valkey: ValkeyService,
   ) {
     super(logger, trace, http);
   }
 
-  async signUp(input: KCSignUpDTO): Promise<TokenPayload> {
+  async verifySignup(token: string) {
+    const key = `verification:signup:auth:${token}`;
+
+    const raw = await this.valkey.client.get(key);
+    if (!raw) {
+      return { status: 'ALREADY_CONSUMED_OR_EXPIRED' };
+    }
+
+    const input = JSON.parse(raw) as KCSignUpDTO;
+
+    try {
+      // Call UserService
+      await this.signUp(input, token);
+
+      // Delete key
+      await this.valkey.client.del(key);
+      return { status: 'OK' };
+    } catch (e: any) {
+      this.logger.debug(e);
+      return { status: 'ALREADY_REGISTERED' };
+    }
+  }
+
+  async signUp(input: KCSignUpDTO, valkeyToken?: string): Promise<TokenPayload> {
     return this.withSpan('authentication.signUp', async (span) => {
       void this.logger.debug('signUp: input=%o', input);
 
@@ -59,13 +92,52 @@ export class RegisterService extends AuthenticateBaseService {
 
       const sc = span.spanContext();
 
-      void this.kafka.addUserId({ newId: userId, oldId: input.id }, 'authentication.userSignUp', {
-        traceId: sc.traceId,
-        spanId: sc.spanId,
-      });
+      return this.prisma.$transaction(async (tx) => {
+        /* ------------------------------------------------------------
+         * 1. User (technical root)
+         * ------------------------------------------------------------ */
+        const user = await tx.authUser.create({
+          data: {
+            id: userId,
+            email: input.email,
+            mfaPreference: MfaPreference.SECURITY_QUESTIONS,
+          },
+        });
 
-      const token = await this.authService.login({ username, password });
-      return token;
+        /* ------------------------------------------------------------
+         * 2. SecurityQuestions (optional)
+         * ------------------------------------------------------------ */
+        if (input.securityQuestions?.length) {
+          const hashedQuestions = await Promise.all(
+            input.securityQuestions.map(async (q) => ({
+              userId: user.id,
+              question: q.question,
+              answerHash: await argon2.hash(q.answer, {
+                type: argon2.argon2id,
+                memoryCost: 2 ** 16,
+                timeCost: 3,
+                parallelism: 1,
+              }),
+            })),
+          );
+
+          await tx.securityQuestion.createMany({
+            data: hashedQuestions,
+          });
+        }
+
+        void this.kafka.addUserId(
+          { newId: userId, oldId: input.id, token: valkeyToken },
+          'authentication.userSignUp',
+          {
+            traceId: sc.traceId,
+            spanId: sc.spanId,
+          },
+        );
+
+        const token = await this.authService.login({ username, password });
+        return token;
+      });
     });
   }
 }

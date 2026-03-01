@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { addHours, addMinutes, isAfter } from 'date-fns';

@@ -26,6 +26,7 @@ import { AdminMutationResolver } from './resolvers/admin-mutation.resolver.js';
 import { AuthMutationResolver } from './resolvers/authentication-mutation.resolver.js';
 import { AuthQueryResolver } from './resolvers/authentication-query.resolver.js';
 import { MfaMutationResolver } from './resolvers/mfa-mutation.resolver.js';
+import { RegisterResolver } from './resolvers/register.resolver.js';
 import { ResetMutationResolver } from './resolvers/reset-mutation.resolver.js';
 import { UserMutationResolver } from './resolvers/user-mutation.resolver.js';
 import { AdminWriteService } from './services/admin-write.service.js';
@@ -67,6 +68,7 @@ import { Module } from '@nestjs/common';
     PendingContactService,
     MfaMutationResolver,
     ResetMutationResolver,
+    RegisterResolver,
 
     AuthenticateReadService,
     UserWriteService,

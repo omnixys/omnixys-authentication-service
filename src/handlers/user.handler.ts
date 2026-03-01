@@ -25,7 +25,7 @@ export class UserHandler implements KafkaEventHandler {
     this.logger = this.loggerService.getLogger(UserHandler.name);
   }
 
-  @KafkaEvent(...getTopics('create', 'createUser'))
+  @KafkaEvent(...getTopics('create'))
   async handle(
     topic: string,
     data: { payload: KCSignUpDTO },
@@ -39,22 +39,12 @@ export class UserHandler implements KafkaEventHandler {
         await this.create(data);
         break;
 
-      case getTopic('createUser'):
-        await this.createUser(data);
-        break;
-
       default:
         this.logger.warn(`Unknown authentication topic: ${topic}`);
     }
   }
 
   private async create(data: { payload: KCSignUpDTO }) {
-    const input = data.payload;
-
-    await this.userService.signUp(input);
-  }
-
-  private async createUser(data: { payload: KCSignUpDTO }) {
     const input = data.payload;
 
     await this.userService.signUp(input);

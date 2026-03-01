@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
@@ -82,7 +80,7 @@ export class ResetService extends AuthenticateBaseService {
         },
       });
 
-      console.log({ rawToken });
+      console.debug({ rawToken });
 
       // await this.mailService.sendResetEmail(user.email, rawToken);
     });
@@ -204,7 +202,7 @@ export class ResetService extends AuthenticateBaseService {
         if (e instanceof BadRequestException) {
           throw e;
         }
-        throw new UnauthorizedException('Step-up verification failed: ' + (e as Error).message);
+        throw new UnauthorizedException(`Step-up verification failed: ${(e as Error).message}`);
       }
     });
   }

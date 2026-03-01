@@ -18,6 +18,7 @@
 import { paths } from '../../config/keycloak.js';
 import { KafkaProducerService } from '../../kafka/kafka-producer.service.js';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
+import { PrismaService } from '../../prisma/prisma.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
 import { KeycloakUserPatch } from '../models/dtos/kc-user.dto.js';
 import { RealmRole } from '../models/enums/role.enum.js';
@@ -46,6 +47,7 @@ export class AdminWriteService extends AuthenticateBaseService {
     private readonly readService: AuthenticateReadService,
     http: HttpService,
     private readonly kafka: KafkaProducerService,
+    private readonly prisma: PrismaService,
   ) {
     super(logger, trace, http);
   }
@@ -94,6 +96,8 @@ export class AdminWriteService extends AuthenticateBaseService {
   async deleteUser(id: string): Promise<void> {
     return this.withSpan('authentication.signUp', async (span) => {
       await this.kcRequest('delete', `${paths.users}/${encodeURIComponent(id)}`);
+
+      await this.prisma.authUser.delete({ where: { id } });
 
       const sc = span.spanContext();
 

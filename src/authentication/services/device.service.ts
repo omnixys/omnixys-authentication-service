@@ -6,7 +6,7 @@
 import { Injectable } from '@nestjs/common';
 import { createHmac } from 'crypto';
 
-export type DeviceFingerprintInput = {
+export interface DeviceFingerprintInput {
   ip?: string;
   userAgent?: string;
   acceptLanguage?: string;
@@ -21,12 +21,12 @@ export type DeviceFingerprintInput = {
   secChUa?: string;
   secChUaPlatform?: string;
   secChUaMobile?: string;
-};
+}
 
-export type DeviceFingerprintResult = {
+export interface DeviceFingerprintResult {
   deviceId: string; // stable derived hash
   strength: 'WEAK' | 'MEDIUM' | 'STRONG';
-};
+}
 
 @Injectable()
 export class DeviceService {
@@ -39,7 +39,7 @@ export class DeviceService {
     if (!this.hmacKey) {
       // Do NOT throw in dev by default, but warn: you'll get weak fingerprints.
       // In production, you should enforce this.
-      // eslint-disable-next-line no-console
+
       console.warn(
         '[DeviceService] DEVICE_FINGERPRINT_KEY is missing. Device fingerprints will be weaker.',
       );

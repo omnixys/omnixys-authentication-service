@@ -1,3 +1,5 @@
+import type { AddSecurityQuestionInput } from './security-question.dto.js';
+
 /**
  * Input type for creating a new user.
  * Corresponds to fields in the User entity.
@@ -9,9 +11,11 @@ export interface KCSignUpDTO {
   lastName: string;
   email: string;
   password: string;
+  securityQuestions?: AddSecurityQuestionInput[];
 }
 
 export interface UserIdDTO {
   newId: string;
   oldId: string;
+  token?: string;
 }

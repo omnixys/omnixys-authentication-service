@@ -48,7 +48,6 @@ export const KafkaTopics = {
     setAttribute: `${SERVICE}.set-attribute.user`,
     signUp: `${SERVICE}.signUp.user`,
     createGuest: `invitation.createGuest.${SERVICE}`,
-    createUser: `${SERVICE}.create2.user`,
   },
   logstream: {
     log: `logstream.log.${SERVICE}`,
