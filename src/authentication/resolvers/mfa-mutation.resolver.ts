@@ -178,7 +178,7 @@ export class MfaMutationResolver {
     return this.webAuthnService.generateAuthOptions(userId);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, { name: 'verifyWebAuthnAuthentication2' })
   async verifyWebAuthnAuthentication(
     @CurrentUser() currentUser: CurrentUserData,
     @Args('response', { type: () => JsonScalar }) response: unknown,

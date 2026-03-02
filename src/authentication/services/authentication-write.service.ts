@@ -278,7 +278,7 @@ export class AuthWriteService extends AuthenticateBaseService {
       };
 
       await this.valkey.client.set(ValkeyKey.magicLinkToken(token), JSON.stringify(payload), {
-        PX: 15 * 60,
+        PX: 15 * 60 * 1000,
       });
 
       const sc = span.spanContext();
@@ -302,7 +302,6 @@ export class AuthWriteService extends AuthenticateBaseService {
 
     // Atomic read + delete
     const raw = await this.valkey.client.get(ValkeyKey.magicLinkToken(token));
-
     if (!raw) {
       throw new UnauthorizedException('Invalid or expired magic link');
     }

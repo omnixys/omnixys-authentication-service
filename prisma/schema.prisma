@@ -60,8 +60,8 @@ model TotpCredential {
   encryptedSecret String
   enabled         Boolean @default(false)
 
-  userId String   @unique
-  user   AuthUser @relation(fields: [userId], references: [id])
+  userId String
+  user   AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("totp_credential")
   @@schema("authentication")

@@ -156,7 +156,7 @@ export class WebAuthnService {
     }
 
     const expectedChallenge = await this.valkey.client.get(
-      ValkeyKey.webauthnGlobalAuthChallenge(response.response.clientDataJSON),
+      ValkeyKey.webauthnGlobalAuthChallenge(challenge),
     );
 
     if (!expectedChallenge) {
