@@ -168,7 +168,7 @@ export class MfaMutationResolver {
      WEBAUTHN AUTHENTICATION (Step-up / Login verification)
   ======================================================= */
 
-  @Mutation(() => JsonScalar)
+  @Mutation(() => JsonScalar, { name: 'generateWebAuthnAuthOptions2' })
   async generateWebAuthnAuthOptions(
     @CurrentUser() currentUser: CurrentUserData,
   ) {

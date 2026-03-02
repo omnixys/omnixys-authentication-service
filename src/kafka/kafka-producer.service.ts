@@ -101,6 +101,51 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  async createProviderUser(
+    payload: { userId: string; email?: string; username?: string },
+    service: string,
+    trace?: TraceContext,
+  ): Promise<void> {
+    const envelope: KafkaEnvelope<typeof payload> = {
+      event: 'createProviderUser',
+      service,
+      version: 'v1',
+      trace,
+      payload,
+    };
+    await this.send(KafkaTopics.user.createProviderUser, envelope, trace);
+  }
+
+  async sendRequestReset(
+    payload: { rawToken: string; email: string },
+    service: string,
+    trace?: TraceContext,
+  ): Promise<void> {
+    const envelope: KafkaEnvelope<typeof payload> = {
+      event: 'addUserId',
+      service,
+      version: 'v1',
+      trace,
+      payload,
+    };
+    await this.send(KafkaTopics.notification.sendRequestReset, envelope, trace);
+  }
+
+  async sendMagicLink(
+    payload: { token: string; email: string },
+    service: string,
+    trace?: TraceContext,
+  ): Promise<void> {
+    const envelope: KafkaEnvelope<typeof payload> = {
+      event: 'sendMagicLink',
+      service,
+      version: 'v1',
+      trace,
+      payload,
+    };
+    await this.send(KafkaTopics.notification.sendMagigLink, envelope, trace);
+  }
+
   async addUserId(payload: UserIdDTO, service: string, trace?: TraceContext): Promise<void> {
     const envelope: KafkaEnvelope<typeof payload> = {
       event: 'addUserId',

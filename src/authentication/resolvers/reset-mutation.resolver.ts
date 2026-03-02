@@ -1,11 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 
 import { JsonScalar } from '../../core/scalars/json.scalar.js';
+import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { MfaPreference } from '../models/dtos/reset-verification-result.dto.js';
 import { ResetService } from '../services/resest.service.js';
 import { BadRequestException } from '@nestjs/common';
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { AuthenticationResponseJSON } from '@simplewebauthn/server';
 
@@ -80,7 +85,14 @@ export class CompleteResetInputGql {
 
 @Resolver()
 export class ResetMutationResolver {
-  constructor(private readonly resetService: ResetService) {}
+  private readonly logger;
+
+  constructor(
+    private readonly resetService: ResetService,
+    private readonly loggerService: LoggerPlusService,
+  ) {
+    this.logger = this.loggerService.getLogger(this.constructor.name);
+  }
 
   /**
    * Requests a password reset email.
@@ -91,16 +103,38 @@ export class ResetMutationResolver {
   @Mutation(() => Boolean)
   async requestPasswordReset(
     @Args('email', { type: () => String }) email: string,
+    @Context() ctx: any,
   ): Promise<boolean> {
-    // English comment tailored for VS:
-    // Always return true to avoid user enumeration.
-    await this.resetService.requestReset(email, {
-      ip: '0.0.0.0',
-      userAgent: 'graphql',
-    } as any);
+    // Always return true to prevent user enumeration attacks.
+
+    const ip =
+      ctx.req?.headers['x-forwarded-for']?.split(',')[0]?.trim() ??
+      ctx.req?.socket?.remoteAddress ??
+      'unknown';
+
+    const userAgent = ctx.req?.headers['user-agent'] ?? 'unknown';
+
+    // const locale =
+    //   ctx.req?.headers['accept-language']?.split(',')[0] ?? 'de-DE';
+
+    try {
+      await this.resetService.requestReset(email, {
+        ip,
+        userAgent,
+        // locale,
+      });
+    } catch (error) {
+      // Intentionally swallow errors to avoid leaking account existence.
+      // Log internally for monitoring & auditing.
+      this.logger.warn('Password reset request failed silently', {
+        email,
+        ip,
+        error: error instanceof Error ? error.message : 'unknown',
+      });
+    }
+
     return true;
   }
-
   /**
    * Verifies the email token.
    * Returns whether step-up is required and which MFA method is expected.

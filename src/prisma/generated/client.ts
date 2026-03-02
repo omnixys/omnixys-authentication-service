@@ -89,3 +89,8 @@ export type KnownDevice = Prisma.KnownDeviceModel;
  *
  */
 export type LoginHistory = Prisma.LoginHistoryModel;
+/**
+ * Model OAuthAccount
+ *
+ */
+export type OAuthAccount = Prisma.OAuthAccountModel;

@@ -49,6 +49,7 @@ model AuthUser {
   resetTokens       PasswordResetToken[]
   knownDevices      KnownDevice[]
   loginHistories    LoginHistory[]
+  oauthAccounts     OAuthAccount[]
 
   @@map("auth_user")
   @@schema("authentication")
@@ -169,5 +170,16 @@ model LoginHistory {
   user AuthUser @relation(fields: [userId], references: [id])
 
   @@index([userId])
+  @@schema("authentication")
+}
+
+model OAuthAccount {
+  id         String   @id @default(uuid())
+  provider   String
+  providerId String
+  userId     String
+  user       AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId])
   @@schema("authentication")
 }

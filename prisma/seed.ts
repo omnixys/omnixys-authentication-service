@@ -7,10 +7,10 @@ import 'dotenv/config';
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
-  const memoryCost = Number(process.env.ARGON2_MEMORY ?? 65536);
-  const timeCost = Number(process.env.ARGON2_TIME ?? 3);
-  const parallelism = Number(process.env.ARGON2_PARALLELISM ?? 1);
-  const pepper = process.env.ARGON2_PEPPER ?? '';
+const memoryCost = Number(process.env.ARGON2_MEMORY ?? 65536);
+const timeCost = Number(process.env.ARGON2_TIME ?? 3);
+const parallelism = Number(process.env.ARGON2_PARALLELISM ?? 1);
+const pepper = process.env.ARGON2_PEPPER ?? '';
 /**
  * Generates random backup codes and hashes them.
  */
@@ -59,11 +59,11 @@ async function main() {
   ===================================================== */
 
   const caleb = await prisma.authUser.upsert({
-    where: { email: 'caleb-script@outlook.de' },
+    where: { email: 'caleb-script2@outlook.de' },
     update: {},
     create: {
       id: '694d2e8e-0932-4c8f-a1c4-e300dc235be4',
-      email: 'caleb-script@outlook.de',
+      email: 'caleb-script2@outlook.de',
       mfaPreference: MfaPreference.TOTP,
     },
   });

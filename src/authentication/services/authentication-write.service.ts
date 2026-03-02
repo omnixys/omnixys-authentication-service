@@ -18,9 +18,12 @@
  */
 
 import { keycloakConfig, paths } from '../../config/keycloak.js';
+import { KafkaProducerService } from '../../kafka/kafka-producer.service.js';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
+import { ValkeyKey } from '../../valkey/valkey.keys.js';
+import { ValkeyService } from '../../valkey/valkey.service.js';
 import type { KeycloakToken } from '../models/dtos/kc-token.dto.js';
 import { AuthContext } from '../models/entitys/login-context.js';
 import type { LogInInput } from '../models/inputs/log-in.input.js';
@@ -29,8 +32,10 @@ import type { TokenPayload } from '../models/payloads/token.payload.js';
 import { DeviceService } from './device.service.js';
 import { AuthenticateBaseService } from './keycloak-base.service.js';
 import { RiskEngineService } from './risk-engine.service.js';
+import { TotpService } from './totp.service.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { randomBytes } from 'crypto';
 
 /**
  * @file Mutierende Operationen gegen Keycloak (Authentication-Flows & User-Mutationen).
@@ -48,6 +53,9 @@ export class AuthWriteService extends AuthenticateBaseService {
     private readonly risk: RiskEngineService,
     private readonly deviceService: DeviceService,
     private readonly prisma: PrismaService,
+    private readonly valkey: ValkeyService,
+    private readonly kafka: KafkaProducerService,
+    private readonly totpService: TotpService,
   ) {
     super(logger, trace, http);
   }
@@ -144,7 +152,9 @@ export class AuthWriteService extends AuthenticateBaseService {
       grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
       client_id: keycloakConfig.clientId,
       subject_token: serviceToken.access_token,
+      subject_token_type: 'urn:ietf:params:oauth:token-type:access_token',
       requested_subject: userId,
+      scope: 'openid profile email',
     });
 
     const exchanged = await this.kcRequest<KeycloakToken>('post', paths.accessToken, {
@@ -216,5 +226,98 @@ export class AuthWriteService extends AuthenticateBaseService {
     });
 
     return token;
+  }
+
+  async loginWithTotp(username: string, code: string): Promise<TokenPayload> {
+    return this.withSpan('authentication.login.totp', async () => {
+      if (!username || !code) {
+        throw new UnauthorizedException('Missing credentials');
+      }
+
+      const user = await this.prisma.authUser.findUnique({
+        where: { email: username },
+      });
+
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
+      const valid = await this.totpService.verifyForUser(user.id, code);
+
+      if (!valid) {
+        throw new UnauthorizedException('Invalid TOTP code');
+      }
+
+      // create session via token exchange
+      return this.createPasswordlessSession(user.id);
+    });
+  }
+
+  async requestMagicLink(
+    email: string,
+    ctx?: { ip?: string; userAgent?: string },
+  ): Promise<boolean> {
+    return this.withSpan('authentication.login.totp', async (span) => {
+      const user = await this.prisma.authUser.findUnique({
+        where: { email },
+      });
+
+      // Prevent user enumeration
+      if (!user) {
+        return true;
+      }
+
+      // 32 bytes → 64 hex chars
+      const token = randomBytes(32).toString('hex');
+
+      const payload = {
+        userId: user.id,
+        email,
+        createdAt: new Date().toISOString(),
+        ip: ctx?.ip,
+      };
+
+      await this.valkey.client.set(ValkeyKey.magicLinkToken(token), JSON.stringify(payload), {
+        PX: 15 * 60,
+      });
+
+      const sc = span.spanContext();
+      void this.kafka.sendMagicLink(
+        {
+          email: user.email,
+          token,
+        },
+        'authentication.requestMagicLink',
+        { traceId: sc.traceId, spanId: sc.spanId },
+      );
+
+      return true;
+    });
+  }
+
+  async loginWithMagicLink(token: string): Promise<TokenPayload> {
+    if (!token || token.length < 32) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    // Atomic read + delete
+    const raw = await this.valkey.client.get(ValkeyKey.magicLinkToken(token));
+
+    if (!raw) {
+      throw new UnauthorizedException('Invalid or expired magic link');
+    }
+
+    const payload = JSON.parse(raw) as {
+      userId: string;
+      email: string;
+      ip?: string;
+    };
+
+    await this.valkey.client.del(ValkeyKey.magicLinkToken(token));
+
+    // Optional: additional risk evaluation
+    // await this.risk.evaluate({ ... });
+
+    return this.createPasswordlessSession(payload.userId);
   }
 }

@@ -31,9 +31,12 @@ export const KafkaTopics = {
     updateUser: `user.update.${SERVICE}`,
     deleteUser: `user.delete.${SERVICE}`,
     addId: `user.addId.${SERVICE}`,
+    createProviderUser: `user.addProviderUser.${SERVICE}`,
   },
   notification: {
     sendCredentials: `notification.notify.${SERVICE}`,
+    sendRequestReset: `notification.requestReset.${SERVICE}`,
+    sendMagigLink: `notification.sendMagigLink.${SERVICE}`,
   },
   event: {
     addUserRole: `event.addRole.${SERVICE}`,

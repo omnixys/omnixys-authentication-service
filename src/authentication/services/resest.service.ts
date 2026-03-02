@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 
+import { KafkaProducerService } from '../../kafka/kafka-producer.service.js';
 import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { TraceContextProvider } from '../../trace/trace-context.provider.js';
@@ -40,12 +41,13 @@ export class ResetService extends AuthenticateBaseService {
     private readonly webAuthnService: WebAuthnService,
     private readonly backupCodeService: BackupCodeService,
     private readonly securityQuestionService: SecurityQuestionService,
+    private readonly kafkaProducer: KafkaProducerService,
   ) {
     super(logger, trace, http);
   }
 
   async requestReset(email: string, context: RequestMeta): Promise<void> {
-    return this.withSpan('reset.request', async () => {
+    return this.withSpan('reset.request', async (span) => {
       // 1) IP throttling (optional but recommended)
       await this.lockout.checkIpRateLimit(context.ip);
 
@@ -82,7 +84,16 @@ export class ResetService extends AuthenticateBaseService {
 
       console.debug({ rawToken });
 
-      // await this.mailService.sendResetEmail(user.email, rawToken);
+      const sc = span.spanContext();
+
+      void this.kafkaProducer.sendRequestReset(
+        { rawToken, email: user.email },
+        'resendService.requestReset',
+        {
+          traceId: sc.traceId,
+          spanId: sc.spanId,
+        },
+      );
     });
   }
 

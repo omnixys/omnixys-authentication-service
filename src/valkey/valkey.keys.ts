@@ -5,4 +5,7 @@ export const ValkeyKey = {
   rsvpRateLimit: (guestId: string) => `rsvp:limit:${guestId}`,
   webauthnRegChallenge: (userId: string) => `webauthn:reg:${userId}`,
   webauthnAuthChallenge: (userId: string) => `webauthn:auth:${userId}`,
+  magicLinkToken: (token: string) => `auth:magic:${token}`,
+  webauthnGlobalAuthChallenge: (challenge: string) =>
+    `webauthn:auth:${challenge}`,
 } as const;

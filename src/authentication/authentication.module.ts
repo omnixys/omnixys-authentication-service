@@ -22,6 +22,7 @@ import { LoggerModule } from '../logger/logger.module.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { TraceModule } from '../trace/trace.module.js';
 import { ValkeyModule } from '../valkey/valkey.module.js';
+import { OAuthController } from './controllers/o-auth.controller.js';
 import { AdminMutationResolver } from './resolvers/admin-mutation.resolver.js';
 import { AuthMutationResolver } from './resolvers/authentication-mutation.resolver.js';
 import { AuthQueryResolver } from './resolvers/authentication-query.resolver.js';
@@ -39,6 +40,7 @@ import { GeoIpService } from './services/geoip.service.js';
 import { HmacService } from './services/hmac.service.js';
 import { LockoutService } from './services/lockout.service.js';
 import { MailService } from './services/mail.service.js';
+import { OAuthService } from './services/o-auth.service.js';
 import { PendingContactService } from './services/pending-contact.service.js';
 import { AuthenticateReadService } from './services/read.service.js';
 import { RegisterService } from './services/register.service.js';
@@ -60,6 +62,7 @@ import { Module } from '@nestjs/common';
     ValkeyModule,
     PrismaModule,
   ],
+  controllers: [OAuthController],
   providers: [
     AuthQueryResolver,
     AuthMutationResolver,
@@ -88,6 +91,7 @@ import { Module } from '@nestjs/common';
     RiskEngineService,
     GeoIpService,
     DeviceService,
+    OAuthService,
   ],
   exports: [
     AuthenticateReadService,

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -118,6 +120,87 @@ export class WebAuthnService {
     }
 
     return credential.userId;
+  }
+
+  async generateDiscoverableAuthOptions(): Promise<PublicKeyCredentialRequestOptionsJSON> {
+    const options = await generateAuthenticationOptions({
+      rpID: process.env.WEBAUTHN_RP_ID!,
+      userVerification: 'required',
+      // 🚀 no allowCredentials → discoverable credentials
+    });
+
+    // Challenge global speichern
+    await this.valkey.client.set(
+      ValkeyKey.webauthnGlobalAuthChallenge(options.challenge),
+      options.challenge,
+      { PX: 5 * 60 * 1000 },
+    );
+
+    return options;
+  }
+
+  async verifyDiscoverableAuthentication(
+    response: AuthenticationResponseJSON,
+  ): Promise<string | null> {
+    if (!response?.id) {
+      return null;
+    }
+
+    const clientData = JSON.parse(
+      Buffer.from(response.response.clientDataJSON, 'base64url').toString(),
+    );
+
+    const challenge = clientData.challenge;
+    if (!challenge) {
+      return null;
+    }
+
+    const expectedChallenge = await this.valkey.client.get(
+      ValkeyKey.webauthnGlobalAuthChallenge(response.response.clientDataJSON),
+    );
+
+    if (!expectedChallenge) {
+      return null;
+    }
+
+    // Besser: Challenge separat speichern – siehe unten
+
+    const credentialRecord = await this.prisma.webAuthnCredential.findUnique({
+      where: { credentialId: response.id },
+      include: { user: true },
+    });
+
+    if (!credentialRecord || credentialRecord.revokedAt) {
+      return null;
+    }
+
+    const verification = await verifyAuthenticationResponse({
+      response,
+      expectedChallenge,
+      expectedOrigin: process.env.WEBAUTHN_ORIGIN!,
+      expectedRPID: process.env.WEBAUTHN_RP_ID!,
+      credential: {
+        id: credentialRecord.credentialId,
+        publicKey: new Uint8Array(Buffer.from(credentialRecord.publicKey, 'base64url')),
+        counter: credentialRecord.counter,
+      },
+    });
+
+    if (!verification.verified) {
+      return null;
+    }
+
+    await this.prisma.webAuthnCredential.update({
+      where: { id: credentialRecord.id },
+      data: {
+        counter: verification.authenticationInfo.newCounter,
+        lastUsedAt: new Date(),
+      },
+    });
+
+    await this.valkey.client.del(ValkeyKey.webauthnGlobalAuthChallenge(challenge));
+
+    return credentialRecord.userId;
   }
 
   /* =======================================================

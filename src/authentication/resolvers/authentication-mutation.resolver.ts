@@ -27,6 +27,7 @@ import { LoggerPlusService } from '../../logger/logger-plus.service.js';
 import { ResponseTimeInterceptor } from '../../logger/response-time.interceptor.js';
 import { KeycloakTokenPayload } from '../models/dtos/kc-token.dto.js';
 import { LogInInput } from '../models/inputs/log-in.input.js';
+import { LoginTotpInput } from '../models/inputs/login-totp.input.js';
 import { SuccessPayload } from '../models/payloads/success.payload.js';
 import { TokenPayload } from '../models/payloads/token.payload.js';
 import { AuthWriteService } from '../services/authentication-write.service.js';
@@ -317,6 +318,11 @@ export class AuthMutationResolver {
     return this.webAuthnService.generatePasswordlessOptions(email);
   }
 
+  @Mutation(() => JsonScalar)
+  async generateWebAuthnAuthOptions() {
+    return this.webAuthnService.generateDiscoverableAuthOptions();
+  }
+
   /* =====================================================
      STEP 2 – Verify + Create Session
   ===================================================== */
@@ -355,5 +361,106 @@ export class AuthMutationResolver {
     );
 
     return token;
+  }
+
+  @Mutation(() => TokenPayload)
+  async verifyWebAuthnAuthentication(
+    @Args('response', { type: () => JsonScalar }) response: unknown,
+    @Context() ctx: GqlCtx,
+  ): Promise<TokenPayload> {
+    if (!response || typeof response !== 'object') {
+      throw new BadRequestException('Invalid WebAuthn response');
+    }
+
+    const userId = await this.webAuthnService.verifyDiscoverableAuthentication(
+      response as AuthenticationResponseJSON,
+    );
+
+    if (!userId) {
+      throw new UnauthorizedException('Authentication failed');
+    }
+
+    const token = await this.authService.createPasswordlessSession(userId);
+
+    setCookieSafe(
+      ctx.res,
+      'access_token',
+      token.accessToken,
+      cookieOpts(token.expiresIn * 1000),
+    );
+    setCookieSafe(
+      ctx.res,
+      'refresh_token',
+      token.refreshToken,
+      cookieOpts(token.refreshExpiresIn * 1000),
+    );
+
+    return token;
+  }
+
+  @Mutation(() => TokenPayload)
+  async loginTotp(
+    @Args('input') input: LoginTotpInput,
+    @Context() ctx: GqlCtx,
+  ): Promise<TokenPayload> {
+    const token = await this.authService.loginWithTotp(
+      input.username,
+      input.code,
+    );
+
+    setCookieSafe(
+      ctx.res,
+      'access_token',
+      token.accessToken,
+      cookieOpts(token.expiresIn * 1000),
+    );
+
+    setCookieSafe(
+      ctx.res,
+      'refresh_token',
+      token.refreshToken,
+      cookieOpts(token.refreshExpiresIn * 1000),
+    );
+
+    return token;
+  }
+
+  @Mutation(() => Boolean)
+  async requestMagicLink(
+    @Args('email') email: string,
+    @Context() ctx: GqlCtx,
+  ): Promise<boolean> {
+    const ip =
+      (ctx.req.headers['x-forwarded-for'] as string | undefined)
+        ?.split(',')[0]
+        ?.trim() ??
+      ctx.req.socket?.remoteAddress ??
+      undefined;
+
+    return this.authService.requestMagicLink(email, { ip });
+  }
+
+  @Mutation(() => TokenPayload)
+  async verifyMagicLink(
+    @Args('token') token: string,
+    @Context() ctx: GqlCtx,
+  ): Promise<TokenPayload> {
+    const tokenPayload = await this.authService.loginWithMagicLink(token);
+
+    setCookieSafe(
+      ctx.res,
+      'access_token',
+      tokenPayload.accessToken,
+      cookieOpts(tokenPayload.expiresIn * 1000),
+    );
+
+    setCookieSafe(
+      ctx.res,
+      'refresh_token',
+      tokenPayload.refreshToken,
+      cookieOpts(tokenPayload.refreshExpiresIn * 1000),
+    );
+
+    return tokenPayload;
   }
 }

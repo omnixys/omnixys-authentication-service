@@ -33,7 +33,7 @@ import { AuthWriteService } from './authentication-write.service.js';
 import { AuthenticateBaseService } from './keycloak-base.service.js';
 import { AuthenticateReadService } from './read.service.js';
 import { HttpService } from '@nestjs/axios';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 
 /**
  * @file Mutierende Operationen gegen Keycloak (Authentication-Flows & User-Mutationen).
@@ -206,6 +206,67 @@ export class UserWriteService extends AuthenticateBaseService {
       return token;
 
       // return { userId, username, password };
+    });
+  }
+
+  async createKeycloakUser(data: {
+    provider: string;
+    providerId: string;
+    email: string;
+    name?: string;
+  }): Promise<string> {
+    return this.withSpan('authentication.signUp', async (span) => {
+      void this.logger.debug('createKeycloakUser: data=%o', data);
+
+      const body = {
+        username: data.name ?? `${data.provider}_${data.providerId}`,
+        email: data.email,
+        enabled: true,
+        emailVerified: true,
+        firstName: data.provider,
+        lastName: 'User',
+        requiredActions: [],
+        attributes: {
+          provider: data.provider,
+          providerId: data.providerId,
+        },
+      };
+
+      await this.kcRequest('post', paths.users, {
+        data: body,
+        headers: await this.adminJsonHeaders(),
+      });
+
+      // id ermitteln
+      const userId = await this.findUserIdByUsername(
+        data.name ?? `${data.provider}_${data.providerId}`,
+      );
+      if (!userId) {
+        throw new NotFoundException('User id could not be resolved after signUp');
+      }
+
+      // Rolle zuweisen
+      await this.adminService.assignRealmRoleToUser(userId, RealmRole.USER);
+
+      const sc = span.spanContext();
+
+      void this.kafka.createUser(
+        {
+          id: userId,
+          username: data.name ?? `${data.provider}_${data.providerId}`,
+          firstName: data.name ?? 'GitHub',
+          lastName: 'User',
+          email: data.email,
+        },
+        'authentication.userSignUp',
+        { traceId: sc.traceId, spanId: sc.spanId },
+      );
+
+      if (!userId) {
+        throw new UnauthorizedException('Keycloak user creation failed');
+      }
+
+      return userId;
     });
   }
 
