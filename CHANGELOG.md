@@ -2,6 +2,10 @@
 
 All notable changes in this project will be documented in this file.
 
+## 1.1.0 (2026-03-01)
+
+- feat(register): add register flow ([f886677d8a19de95046c42136613d2b6f2b36c4b](https://github.com/omnixys/omnixys-authentication-service/commit/f886677d8a19de95046c42136613d2b6f2b36c4b))
+
 ## <small>1.0.4 (2026-02-26)</small>
 
 - Merge branch 'main' of https://github.com/omnixys/omnixys-authentication-service ([c200d2ee487893c0cac584d55330ce73e882252a](https://github.com/omnixys/omnixys-authentication-service/commit/c200d2ee487893c0cac584d55330ce73e882252a))
