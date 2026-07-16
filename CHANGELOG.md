@@ -3,6 +3,12 @@
 All notable changes in this project will be documented in this file.
 
 
+## [3.0.0](https://github.com/omnixys/authentication-service/compare/v2.1.0...v3.0.0) (2026-07-16)
+
+### New
+
+* **New:** new service ([](https://github.com/omnixys/authentication-service/commit/cec3920b0abb815646a364cc88ab3a1c876c61ae))
+
 ## [2.1.0](https://github.com/omnixys/authentication-service/compare/v2.0.2...v2.1.0) (2026-07-02)
 
 ### Deps
