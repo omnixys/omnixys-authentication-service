@@ -72,3 +72,8 @@ export type LoginHistory = Prisma.LoginHistoryModel
  * 
  */
 export type OAuthAccount = Prisma.OAuthAccountModel
+/**
+ * Model UserPresence
+ * 
+ */
+export type UserPresence = Prisma.UserPresenceModel

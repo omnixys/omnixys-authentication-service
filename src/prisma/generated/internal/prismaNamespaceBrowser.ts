@@ -61,7 +61,8 @@ export const ModelName = {
   RateLimitBucket: 'RateLimitBucket',
   KnownDevice: 'KnownDevice',
   LoginHistory: 'LoginHistory',
-  OAuthAccount: 'OAuthAccount'
+  OAuthAccount: 'OAuthAccount',
+  UserPresence: 'UserPresence'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -209,6 +210,17 @@ export const OAuthAccountScalarFieldEnum = {
 } as const
 
 export type OAuthAccountScalarFieldEnum = (typeof OAuthAccountScalarFieldEnum)[keyof typeof OAuthAccountScalarFieldEnum]
+
+
+export const UserPresenceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  isOnline: 'isOnline',
+  lastSeenAt: 'lastSeenAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserPresenceScalarFieldEnum = (typeof UserPresenceScalarFieldEnum)[keyof typeof UserPresenceScalarFieldEnum]
 
 
 export const SortOrder = {
