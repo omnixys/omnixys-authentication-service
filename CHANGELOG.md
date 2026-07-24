@@ -3,6 +3,24 @@
 All notable changes in this project will be documented in this file.
 
 
+## [3.1.0](https://github.com/omnixys/authentication-service/compare/v3.0.0...v3.1.0) (2026-07-24)
+
+### Deps
+
+* **Deps:** remove obsolete/redundant dependencies ([](https://github.com/omnixys/authentication-service/commit/26ef0d432fc1772a638b790cbcef422a1be53515))
+
+### Log
+
+* **Log:** remove logstream dep ([](https://github.com/omnixys/authentication-service/commit/7378fccfc2174c9454e5fc9875088e6c9e73a6f2))
+
+### Logger
+
+* **Logger:** remove Kafka log transport config ([](https://github.com/omnixys/authentication-service/commit/6942ec38d7209654b80fc3f2763a87e9c6722369))
+
+### Other
+
+* **Other:** chore:(package.json): Update package.json ([](https://github.com/omnixys/authentication-service/commit/cb5745d6c55c3f06d7422319bc0d48a855cb6f07))
+
 ## [3.0.0](https://github.com/omnixys/authentication-service/compare/v2.1.0...v3.0.0) (2026-07-16)
 
 ### New
