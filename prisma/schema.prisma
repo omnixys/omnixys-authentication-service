@@ -212,11 +212,11 @@ model OAuthAccount {
 }
 
 model UserPresence {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @unique @map("user_id") @db.Uuid
-  isOnline  Boolean  @default(false) @map("is_online")
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @unique @map("user_id") @db.Uuid
+  isOnline   Boolean   @default(false) @map("is_online")
   lastSeenAt DateTime? @map("last_seen_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
+  updatedAt  DateTime? @updatedAt @map("updated_at")
 
   @@map("user_presence")
 }
