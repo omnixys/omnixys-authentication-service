@@ -124,6 +124,7 @@ export class OAuthService extends AuthenticateBaseService {
   ===================================================== */
 
   private async handleGithub(code: string, client: ClientContext) {
+    this.logger.info('github_token_exchange_start');
     const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
       headers: { Accept: 'application/json' },
@@ -135,11 +136,14 @@ export class OAuthService extends AuthenticateBaseService {
     });
 
     if (!tokenRes.ok) {
+      this.logger.warning('github_token_exchange_failed', { status: tokenRes.status });
       throw new IdentityProviderException('github', 'token-exchange', tokenRes.status);
     }
 
     const tokenData = (await tokenRes.json()) as GithubTokenResponse;
+    this.logger.info('github_token_exchange_success');
 
+    this.logger.debug('github_user_profile_fetch');
     const userRes = await fetch('https://api.github.com/user', {
       headers: {
         Authorization: `Bearer ${tokenData.access_token}`,
@@ -147,15 +151,18 @@ export class OAuthService extends AuthenticateBaseService {
     });
 
     if (!userRes.ok) {
+      this.logger.warning('github_user_profile_failed', { status: userRes.status });
       throw new IdentityProviderException('github', 'user-profile', userRes.status);
     }
 
     const githubUser = (await userRes.json()) as GithubUser;
+    this.logger.info('github_user_profile_success', { githubId: githubUser.id });
 
     let email = githubUser.email;
 
     // GitHub may not return email in /user
     if (!email) {
+      this.logger.debug('github_email_fetch');
       const emailRes = await fetch('https://api.github.com/user/emails', {
         headers: {
           Authorization: `Bearer ${tokenData.access_token}`,
@@ -163,6 +170,7 @@ export class OAuthService extends AuthenticateBaseService {
       });
 
       if (!emailRes.ok) {
+        this.logger.warning('github_email_fetch_failed', { status: emailRes.status });
         throw new IdentityProviderException('github', 'email-profile', emailRes.status);
       }
 
@@ -172,6 +180,7 @@ export class OAuthService extends AuthenticateBaseService {
     }
 
     if (!email) {
+      this.logger.warning('github_verified_email_missing');
       throw new AuthenticationStateException('verified-oauth-email-missing');
     }
 
@@ -190,6 +199,7 @@ export class OAuthService extends AuthenticateBaseService {
   ===================================================== */
 
   private async handleGoogle(code: string, client: ClientContext) {
+    this.logger.info('google_token_exchange_start');
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -203,11 +213,14 @@ export class OAuthService extends AuthenticateBaseService {
     });
 
     if (!tokenRes.ok) {
+      this.logger.warning('google_token_exchange_failed', { status: tokenRes.status });
       throw new IdentityProviderException('google', 'token-exchange', tokenRes.status);
     }
 
     const tokenData = (await tokenRes.json()) as GoogleTokenResponse;
+    this.logger.info('google_token_exchange_success');
 
+    this.logger.debug('google_user_profile_fetch');
     const profileRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
       headers: {
         Authorization: `Bearer ${tokenData.access_token}`,
@@ -215,10 +228,12 @@ export class OAuthService extends AuthenticateBaseService {
     });
 
     if (!profileRes.ok) {
+      this.logger.warning('google_user_profile_failed', { status: profileRes.status });
       throw new IdentityProviderException('google', 'user-profile', profileRes.status);
     }
 
     const googleUser = (await profileRes.json()) as GoogleUser;
+    this.logger.info('google_user_profile_success', { sub: googleUser.sub });
 
     const user = await this.findOrCreateUser({
       provider: 'google',

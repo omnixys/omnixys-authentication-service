@@ -251,24 +251,30 @@ export abstract class AuthenticateBaseService {
       scope: 'openid',
     });
 
-    const res = await firstValueFrom(
-      this.http.post<{ access_token: string; expires_in: number }>(
-        `/realms/omnixys/protocol/openid-connect/token`,
-        params.toString(),
-        {
-          baseURL: keycloakConfig.url,
-          headers: this.loginHeaders,
-        },
-      ),
-    );
+    try {
+      const res = await firstValueFrom(
+        this.http.post<{ access_token: string; expires_in: number }>(
+          `/realms/omnixys/protocol/openid-connect/token`,
+          params.toString(),
+          {
+            baseURL: keycloakConfig.url,
+            headers: this.loginHeaders,
+          },
+        ),
+      );
 
-    const token = res.data.access_token;
-    const expiresIn = Number(res.data.expires_in ?? 60);
-    this.#adminToken = {
-      token,
-      expiresAt: Date.now() + Math.max(1, expiresIn - 30) * 1000,
-    };
-    return token;
+      const token = res.data.access_token;
+      const expiresIn = Number(res.data.expires_in ?? 60);
+      this.#adminToken = {
+        token,
+        expiresAt: Date.now() + Math.max(1, expiresIn - 30) * 1000,
+      };
+      this.logger.info('admin_token_acquired', { expiresIn });
+      return token;
+    } catch (error) {
+      this.logger.exception(error, 'admin_token_acquire_failed', { keycloakUrl: keycloakConfig.url });
+      throw error;
+    }
   }
 
   /**
