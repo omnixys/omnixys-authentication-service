@@ -272,7 +272,7 @@ export abstract class AuthenticateBaseService {
       this.logger.info('admin_token_acquired', { expiresIn });
       return token;
     } catch (error) {
-      this.logger.exception(error, 'admin_token_acquire_failed', { keycloakUrl: keycloakConfig.url });
+      this.logger.error('admin_token_acquire_failed', { error, keycloakUrl: keycloakConfig.url });
       throw error;
     }
   }

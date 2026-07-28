@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { Injectable } from '@nestjs/common';
+import { getLogger } from '@omnixys/logger';
 import { EncryptionService } from '@omnixys/security';
 import { generateSecret, generateURI, verify } from 'otplib';
-import { getLogger } from '@omnixys/logger';
 
 @Injectable()
 export class TotpService {
@@ -53,13 +53,13 @@ export class TotpService {
     });
 
     if (result.valid) {
-      this.#logger.debug('totp_enabled', { userId });
+      this.#logger.debug({ userId }, 'totp_enabled');
       await this.prisma.totpCredential.update({
         where: { userId },
         data: { enabled: true },
       });
     } else {
-      this.#logger.warn('totp_enable_failed', { userId });
+      this.#logger.warn({ userId }, 'totp_enable_failed');
     }
 
     return result.valid === true;
@@ -71,7 +71,7 @@ export class TotpService {
     });
 
     if (!record?.enabled) {
-      this.#logger.debug('totp_verify_no_credential', { userId });
+      this.#logger.debug({ userId }, 'totp_verify_no_credential');
       return false;
     }
 
@@ -84,7 +84,7 @@ export class TotpService {
     });
 
     if (!result.valid) {
-      this.#logger.warn('totp_verify_failed', { userId });
+      this.#logger.warn({ userId }, 'totp_verify_failed');
     }
 
     return result.valid === true;

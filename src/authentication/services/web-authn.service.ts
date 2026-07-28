@@ -68,7 +68,7 @@ export class WebAuthnService {
     });
 
     if (activeDevices <= 1) {
-      this.#logger.warn('webauthn_revoke_last_device_blocked', { userId });
+      this.#logger.warn({ userId }, 'webauthn_revoke_last_device_blocked');
       throw new AuthenticationStateException('cannot-revoke-last-webauthn-device');
     }
 
@@ -81,7 +81,14 @@ export class WebAuthnService {
       data: { revokedAt: new Date() },
     });
 
-    this.#logger.debug('webauthn_device_revoked', { userId, credentialId, found: result.count > 0 });
+    this.#logger.debug(
+      {
+        userId,
+        credentialId,
+        found: result.count > 0,
+      },
+      'webauthn_device_revoked',
+    );
     return result.count > 0;
   }
 
@@ -119,18 +126,18 @@ export class WebAuthnService {
     });
 
     if (!credential || credential.revokedAt) {
-      this.#logger.warn('passwordless_auth_credential_not_found', { credentialId: response.id });
+      this.#logger.warn({ credentialId: response.id }, 'passwordless_auth_credential_not_found');
       return null;
     }
 
     const ok = await this.verifyAuthenticationForUser(credential.userId, response);
 
     if (!ok) {
-      this.#logger.warn('passwordless_auth_verification_failed', { userId: credential.userId });
+      this.#logger.warn({ userId: credential.userId }, 'passwordless_auth_verification_failed');
       return null;
     }
 
-    this.#logger.debug('passwordless_auth_success', { userId: credential.userId });
+    this.#logger.debug({ userId: credential.userId }, 'passwordless_auth_success');
     return credential.userId;
   }
 
@@ -202,7 +209,7 @@ export class WebAuthnService {
     });
 
     if (!verification.verified) {
-      this.#logger.warn('discoverable_auth_verification_failed', { credentialId: response.id });
+      this.#logger.warn({ credentialId: response.id }, 'discoverable_auth_verification_failed');
       return null;
     }
 
@@ -216,7 +223,7 @@ export class WebAuthnService {
 
     await this.cache.delete(ValkeyKey.webauthnGlobalAuthChallenge, challenge);
 
-    this.#logger.debug('discoverable_auth_success', { userId: credentialRecord.userId });
+    this.#logger.debug({ userId: credentialRecord.userId }, 'discoverable_auth_success');
     return credentialRecord.userId;
   }
 
@@ -263,11 +270,11 @@ export class WebAuthnService {
     });
 
     if (!verification.verified) {
-      this.#logger.warn('webauthn_auth_failed', { userId });
+      this.#logger.warn({ userId }, 'webauthn_auth_failed');
       return false;
     }
 
-    this.#logger.debug('webauthn_auth_success', { userId, credentialId: response.id });
+    this.#logger.debug({ userId, credentialId: response.id }, 'webauthn_auth_success');
     await this.prisma.webAuthnCredential.update({
       where: { id: credentialRecord.id },
       data: {
@@ -338,12 +345,13 @@ export class WebAuthnService {
     });
 
     if (!verification.verified || !verification.registrationInfo) {
-      this.#logger.warn('webauthn_registration_failed', { userId });
+      this.#logger.warn({ userId }, 'webauthn_registration_failed');
       return false;
     }
 
-    this.#logger.debug('webauthn_registration_success', { userId, credentialId: credential.id });
     const { credential, credentialDeviceType, credentialBackedUp } = verification.registrationInfo;
+
+    this.#logger.debug({ userId, credentialId: credential.id }, 'webauthn_registration_success');
 
     await this.prisma.webAuthnCredential.create({
       data: {

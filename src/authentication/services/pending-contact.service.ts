@@ -3,9 +3,9 @@ import { AuthenticationStateException } from '../errors/authentication.error.js'
 import { PendingContact } from '../models/dtos/pending-contact.dto.js';
 import { Injectable } from '@nestjs/common';
 import { ValkeyKey, ValkeyService } from '@omnixys/cache';
+import { getLogger } from '@omnixys/logger';
 import { randomUUID } from 'crypto';
 import * as jose from 'jose';
-import { getLogger } from '@omnixys/logger';
 
 const { PC_JWE_KEY, PC_TTL_SEC } = env;
 @Injectable()
@@ -70,7 +70,7 @@ export class PendingContactService {
       ttlSec,
     );
 
-    this.#logger.debug('pending_contact_stored', { contactId: id, email: input.email, channel: input.channel });
+    this.#logger.debug({ contactId: id, email: input.email }, 'pending_contact_stored');
     return id;
   }
 
@@ -80,14 +80,14 @@ export class PendingContactService {
   async get(id: string): Promise<PendingContact | null> {
     const jwe = await this.cache.get(ValkeyKey.pendingContact, id);
     if (!jwe) {
-      this.#logger.debug('pending_contact_not_found', { contactId: id });
+      this.#logger.debug({ contactId: id }, 'pending_contact_not_found');
       return null;
     }
 
     const key = this.getKeyMaterial();
     const { plaintext } = await jose.compactDecrypt(jwe, key);
 
-    this.#logger.debug('pending_contact_retrieved', { contactId: id });
+    this.#logger.debug({ contactId: id }, 'pending_contact_retrieved');
     return JSON.parse(new TextDecoder().decode(plaintext)) as PendingContact;
   }
 

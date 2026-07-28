@@ -8,8 +8,8 @@ import {
 } from '../errors/authentication.error.js';
 import { SecurityQuestionInput } from '../models/inputs/security-question.input.js';
 import { Injectable } from '@nestjs/common';
-import { HashService } from '@omnixys/security';
 import { getLogger } from '@omnixys/logger';
+import { HashService } from '@omnixys/security';
 
 export interface AddSecurityQuestionAnswerInput {
   questionId: string;
@@ -67,7 +67,13 @@ export class SecurityQuestionService {
     });
 
     if (existing) {
-      this.#logger.warn('security_question_already_configured', { userId, questionId: input.questionId });
+      this.#logger.warn(
+        {
+          userId,
+          questionId: input.questionId,
+        },
+        'security_question_already_configured',
+      );
       throw new AuthenticationStateException('security-question-already-configured');
     }
 
@@ -113,19 +119,25 @@ export class SecurityQuestionService {
       const record = records.find((r) => r.questionId === answer.questionId);
 
       if (!record) {
-        this.#logger.warn('security_question_not_found', { userId, questionId: answer.questionId });
+        this.#logger.warn({ userId, questionId: answer.questionId }, 'security_question_not_found');
         return false;
       }
 
       const valid = await this.argon.verify(record.answerHash, answer.answer);
 
       if (!valid) {
-        this.#logger.warn('security_question_answer_invalid', { userId, questionId: answer.questionId });
+        this.#logger.warn(
+          {
+            userId,
+            questionId: answer.questionId,
+          },
+          'security_question_answer_invalid',
+        );
         return false;
       }
     }
 
-    this.#logger.debug('security_questions_verified', { userId, count: answers.length });
+    this.#logger.debug({ userId, count: answers.length }, 'security_questions_verified');
     return true;
   }
 

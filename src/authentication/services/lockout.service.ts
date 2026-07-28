@@ -1,9 +1,9 @@
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { Injectable } from '@nestjs/common';
 import { TooManyRequestsException } from '@omnixys/contracts';
+import { getLogger } from '@omnixys/logger';
 import { InvalidCredentialsException } from '@omnixys/security';
 import { addHours, addMinutes, isAfter } from 'date-fns';
-import { getLogger } from '@omnixys/logger';
 
 @Injectable()
 export class LockoutService {
@@ -29,7 +29,7 @@ export class LockoutService {
     }
 
     if (user.lockedUntil && isAfter(user.lockedUntil, new Date())) {
-      this.#logger.warn('account_locked', { userId, lockedUntil: user.lockedUntil });
+      this.#logger.warn({ userId, lockedUntil: user.lockedUntil }, 'account_locked');
       throw new InvalidCredentialsException('Account temporarily locked', {
         reason: 'account-locked',
       });
@@ -44,7 +44,13 @@ export class LockoutService {
     });
 
     if (user.failedAttempts >= this.USER_MAX_ATTEMPTS_PER_HOUR) {
-      this.#logger.warn('account_locked_after_failures', { userId, failedAttempts: user.failedAttempts });
+      this.#logger.warn(
+        {
+          userId,
+          failedAttempts: user.failedAttempts,
+        },
+        'account_locked_after_failures',
+      );
       await this.prisma.authUser.update({
         where: { id: userId },
         data: {
@@ -74,7 +80,7 @@ export class LockoutService {
     });
 
     if (token.attempts >= this.TOKEN_MAX_ATTEMPTS) {
-      this.#logger.warn('password_reset_token_locked', { tokenId, attempts: token.attempts });
+      this.#logger.warn({ tokenId, attempts: token.attempts }, 'password_reset_token_locked');
       await this.prisma.passwordResetToken.update({
         where: { id: tokenId },
         data: {
@@ -126,7 +132,7 @@ export class LockoutService {
     }
 
     if (bucket.count >= this.USER_MAX_ATTEMPTS_PER_HOUR) {
-      this.#logger.warn('ip_rate_limit_exceeded', { ip, type, count: bucket.count });
+      this.#logger.warn({ ip, type, count: bucket.count }, 'ip_rate_limit_exceeded');
       throw new TooManyRequestsException({ message: 'Too many attempts from this IP' });
     }
 

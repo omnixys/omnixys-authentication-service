@@ -136,7 +136,7 @@ export class OAuthService extends AuthenticateBaseService {
     });
 
     if (!tokenRes.ok) {
-      this.logger.warning('github_token_exchange_failed', { status: tokenRes.status });
+      this.logger.warn('github_token_exchange_failed', { status: tokenRes.status });
       throw new IdentityProviderException('github', 'token-exchange', tokenRes.status);
     }
 
@@ -151,7 +151,7 @@ export class OAuthService extends AuthenticateBaseService {
     });
 
     if (!userRes.ok) {
-      this.logger.warning('github_user_profile_failed', { status: userRes.status });
+      this.logger.warn('github_user_profile_failed', { status: userRes.status });
       throw new IdentityProviderException('github', 'user-profile', userRes.status);
     }
 
@@ -170,7 +170,7 @@ export class OAuthService extends AuthenticateBaseService {
       });
 
       if (!emailRes.ok) {
-        this.logger.warning('github_email_fetch_failed', { status: emailRes.status });
+        this.logger.warn('github_email_fetch_failed', { status: emailRes.status });
         throw new IdentityProviderException('github', 'email-profile', emailRes.status);
       }
 
@@ -180,7 +180,7 @@ export class OAuthService extends AuthenticateBaseService {
     }
 
     if (!email) {
-      this.logger.warning('github_verified_email_missing');
+      this.logger.warn('github_verified_email_missing');
       throw new AuthenticationStateException('verified-oauth-email-missing');
     }
 
@@ -213,7 +213,7 @@ export class OAuthService extends AuthenticateBaseService {
     });
 
     if (!tokenRes.ok) {
-      this.logger.warning('google_token_exchange_failed', { status: tokenRes.status });
+      this.logger.warn('google_token_exchange_failed', { status: tokenRes.status });
       throw new IdentityProviderException('google', 'token-exchange', tokenRes.status);
     }
 
@@ -228,7 +228,7 @@ export class OAuthService extends AuthenticateBaseService {
     });
 
     if (!profileRes.ok) {
-      this.logger.warning('google_user_profile_failed', { status: profileRes.status });
+      this.logger.warn('google_user_profile_failed', { status: profileRes.status });
       throw new IdentityProviderException('google', 'user-profile', profileRes.status);
     }
 

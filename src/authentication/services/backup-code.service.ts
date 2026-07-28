@@ -1,8 +1,8 @@
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { Injectable } from '@nestjs/common';
+import { getLogger } from '@omnixys/logger';
 import { HashService } from '@omnixys/security';
 import { randomBytes } from 'crypto';
-import { getLogger } from '@omnixys/logger';
 
 @Injectable()
 export class BackupCodeService {
@@ -38,7 +38,7 @@ export class BackupCodeService {
       const valid = await this.argon.verify(record.codeHash, code);
 
       if (valid) {
-        this.#logger.debug('backup_code_consumed', { userId, recordId: record.id });
+        this.#logger.debug({ userId, recordId: record.id }, 'backup_code_consumed');
         await this.prisma.backupCode.update({
           where: { id: record.id },
           data: { usedAt: new Date() },
@@ -47,7 +47,7 @@ export class BackupCodeService {
       }
     }
 
-    this.#logger.warn('backup_code_invalid', { userId });
+    this.#logger.warn({ userId }, 'backup_code_invalid');
     return false;
   }
 }
