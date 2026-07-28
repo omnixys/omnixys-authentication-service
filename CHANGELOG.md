@@ -3,6 +3,27 @@
 All notable changes in this project will be documented in this file.
 
 
+## [3.2.0](https://github.com/omnixys/authentication-service/compare/v3.1.0...v3.2.0) (2026-07-28)
+
+### Auth
+
+* **Auth:** add structured logging to MFA, lockout, TOTP, backup codes, security questions, pending contacts, OAuth, and WebAuthn ([](https://github.com/omnixys/authentication-service/commit/2218dc7a147e09c29e42d2f62877c0331c460a84))
+
+### Authentication
+
+* **Authentication:** add structured logging to keycloak getAdminToken and OAuth fetch calls ([](https://github.com/omnixys/authentication-service/commit/a3a0d184edbed5e3d7453400877121d57617e737))
+
+### Logging
+
+* **Logging:** resolve build and lint errors in structured logger calls ([](https://github.com/omnixys/authentication-service/commit/451935724f9bce5788d70efd02328856f2c807a0))
+
+### Prisma
+
+* **Prisma:** add generated prisma files ([](https://github.com/omnixys/authentication-service/commit/8837f5a4ca26f3ece79e013694c190b0503da05e))
+* **Prisma:** add generated prisma files ([](https://github.com/omnixys/authentication-service/commit/bb2c135c5c0e4962465905e0e49b98f360873f0a))
+* **Prisma:** add generated prisma files ([](https://github.com/omnixys/authentication-service/commit/dc32cadb11b4e4a68aa11837c7f93efa3a230d6b))
+* **Prisma:** remove generated prisma files ([](https://github.com/omnixys/authentication-service/commit/e4718cea1554e3bfa0cdec635c193f3a08af2648))
+
 ## [3.1.0](https://github.com/omnixys/authentication-service/compare/v3.0.0...v3.1.0) (2026-07-24)
 
 ### Deps
