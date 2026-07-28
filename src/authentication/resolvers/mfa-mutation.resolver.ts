@@ -30,6 +30,7 @@ import {
   CurrentUserData,
   InvalidCredentialsException,
 } from '@omnixys/security';
+import { getLogger } from '@omnixys/logger';
 import {
   AuthenticationResponseJSON,
   RegistrationResponseJSON,
@@ -61,6 +62,8 @@ export class WebAuthnDevicePayload {
 
 @Resolver()
 export class MfaMutationResolver {
+  readonly #logger = getLogger(MfaMutationResolver.name);
+
   constructor(
     private readonly totpService: TotpService,
     private readonly webAuthnService: WebAuthnService,
@@ -108,11 +111,13 @@ export class MfaMutationResolver {
     const ok = await this.webAuthnService.revokeDevice(userId, credentialId);
 
     if (!ok) {
+      this.#logger.warn('webauthn_revoke_not_found', { userId, credentialId });
       throw new AuthenticationStateException(
         'webauthn-device-not-found-or-revoked',
       );
     }
 
+    this.#logger.debug('webauthn_credential_revoked', { userId, credentialId });
     return true;
   }
 
@@ -128,6 +133,7 @@ export class MfaMutationResolver {
     const userId = currentUser.id;
     const email = currentUser.email;
 
+    this.#logger.debug('totp_setup_started', { userId });
     return this.totpService.generateForUser(userId, email);
   }
 
@@ -197,6 +203,7 @@ export class MfaMutationResolver {
     const userId = currentUser.id;
 
     if (!response || typeof response !== 'object') {
+      this.#logger.warn('webauthn_response_invalid', { userId });
       throw new AuthenticationInputException('webauthn-response-invalid');
     }
 
@@ -206,9 +213,11 @@ export class MfaMutationResolver {
     );
 
     if (!ok) {
+      this.#logger.warn('webauthn_auth_failed', { userId });
       throw new InvalidCredentialsException('WebAuthn verification failed');
     }
 
+    this.#logger.debug('webauthn_auth_success', { userId });
     return true;
   }
 
@@ -223,6 +232,7 @@ export class MfaMutationResolver {
   ): Promise<string[]> {
     const userId = currentUser.id;
 
+    this.#logger.debug('backup_codes_regenerated', { userId });
     return this.backupCodeService.generate(userId);
   }
 
@@ -243,9 +253,11 @@ export class MfaMutationResolver {
     );
 
     if (!ok) {
+      this.#logger.warn('webauthn_rename_failed', { userId: currentUser.id, credentialId });
       throw new AuthenticationInputException('webauthn-device-rename-failed');
     }
 
+    this.#logger.debug('webauthn_device_renamed', { userId: currentUser.id, credentialId, nickname });
     return true;
   }
 

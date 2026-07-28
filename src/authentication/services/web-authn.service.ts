@@ -10,6 +10,7 @@ import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuthenticationStateException } from '../errors/authentication.error.js';
 import { Injectable } from '@nestjs/common';
 import { ValkeyKey, ValkeyService } from '@omnixys/cache';
+import { getLogger } from '@omnixys/logger';
 
 import {
   verifyAuthenticationResponse,
@@ -26,6 +27,8 @@ import {
 
 @Injectable()
 export class WebAuthnService {
+  readonly #logger = getLogger(WebAuthnService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly cache: ValkeyService,
@@ -65,6 +68,7 @@ export class WebAuthnService {
     });
 
     if (activeDevices <= 1) {
+      this.#logger.warn('webauthn_revoke_last_device_blocked', { userId });
       throw new AuthenticationStateException('cannot-revoke-last-webauthn-device');
     }
 
@@ -77,6 +81,7 @@ export class WebAuthnService {
       data: { revokedAt: new Date() },
     });
 
+    this.#logger.debug('webauthn_device_revoked', { userId, credentialId, found: result.count > 0 });
     return result.count > 0;
   }
 
@@ -114,15 +119,18 @@ export class WebAuthnService {
     });
 
     if (!credential || credential.revokedAt) {
+      this.#logger.warn('passwordless_auth_credential_not_found', { credentialId: response.id });
       return null;
     }
 
     const ok = await this.verifyAuthenticationForUser(credential.userId, response);
 
     if (!ok) {
+      this.#logger.warn('passwordless_auth_verification_failed', { userId: credential.userId });
       return null;
     }
 
+    this.#logger.debug('passwordless_auth_success', { userId: credential.userId });
     return credential.userId;
   }
 
@@ -194,6 +202,7 @@ export class WebAuthnService {
     });
 
     if (!verification.verified) {
+      this.#logger.warn('discoverable_auth_verification_failed', { credentialId: response.id });
       return null;
     }
 
@@ -207,6 +216,7 @@ export class WebAuthnService {
 
     await this.cache.delete(ValkeyKey.webauthnGlobalAuthChallenge, challenge);
 
+    this.#logger.debug('discoverable_auth_success', { userId: credentialRecord.userId });
     return credentialRecord.userId;
   }
 
@@ -253,9 +263,11 @@ export class WebAuthnService {
     });
 
     if (!verification.verified) {
+      this.#logger.warn('webauthn_auth_failed', { userId });
       return false;
     }
 
+    this.#logger.debug('webauthn_auth_success', { userId, credentialId: response.id });
     await this.prisma.webAuthnCredential.update({
       where: { id: credentialRecord.id },
       data: {
@@ -326,9 +338,11 @@ export class WebAuthnService {
     });
 
     if (!verification.verified || !verification.registrationInfo) {
+      this.#logger.warn('webauthn_registration_failed', { userId });
       return false;
     }
 
+    this.#logger.debug('webauthn_registration_success', { userId, credentialId: credential.id });
     const { credential, credentialDeviceType, credentialBackedUp } = verification.registrationInfo;
 
     await this.prisma.webAuthnCredential.create({

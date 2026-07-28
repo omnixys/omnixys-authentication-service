@@ -9,6 +9,7 @@ import {
 import { SecurityQuestionInput } from '../models/inputs/security-question.input.js';
 import { Injectable } from '@nestjs/common';
 import { HashService } from '@omnixys/security';
+import { getLogger } from '@omnixys/logger';
 
 export interface AddSecurityQuestionAnswerInput {
   questionId: string;
@@ -22,6 +23,8 @@ export interface VerifySecurityAnswerInput {
 
 @Injectable()
 export class SecurityQuestionService {
+  readonly #logger = getLogger(SecurityQuestionService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly argon: HashService,
@@ -64,6 +67,7 @@ export class SecurityQuestionService {
     });
 
     if (existing) {
+      this.#logger.warn('security_question_already_configured', { userId, questionId: input.questionId });
       throw new AuthenticationStateException('security-question-already-configured');
     }
 
@@ -109,16 +113,19 @@ export class SecurityQuestionService {
       const record = records.find((r) => r.questionId === answer.questionId);
 
       if (!record) {
+        this.#logger.warn('security_question_not_found', { userId, questionId: answer.questionId });
         return false;
       }
 
       const valid = await this.argon.verify(record.answerHash, answer.answer);
 
       if (!valid) {
+        this.#logger.warn('security_question_answer_invalid', { userId, questionId: answer.questionId });
         return false;
       }
     }
 
+    this.#logger.debug('security_questions_verified', { userId, count: answers.length });
     return true;
   }
 

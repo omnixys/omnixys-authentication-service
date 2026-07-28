@@ -3,9 +3,11 @@ import { PrismaService } from '../../prisma/prisma.service.js';
 import { Injectable } from '@nestjs/common';
 import { EncryptionService } from '@omnixys/security';
 import { generateSecret, generateURI, verify } from 'otplib';
+import { getLogger } from '@omnixys/logger';
 
 @Injectable()
 export class TotpService {
+  readonly #logger = getLogger(TotpService.name);
   constructor(
     private readonly prisma: PrismaService,
     private readonly encryption: EncryptionService,
@@ -51,10 +53,13 @@ export class TotpService {
     });
 
     if (result.valid) {
+      this.#logger.debug('totp_enabled', { userId });
       await this.prisma.totpCredential.update({
         where: { userId },
         data: { enabled: true },
       });
+    } else {
+      this.#logger.warn('totp_enable_failed', { userId });
     }
 
     return result.valid === true;
@@ -66,6 +71,7 @@ export class TotpService {
     });
 
     if (!record?.enabled) {
+      this.#logger.debug('totp_verify_no_credential', { userId });
       return false;
     }
 
@@ -76,6 +82,10 @@ export class TotpService {
       token: code,
       epochTolerance: 30,
     });
+
+    if (!result.valid) {
+      this.#logger.warn('totp_verify_failed', { userId });
+    }
 
     return result.valid === true;
   }

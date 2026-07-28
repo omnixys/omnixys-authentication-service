@@ -3,9 +3,11 @@ import { Injectable } from '@nestjs/common';
 import { TooManyRequestsException } from '@omnixys/contracts';
 import { InvalidCredentialsException } from '@omnixys/security';
 import { addHours, addMinutes, isAfter } from 'date-fns';
+import { getLogger } from '@omnixys/logger';
 
 @Injectable()
 export class LockoutService {
+  readonly #logger = getLogger(LockoutService.name);
   private readonly USER_MAX_ATTEMPTS_PER_HOUR = 3;
   private readonly USER_LOCK_DURATION_HOURS = 10;
   private readonly TOKEN_MAX_ATTEMPTS = 5;
@@ -27,6 +29,7 @@ export class LockoutService {
     }
 
     if (user.lockedUntil && isAfter(user.lockedUntil, new Date())) {
+      this.#logger.warn('account_locked', { userId, lockedUntil: user.lockedUntil });
       throw new InvalidCredentialsException('Account temporarily locked', {
         reason: 'account-locked',
       });
@@ -41,6 +44,7 @@ export class LockoutService {
     });
 
     if (user.failedAttempts >= this.USER_MAX_ATTEMPTS_PER_HOUR) {
+      this.#logger.warn('account_locked_after_failures', { userId, failedAttempts: user.failedAttempts });
       await this.prisma.authUser.update({
         where: { id: userId },
         data: {
@@ -70,6 +74,7 @@ export class LockoutService {
     });
 
     if (token.attempts >= this.TOKEN_MAX_ATTEMPTS) {
+      this.#logger.warn('password_reset_token_locked', { tokenId, attempts: token.attempts });
       await this.prisma.passwordResetToken.update({
         where: { id: tokenId },
         data: {
@@ -121,6 +126,7 @@ export class LockoutService {
     }
 
     if (bucket.count >= this.USER_MAX_ATTEMPTS_PER_HOUR) {
+      this.#logger.warn('ip_rate_limit_exceeded', { ip, type, count: bucket.count });
       throw new TooManyRequestsException({ message: 'Too many attempts from this IP' });
     }
 

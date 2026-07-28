@@ -4,8 +4,10 @@ import { OAuthService } from '../services/o-auth.service.js';
 import { Controller, Get, Param, Query, Res } from '@nestjs/common';
 import { ClientInfo, type ClientContext } from '@omnixys/context';
 import { FastifyReply } from 'fastify';
+import { getLogger } from '@omnixys/logger';
 
 const isProd = process.env.NODE_ENV === 'production';
+const logger = getLogger('OAuthController');
 
 @Controller('auth/oauth')
 export class OAuthController {
@@ -17,9 +19,11 @@ export class OAuthController {
   @Get(':provider')
   async redirect(@Param('provider') provider: string, @Res() reply: FastifyReply) {
     if (!['github', 'google'].includes(provider)) {
+      logger.warn('oauth_unsupported_provider', { provider });
       throw new AuthenticationInputException('oauth-provider-unsupported');
     }
 
+    logger.debug('oauth_redirect', { provider });
     const { url } = await this.oauthService.getAuthUrl(provider);
 
     reply.status(302).redirect(url);
@@ -38,13 +42,16 @@ export class OAuthController {
     @Query('error') error?: string,
   ) {
     if (error) {
+      logger.warn('oauth_callback_error', { provider, error });
       return reply.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
     }
 
     if (!code || !state) {
+      logger.warn('oauth_parameters_missing', { provider, hasCode: !!code, hasState: !!state });
       throw new AuthenticationInputException('oauth-parameters-missing');
     }
 
+    logger.debug('oauth_callback_success', { provider, userId: client.userId });
     const token = await this.oauthService.handleCallback(provider, code, state, client);
     /* -----------------------------
        Cookie setzen (Fastify!)

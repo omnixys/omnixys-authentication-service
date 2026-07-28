@@ -5,10 +5,12 @@ import { Injectable } from '@nestjs/common';
 import { ValkeyKey, ValkeyService } from '@omnixys/cache';
 import { randomUUID } from 'crypto';
 import * as jose from 'jose';
+import { getLogger } from '@omnixys/logger';
 
 const { PC_JWE_KEY, PC_TTL_SEC } = env;
 @Injectable()
 export class PendingContactService {
+  readonly #logger = getLogger(PendingContactService.name);
   constructor(private readonly cache: ValkeyService) {}
 
   /**
@@ -68,6 +70,7 @@ export class PendingContactService {
       ttlSec,
     );
 
+    this.#logger.debug('pending_contact_stored', { contactId: id, email: input.email, channel: input.channel });
     return id;
   }
 
@@ -77,12 +80,14 @@ export class PendingContactService {
   async get(id: string): Promise<PendingContact | null> {
     const jwe = await this.cache.get(ValkeyKey.pendingContact, id);
     if (!jwe) {
+      this.#logger.debug('pending_contact_not_found', { contactId: id });
       return null;
     }
 
     const key = this.getKeyMaterial();
     const { plaintext } = await jose.compactDecrypt(jwe, key);
 
+    this.#logger.debug('pending_contact_retrieved', { contactId: id });
     return JSON.parse(new TextDecoder().decode(plaintext)) as PendingContact;
   }
 
