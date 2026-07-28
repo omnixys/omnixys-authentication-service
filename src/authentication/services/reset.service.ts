@@ -132,7 +132,7 @@ export class ResetService extends AuthenticateBaseService {
 
     return {
       resetId: token.id, // recommended
-      mfaRequired: token.user.mfaPreference !== MfaPreference.NONE,
+      mfaRequired: token.user.mfaPreference !== 'NONE',
       mfaMethod: token.user.mfaPreference as MfaPreference,
     };
   }
