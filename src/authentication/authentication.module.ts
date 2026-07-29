@@ -15,6 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
+import { AnalyticsModule } from '../analytics/analytics.module.js';
 import { CoreHttpModule } from '../http.module.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { OAuthController } from './controllers/o-auth.controller.js';
@@ -43,7 +44,7 @@ import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
-  imports: [CoreHttpModule, PrismaModule, ScheduleModule.forRoot()],
+  imports: [CoreHttpModule, PrismaModule, ScheduleModule.forRoot(), AnalyticsModule],
   controllers: [OAuthController],
   providers: [
     AuthQueryResolver,

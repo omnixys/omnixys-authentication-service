@@ -190,6 +190,8 @@ model LoginHistory {
   ip        String
   country   String?
   city      String?
+  succeeded Boolean  @default(true)
+  reason    String?
   createdAt DateTime @default(now()) @map("created_at")
 
   user AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -219,4 +221,24 @@ model UserPresence {
   updatedAt  DateTime? @updatedAt @map("updated_at")
 
   @@map("user_presence")
+}
+
+model AnalyticsOutbox {
+  id             String    @id @default(uuid()) @db.Uuid
+  tenantId       String    @map("tenant_id") @db.Uuid
+  topic          String
+  payload        Json
+  correlationId  String?   @map("correlation_id")
+  actorId        String?   @map("actor_id")
+  attempts       Int       @default(0)
+  nextAttemptAt  DateTime  @default(now()) @map("next_attempt_at")
+  lockedAt       DateTime? @map("locked_at")
+  lockedBy       String?   @map("locked_by")
+  publishedAt    DateTime? @map("published_at")
+  deadLetteredAt DateTime? @map("dead_lettered_at")
+  lastError      String?   @map("last_error")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  @@index([publishedAt, deadLetteredAt, nextAttemptAt])
+  @@map("analytics_outbox")
 }

@@ -24,7 +24,7 @@ export * as $Enums from './enums.js'
 export * from "./enums.js"
 /**
  * ## Prisma Client
- * 
+ *
  * Type-safe database client for TypeScript
  * @example
  * ```
@@ -101,3 +101,8 @@ export type OAuthAccount = Prisma.OAuthAccountModel
  * 
  */
 export type UserPresence = Prisma.UserPresenceModel
+/**
+ * Model AnalyticsOutbox
+ *
+ */
+export type AnalyticsOutbox = Prisma.AnalyticsOutboxModel

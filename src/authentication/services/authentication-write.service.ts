@@ -15,6 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
+import { AnalyticsOutboxService } from '../../analytics/analytics-outbox.service.js';
 import { keycloakConfig, paths } from '../../config/keycloak.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuthenticationInputException } from '../errors/authentication.error.js';
@@ -72,6 +73,7 @@ export class AuthWriteService extends AuthenticateBaseService {
     private readonly riskMemory: RiskMemoryService,
     private readonly hashService: HashService,
     private readonly zeroTrustService: ZeroTrustService,
+    private readonly analyticsOutbox: AnalyticsOutboxService,
   ) {
     super(logger, http);
   }
@@ -147,10 +149,14 @@ export class AuthWriteService extends AuthenticateBaseService {
 
       await this.deviceService.register(userId, input.clientDeviceId ?? 'unknown');
 
+      await this.recordLoginFact(userId, input.ip, true, 'password');
       return toToken(data);
     } catch (err) {
       // zusätzliche Sicherheit (Timing / Side-channel)
       await this.hashService.dummyVerify();
+      if (err instanceof InvalidCredentialsException) {
+        await this.recordLoginFact(userId, input.ip, false, 'password', 'INVALID_CREDENTIALS');
+      }
       throw err;
     }
   }
@@ -182,7 +188,7 @@ export class AuthWriteService extends AuthenticateBaseService {
   /**
    * Logout (Refresh-Token invalidieren).
    */
-  async logout(refreshToken: string | undefined): Promise<void> {
+  async logout(refreshToken: string | undefined, userId: string): Promise<void> {
     if (!refreshToken) {
       return;
     }
@@ -194,6 +200,50 @@ export class AuthWriteService extends AuthenticateBaseService {
       data: body.toString(),
       headers: this.loginHeaders,
       adminAuth: false,
+    });
+    await this.prisma.$transaction(async (tx) => {
+      await tx.userPresence.upsert({
+        where: { userId },
+        create: { userId, isOnline: false },
+        update: { isOnline: false, lastSeenAt: new Date() },
+      });
+      await this.analyticsOutbox.enqueue(tx, 'authentication.logout.succeeded.v1', {
+        eventName: 'LogoutSucceeded',
+        aggregateId: userId,
+        aggregateType: 'authentication-session',
+        subjectId: userId,
+        properties: {},
+      });
+    });
+  }
+
+  private async recordLoginFact(
+    userId: string,
+    ip: string | undefined,
+    succeeded: boolean,
+    method: string,
+    reason?: string,
+  ): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      const history = await tx.loginHistory.create({
+        data: {
+          userId,
+          ip: ip ?? 'unknown',
+          succeeded,
+          reason,
+        },
+      });
+      await this.analyticsOutbox.enqueue(
+        tx,
+        succeeded ? 'authentication.login.succeeded.v1' : 'authentication.login.failed.v1',
+        {
+          eventName: succeeded ? 'LoginSucceeded' : 'LoginFailed',
+          aggregateId: history.id,
+          aggregateType: 'login-attempt',
+          subjectId: userId,
+          properties: { method, ...(reason ? { reason } : {}) },
+        },
+      );
     });
   }
 

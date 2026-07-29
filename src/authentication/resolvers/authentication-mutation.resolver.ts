@@ -186,7 +186,7 @@ export class AuthMutationResolver {
   ): Promise<SuccessPayload> {
     return TraceRunner.run('Logout Resolver', async () => {
       const value = user.refresh_token;
-      await this.authService.logout(value);
+      await this.authService.logout(value, user.id);
       this.tokenCookies.clearTokens(context.reply);
       return { ok: true, message: 'Successfully logged out.' };
     });
