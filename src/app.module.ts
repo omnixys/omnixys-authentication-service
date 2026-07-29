@@ -28,6 +28,7 @@ import { Module } from '@nestjs/common';
 import { ValkeyModule } from '@omnixys/cache';
 import { ContextModule } from '@omnixys/context';
 import { OmnixysGraphQLModule } from '@omnixys/graphql';
+import { OmnixysHttpModule } from '@omnixys/http';
 import { KafkaModule } from '@omnixys/kafka';
 import { LoggerModule } from '@omnixys/logger';
 import { ObservabilityModule } from '@omnixys/observability';
@@ -75,6 +76,7 @@ const {
             : { path: 'dist/schema.gql', federation: 2 },
       sortSchema: true,
     }),
+    OmnixysHttpModule.forRoot({ serviceName: 'authentication' }),
 
     SecurityModule.forRoot({
       jwt: {

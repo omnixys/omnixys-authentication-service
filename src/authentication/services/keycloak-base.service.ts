@@ -26,11 +26,21 @@ import {
   AuthenticationStateException,
   AuthenticationUnauthorizedException,
   AuthenticationUserAlreadyExistsException,
+  IdentityProviderAdminCredentialsException,
+  IdentityProviderAdminForbiddenException,
+  IdentityProviderClientConfigurationException,
   IdentityProviderException,
+  IdentityProviderRateLimitedException,
+  IdentityProviderRequestRejectedException,
+  IdentityProviderResponseException,
 } from '../errors/authentication.error.js';
 import type { HttpService } from '@nestjs/axios';
-import type { RoleData } from '@omnixys/contracts';
-import { ENUM_TO_KC, type RealmRoleType } from '@omnixys/contracts';
+import {
+  ENUM_TO_KC,
+  FrameworkException,
+  type RealmRoleType,
+  type RoleData,
+} from '@omnixys/contracts';
 import type { OmnixysLogger } from '@omnixys/logger';
 import { TraceRunner } from '@omnixys/observability';
 import { InvalidCredentialsException } from '@omnixys/security';
@@ -141,36 +151,26 @@ export abstract class AuthenticateBaseService {
           }),
         );
         return res.data;
-      } catch (err: any) {
-        const rawStatus: unknown = err.response?.status;
-        const status = typeof rawStatus === 'number' ? rawStatus : 500;
-
-        const responseData = err.response?.data;
-        const errorMessage =
-          typeof responseData === 'string'
-            ? responseData
-            : responseData && typeof responseData === 'object'
-              ? ((responseData as Record<string, unknown>).errorMessage ??
-                (responseData as Record<string, unknown>).error_description ??
-                JSON.stringify(responseData))
-              : err.message;
+      } catch (err: unknown) {
+        const info = this.keycloakErrorInfo(err);
+        const { status, responseData, oauthError, safeMessage } = info;
 
         this.logger.warn(
-          'Keycloak %s %s → status=%s body=%s',
+          'Keycloak request rejected method=%s path=%s status=%s oauthError=%s',
           method.toUpperCase(),
           url,
           status,
-          errorMessage,
+          oauthError,
         );
 
-        if (behavior.mapTo === 'null-on-401' && (status === 400 || status === 401)) {
-          void this.logger.warn('%s %s -> %s %o', method.toUpperCase(), url, status, responseData);
+        if (
+          behavior.mapTo === 'null-on-401' &&
+          (oauthError === 'invalid_grant' ||
+            (!oauthError && (status === 400 || status === 401)))
+        ) {
           return null as T;
         }
 
-        if (status === 401) {
-          throw new InvalidCredentialsException('Identity provider rejected credentials');
-        }
         if (status === 404) {
           throw new AuthenticationStateException('identity-resource-not-found', err);
         }
@@ -179,7 +179,7 @@ export abstract class AuthenticateBaseService {
             'KC 409 Conflict on %s %s → returning null for fallback logic: %o',
             method.toUpperCase(),
             url,
-            errorMessage,
+            safeMessage,
           );
           return null as T;
         }
@@ -191,27 +191,19 @@ export abstract class AuthenticateBaseService {
           );
         }
 
-        if (status === 403) {
-          throw new AuthenticationUnauthorizedException(`${method.toUpperCase()} ${url}`);
-        }
-
         if (status === 400) {
-          this.logger.warn('KC 400 on %s %s — body: %s', method.toUpperCase(), url, errorMessage);
           if (this.isPasswordPolicyError(responseData)) {
-            throw new AuthenticationPasswordPolicyException(String(errorMessage));
+            throw new AuthenticationPasswordPolicyException(safeMessage);
           }
-          throw new AuthenticationInputException(String(errorMessage));
+          if (!oauthError) {
+            throw new AuthenticationInputException('identity-provider-input-invalid');
+          }
         }
-
-        if (status >= 400 && status < 500) {
-          throw new AuthenticationInputException(String(errorMessage));
-        }
-
-        throw new IdentityProviderException(
-          'keycloak',
-          `${method.toUpperCase()} ${url}`,
-          status,
+        throw this.mapKeycloakError(
           err,
+          info,
+          `${method.toUpperCase()} ${url}`,
+          cfg.adminAuth !== false,
         );
       }
     });
@@ -237,6 +229,13 @@ export abstract class AuthenticateBaseService {
    * @returns The valid admin access token.
    */
   protected async getAdminToken(): Promise<string> {
+    if (!KC_CLIENT_ID || !KC_CLIENT_SECRET) {
+      throw new IdentityProviderClientConfigurationException('acquire-admin-token');
+    }
+    if (!KC_ADMIN_USERNAME || !KC_ADMIN_PASSWORD) {
+      throw new IdentityProviderAdminCredentialsException('acquire-admin-token');
+    }
+
     const now = Date.now();
     if (this.#adminToken && this.#adminToken.expiresAt > now) {
       return this.#adminToken.token;
@@ -263,17 +262,37 @@ export abstract class AuthenticateBaseService {
         ),
       );
 
-      const token = res.data.access_token;
+      const token = res.data?.access_token;
       const expiresIn = Number(res.data.expires_in ?? 60);
+      if (
+        typeof token !== 'string' ||
+        token.length === 0 ||
+        !Number.isFinite(expiresIn) ||
+        expiresIn <= 0
+      ) {
+        throw new IdentityProviderResponseException(
+          'acquire-admin-token',
+          res.status,
+        );
+      }
       this.#adminToken = {
         token,
         expiresAt: Date.now() + Math.max(1, expiresIn - 30) * 1000,
       };
       this.logger.info('admin_token_acquired', { expiresIn });
       return token;
-    } catch (error) {
-      this.logger.error('admin_token_acquire_failed', { error, keycloakUrl: keycloakConfig.url });
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof FrameworkException) {
+        throw error;
+      }
+      const info = this.keycloakErrorInfo(error);
+      throw this.mapKeycloakError(
+        error,
+        info,
+        'acquire-admin-token',
+        true,
+        true,
+      );
     }
   }
 
@@ -403,6 +422,84 @@ export abstract class AuthenticateBaseService {
     return false;
   }
 
+  private mapKeycloakError(
+    error: unknown,
+    info: KeycloakErrorInfo,
+    operation: string,
+    adminAuth: boolean,
+    adminTokenRequest = false,
+  ): Error {
+    const { status, oauthError } = info;
+
+    if (oauthError === 'invalid_client') {
+      return new IdentityProviderClientConfigurationException(operation, status, error);
+    }
+    if (oauthError === 'invalid_grant') {
+      return adminTokenRequest
+        ? new IdentityProviderAdminCredentialsException(operation, status, error)
+        : new InvalidCredentialsException();
+    }
+    if (status === 401) {
+      return adminAuth
+        ? new IdentityProviderAdminCredentialsException(operation, status, error)
+        : new InvalidCredentialsException();
+    }
+    if (status === 403) {
+      return adminAuth
+        ? new IdentityProviderAdminForbiddenException(operation, status, error)
+        : new AuthenticationUnauthorizedException(operation);
+    }
+    if (status === 429) {
+      return new IdentityProviderRateLimitedException(operation, status, error);
+    }
+    if (status === undefined || status >= 500) {
+      return new IdentityProviderException('keycloak', operation, status, error);
+    }
+    return new IdentityProviderRequestRejectedException(
+      operation,
+      status,
+      oauthError,
+      error,
+    );
+  }
+
+  private keycloakErrorInfo(error: unknown): KeycloakErrorInfo {
+    const candidate =
+      error && typeof error === 'object'
+        ? (error as {
+            code?: unknown;
+            message?: unknown;
+            response?: { status?: unknown; data?: unknown };
+          })
+        : undefined;
+    const rawStatus = candidate?.response?.status;
+    const status = typeof rawStatus === 'number' ? rawStatus : undefined;
+    const responseData = candidate?.response?.data;
+    const body =
+      responseData && typeof responseData === 'object'
+        ? (responseData as Record<string, unknown>)
+        : undefined;
+    const oauthError =
+      typeof body?.error === 'string' ? body.error.toLowerCase() : undefined;
+    const rawMessage =
+      typeof body?.errorMessage === 'string'
+        ? body.errorMessage
+        : typeof body?.error_description === 'string'
+          ? body.error_description
+          : typeof candidate?.message === 'string'
+            ? candidate.message
+            : 'Identity provider request failed';
+
+    return {
+      status,
+      responseData,
+      oauthError,
+      networkCode:
+        typeof candidate?.code === 'string' ? candidate.code : undefined,
+      safeMessage: rawMessage.slice(0, 500),
+    };
+  }
+
   /**
    * Retrieves or caches a remote JWKS instance for a given issuer.
    *
@@ -419,4 +516,12 @@ export abstract class AuthenticateBaseService {
     }
     return jwks;
   }
+}
+
+interface KeycloakErrorInfo {
+  readonly status?: number;
+  readonly responseData?: unknown;
+  readonly oauthError?: string;
+  readonly networkCode?: string;
+  readonly safeMessage: string;
 }

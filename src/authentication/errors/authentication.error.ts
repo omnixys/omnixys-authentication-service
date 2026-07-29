@@ -8,6 +8,7 @@ import {
 function options(
   metadata: Readonly<Record<string, unknown>> = {},
   cause?: unknown,
+  diagnostics: Readonly<Record<string, unknown>> = {},
 ): FrameworkExceptionOptions {
   const context = ContextAccessor.get();
   return {
@@ -20,6 +21,7 @@ function options(
       tenantId: context?.tenant?.tenantId ?? context?.principal?.tenantId,
     },
     metadata,
+    diagnostics,
   };
 }
 
@@ -29,8 +31,9 @@ export class AuthenticationDomainException extends FrameworkException {
     message: string,
     metadata: Readonly<Record<string, unknown>> = {},
     cause?: unknown,
+    diagnostics: Readonly<Record<string, unknown>> = {},
   ) {
-    super(code, message, options(metadata, cause));
+    super(code, message, options(metadata, cause, diagnostics));
   }
 }
 
@@ -45,17 +48,22 @@ export class AuthenticationStateException extends AuthenticationDomainException 
     super(
       'AUTHENTICATION_STATE_INVALID',
       'Authentication state is invalid or expired',
-      { reason },
+      {},
       cause,
+      { reason },
     );
   }
 }
 
 export class AuthenticationInputException extends AuthenticationDomainException {
   constructor(reason: string) {
-    super('AUTHENTICATION_INPUT_INVALID', 'Authentication input is invalid', {
-      reason,
-    });
+    super(
+      'AUTHENTICATION_INPUT_INVALID',
+      'Authentication input is invalid',
+      {},
+      undefined,
+      { reason },
+    );
   }
 }
 
@@ -75,7 +83,9 @@ export class AuthenticationUserAlreadyExistsException extends AuthenticationDoma
     super(
       'AUTHENTICATION_USER_ALREADY_EXISTS',
       `A user with this ${field} already exists`,
-      { field, value },
+      { field },
+      undefined,
+      { conflictingValue: value },
     );
   }
 }
@@ -85,6 +95,8 @@ export class AuthenticationPasswordPolicyException extends AuthenticationDomainE
     super(
       'AUTHENTICATION_PASSWORD_POLICY',
       'Password does not meet the policy requirements',
+      {},
+      undefined,
       { detail },
     );
   }
@@ -120,9 +132,92 @@ export class IdentityProviderException extends AuthenticationDomainException {
   ) {
     super(
       'IDENTITY_PROVIDER_UNAVAILABLE',
-      'Identity provider request failed',
-      { provider, operation, status },
+      'The identity provider is temporarily unavailable',
+      {},
       cause,
+      { provider, operation, status },
+    );
+  }
+}
+
+export class IdentityProviderClientConfigurationException extends AuthenticationDomainException {
+  constructor(operation: string, status?: number, cause?: unknown) {
+    super(
+      'IDENTITY_PROVIDER_CLIENT_CONFIGURATION_INVALID',
+      'Authentication is temporarily unavailable',
+      {},
+      cause,
+      { provider: 'keycloak', operation, status },
+    );
+  }
+}
+
+export class IdentityProviderAdminCredentialsException extends AuthenticationDomainException {
+  constructor(operation: string, status?: number, cause?: unknown) {
+    super(
+      'IDENTITY_PROVIDER_ADMIN_CREDENTIALS_INVALID',
+      'Identity provider administrator credentials are invalid',
+      {},
+      cause,
+      { provider: 'keycloak', operation, status },
+    );
+  }
+}
+
+export class IdentityProviderAdminForbiddenException extends AuthenticationDomainException {
+  constructor(operation: string, status?: number, cause?: unknown) {
+    super(
+      'IDENTITY_PROVIDER_ADMIN_FORBIDDEN',
+      'The identity provider administrator lacks the required permissions',
+      {},
+      cause,
+      { provider: 'keycloak', operation, status },
+    );
+  }
+}
+
+export class IdentityProviderRateLimitedException extends AuthenticationDomainException {
+  constructor(operation: string, status?: number, cause?: unknown) {
+    super(
+      'IDENTITY_PROVIDER_RATE_LIMITED',
+      'The identity provider is temporarily rate limited',
+      {},
+      cause,
+      { provider: 'keycloak', operation, status },
+    );
+  }
+}
+
+export class IdentityProviderResponseException extends AuthenticationDomainException {
+  constructor(operation: string, status?: number, cause?: unknown) {
+    super(
+      'IDENTITY_PROVIDER_RESPONSE_INVALID',
+      'The identity provider returned an invalid response',
+      {},
+      cause,
+      { provider: 'keycloak', operation, status },
+    );
+  }
+}
+
+export class IdentityProviderRequestRejectedException extends AuthenticationDomainException {
+  constructor(
+    operation: string,
+    status?: number,
+    oauthError?: string,
+    cause?: unknown,
+  ) {
+    super(
+      'IDENTITY_PROVIDER_REQUEST_REJECTED',
+      'The identity provider rejected the request',
+      {},
+      cause,
+      {
+        provider: 'keycloak',
+        operation,
+        status,
+        oauthError,
+      },
     );
   }
 }
