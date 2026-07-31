@@ -6,7 +6,7 @@
 /*
  * This file should be your main import to use Prisma-related types and utilities in a browser. 
  * Use it to get access to models, enums, and input types.
- *
+ * 
  * This file does not contain a `PrismaClient` class, nor several other helpers that are intended as server-side only.
  * See `client.ts` for the standard, server-side entry point.
  *
@@ -79,6 +79,16 @@ export type OAuthAccount = Prisma.OAuthAccountModel
 export type UserPresence = Prisma.UserPresenceModel
 /**
  * Model AnalyticsOutbox
- *
+ * 
  */
 export type AnalyticsOutbox = Prisma.AnalyticsOutboxModel
+/**
+ * Model TenantKeycloakSync
+ * *
+ *  * Outbox für die idempotente Spiegelung der autoritativen Tenant-Memberships
+ *  * (tenant-service) in das Keycloak-`tenants`-Attribut (mirror).
+ *  *  - PENDING → Processor schreibt KC-Attribut (nur bei Abweichung)
+ *  *  - SYNCED  → KC entspricht tenant-service
+ *  *  - FAILED  → Retry mit Backoff (nextAttemptAt), dann DLT/Lock
+ */
+export type TenantKeycloakSync = Prisma.TenantKeycloakSyncModel

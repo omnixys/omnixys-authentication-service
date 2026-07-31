@@ -242,3 +242,36 @@ model AnalyticsOutbox {
   @@index([publishedAt, deadLetteredAt, nextAttemptAt])
   @@map("analytics_outbox")
 }
+
+enum TenantSyncState {
+  PENDING
+  SYNCED
+  FAILED
+
+  @@map("tenant_sync_state")
+}
+
+/**
+ * Outbox für die idempotente Spiegelung der autoritativen Tenant-Memberships
+ * (tenant-service) in das Keycloak-`tenants`-Attribut (mirror).
+ *  - PENDING → Processor schreibt KC-Attribut (nur bei Abweichung)
+ *  - SYNCED  → KC entspricht tenant-service
+ *  - FAILED  → Retry mit Backoff (nextAttemptAt), dann DLT/Lock
+ */
+model TenantKeycloakSync {
+  id            String          @id @default(uuid()) @db.Uuid
+  userId        String          @unique @map("user_id") @db.Uuid
+  tenantIds     String[]        @map("tenant_ids") @db.Uuid
+  state         TenantSyncState @default(PENDING)
+  attempts      Int             @default(0)
+  nextAttemptAt DateTime        @default(now()) @map("next_attempt_at")
+  lockedAt      DateTime?       @map("locked_at")
+  lockedBy      String?         @map("locked_by")
+  lastError     String?         @map("last_error")
+  syncedAt      DateTime?       @map("synced_at")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime?       @updatedAt @map("updated_at")
+
+  @@index([state, nextAttemptAt])
+  @@map("tenant_keycloak_sync")
+}

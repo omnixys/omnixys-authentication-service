@@ -17,12 +17,15 @@
 
 import { AnalyticsOutboxService } from '../../analytics/analytics-outbox.service.js';
 import { keycloakConfig, paths } from '../../config/keycloak.js';
+import {
+  type IssuedPlatformToken,
+  PlatformTokenService,
+} from '../../platform-token/platform-token.service.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuthenticationInputException } from '../errors/authentication.error.js';
 import type { KeycloakToken } from '../models/dtos/kc-token.dto.js';
 import type { LogInInput } from '../models/inputs/log-in.input.js';
 import { LoginTotpInput } from '../models/inputs/login-totp.input.js';
-import { toToken } from '../models/mappers/token.mapper.js';
 import type { TokenPayload } from '../models/payloads/token.payload.js';
 import { AuthenticateBaseService } from './keycloak-base.service.js';
 import { LockoutService } from './lockout.service.js';
@@ -30,10 +33,11 @@ import { AuthenticateReadService } from './read.service.js';
 import { TotpService } from './totp.service.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { ValkeyKey, ValkeyService } from '@omnixys/cache';
-import type { ClientContext } from '@omnixys/context';
-import { KafkaProducerService, KafkaTopics } from '@omnixys/kafka';
-import { OmnixysLogger } from '@omnixys/logger';
+import { ValkeyKey, ValkeyService } from '@omnixys/cache-ts';
+import { ContextAccessor } from '@omnixys/context-ts';
+import type { ClientContext } from '@omnixys/context-ts';
+import { KafkaProducerService, KafkaTopics } from '@omnixys/kafka-ts';
+import { OmnixysLogger } from '@omnixys/logger-ts';
 import {
   AccessBlockedException,
   DeviceService,
@@ -42,7 +46,7 @@ import {
   RiskMemoryService,
   StepUpRequiredException,
   ZeroTrustService,
-} from '@omnixys/security';
+} from '@omnixys/security-ts';
 import { randomBytes } from 'crypto';
 
 export interface RequestContext {
@@ -50,6 +54,7 @@ export interface RequestContext {
   userAgent?: string;
   acceptLanguage?: string;
   clientDeviceId?: string;
+  tenantId?: string;
 }
 /**
  * @file Mutierende Operationen gegen Keycloak (Authentication-Flows & User-Mutationen).
@@ -74,6 +79,7 @@ export class AuthWriteService extends AuthenticateBaseService {
     private readonly hashService: HashService,
     private readonly zeroTrustService: ZeroTrustService,
     private readonly analyticsOutbox: AnalyticsOutboxService,
+    private readonly platformTokens: PlatformTokenService,
   ) {
     super(logger, http);
   }
@@ -149,8 +155,18 @@ export class AuthWriteService extends AuthenticateBaseService {
 
       await this.deviceService.register(userId, input.clientDeviceId ?? 'unknown');
 
+      ContextAccessor.update({
+        principal: { subject: userId, actorId: userId, userId, roles: [] },
+      });
+
       await this.recordLoginFact(userId, input.ip, true, 'password');
-      return toToken(data);
+      return this.buildPlatformPayload(
+        data,
+        await this.platformTokens.issueSession(userId, {
+          tenantId: input.tenantId,
+          kcAccessToken: data.access_token,
+        }),
+      );
     } catch (err) {
       // zusätzliche Sicherheit (Timing / Side-channel)
       await this.hashService.dummyVerify();
@@ -162,10 +178,15 @@ export class AuthWriteService extends AuthenticateBaseService {
   }
 
   /**
-   * Refresh-Flow.
+   * Refresh-Flow. Die Membership wird erneut autoritativ über den tenant-service
+   * validiert; der Access-Token ist danach wieder ein frisches Plattformtoken.
    */
-  async refresh(refresh_token: string | undefined): Promise<TokenPayload | null> {
-    if (!refresh_token) {
+  async refresh(
+    refresh_token: string | undefined,
+    userId: string,
+    tenantId?: string,
+  ): Promise<TokenPayload | null> {
+    if (!refresh_token || !userId) {
       return null;
     }
 
@@ -182,7 +203,13 @@ export class AuthWriteService extends AuthenticateBaseService {
     if (!data) {
       return null;
     }
-    return toToken(data);
+    return this.buildPlatformPayload(
+      data,
+      await this.platformTokens.issueSession(userId, {
+        tenantId,
+        kcAccessToken: data.access_token,
+      }),
+    );
   }
 
   /**
@@ -314,7 +341,13 @@ export class AuthWriteService extends AuthenticateBaseService {
 
       await this.deviceService.register(userId, context.clientDeviceId ?? 'unknown');
 
-      return toToken(exchanged);
+      return this.buildPlatformPayload(
+        exchanged,
+        await this.platformTokens.issueSession(userId, {
+          tenantId: context.tenantId,
+          kcAccessToken: exchanged.access_token,
+        }),
+      );
     } catch (err) {
       await this.hashService.dummyVerify();
       throw err;
@@ -509,5 +542,20 @@ export class AuthWriteService extends AuthenticateBaseService {
       await this.hashService.dummyVerify();
       throw err;
     }
+  }
+
+  /**
+   * Setzt den kurzlebigen Plattform-Access-Token in die Token-Payload.
+   * Refresh-/Id-Token bleiben Keycloak-Tokens.
+   */
+  private buildPlatformPayload(kc: KeycloakToken, issued: IssuedPlatformToken): TokenPayload {
+    return {
+      accessToken: issued.accessToken,
+      expiresIn: issued.expiresIn,
+      refreshToken: kc.refresh_token,
+      refreshExpiresIn: kc.refresh_expires_in,
+      idToken: kc.id_token,
+      scope: kc.scope,
+    };
   }
 }

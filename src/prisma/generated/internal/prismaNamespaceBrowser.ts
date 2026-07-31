@@ -63,7 +63,8 @@ export const ModelName = {
   LoginHistory: 'LoginHistory',
   OAuthAccount: 'OAuthAccount',
   UserPresence: 'UserPresence',
-  AnalyticsOutbox: 'AnalyticsOutbox'
+  AnalyticsOutbox: 'AnalyticsOutbox',
+  TenantKeycloakSync: 'TenantKeycloakSync'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -244,6 +245,24 @@ export const AnalyticsOutboxScalarFieldEnum = {
 } as const
 
 export type AnalyticsOutboxScalarFieldEnum = (typeof AnalyticsOutboxScalarFieldEnum)[keyof typeof AnalyticsOutboxScalarFieldEnum]
+
+
+export const TenantKeycloakSyncScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  tenantIds: 'tenantIds',
+  state: 'state',
+  attempts: 'attempts',
+  nextAttemptAt: 'nextAttemptAt',
+  lockedAt: 'lockedAt',
+  lockedBy: 'lockedBy',
+  lastError: 'lastError',
+  syncedAt: 'syncedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TenantKeycloakSyncScalarFieldEnum = (typeof TenantKeycloakSyncScalarFieldEnum)[keyof typeof TenantKeycloakSyncScalarFieldEnum]
 
 
 export const SortOrder = {

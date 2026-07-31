@@ -1,6 +1,6 @@
+import { isUUID } from 'class-validator';
 import 'dotenv/config';
 import process from 'node:process';
-import { isUUID } from 'class-validator';
 
 type EnvValue = string | number | boolean;
 interface GetEnvOptions<T extends EnvValue = string> {
@@ -100,4 +100,22 @@ export const env = {
   }),
   ENCRYPTION_KEY: getEnv('ENCRYPTION_KEY', '', { required: true }),
   FINGERPRINT_SECRET: getEnv('FINGERPRINT_SECRET', '', { required: true }),
+  PLATFORM_ISSUER: getEnv('PLATFORM_ISSUER', 'http://localhost:4000'),
+  PLATFORM_JWKS_URI: getEnv(
+    'PLATFORM_JWKS_URI',
+    `${process.env.PLATFORM_ISSUER ?? 'http://localhost:4000'}/auth/oidc/certs`,
+  ),
+  PLATFORM_SIGNING_KEY: getEnv('PLATFORM_SIGNING_KEY', '', { required: true }),
+  PLATFORM_TOKEN_TTL_SEC: getEnv('PLATFORM_TOKEN_TTL_SEC', '900', {
+    transform: toNumber,
+  }),
+  PLATFORM_TOKEN_VERSION: getEnv('PLATFORM_TOKEN_VERSION', '1'),
+  TENANT_GRPC_URL: getEnv('TENANT_GRPC_URL', 'localhost:50052'),
+  TENANT_GRPC_AUTHENTICATION_TOKEN: getEnv(
+    'TENANT_GRPC_AUTHENTICATION_TOKEN',
+    '',
+    {
+      required: true,
+    },
+  ),
 } as const;

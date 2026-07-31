@@ -24,7 +24,7 @@ export * as $Enums from './enums.js'
 export * from "./enums.js"
 /**
  * ## Prisma Client
- *
+ * 
  * Type-safe database client for TypeScript
  * @example
  * ```
@@ -103,6 +103,16 @@ export type OAuthAccount = Prisma.OAuthAccountModel
 export type UserPresence = Prisma.UserPresenceModel
 /**
  * Model AnalyticsOutbox
- *
+ * 
  */
 export type AnalyticsOutbox = Prisma.AnalyticsOutboxModel
+/**
+ * Model TenantKeycloakSync
+ * *
+ *  * Outbox für die idempotente Spiegelung der autoritativen Tenant-Memberships
+ *  * (tenant-service) in das Keycloak-`tenants`-Attribut (mirror).
+ *  *  - PENDING → Processor schreibt KC-Attribut (nur bei Abweichung)
+ *  *  - SYNCED  → KC entspricht tenant-service
+ *  *  - FAILED  → Retry mit Backoff (nextAttemptAt), dann DLT/Lock
+ */
+export type TenantKeycloakSync = Prisma.TenantKeycloakSyncModel

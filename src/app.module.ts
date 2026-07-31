@@ -24,6 +24,7 @@ import { env } from './config/env.js';
 import { ScalarsModule } from './core/scalars/scalar.module.js';
 import { HandlerModule } from './handlers/handler.module.js';
 import { HealthModule } from './health/health.module.js';
+import { PlatformTokenModule } from './platform-token/platform-token.module.js';
 import { Module } from '@nestjs/common';
 import { ValkeyModule } from '@omnixys/cache-ts';
 import { ContextModule, trustedProxyPolicyFromAddresses } from '@omnixys/context-ts';
@@ -43,8 +44,6 @@ const {
   VALKEY_URL,
   VALKEY_PASSWORD,
   PC_JWE_KEY,
-  KC_REALM,
-  KC_URL,
   RESET_TOKEN_HMAC_SECRET,
   DEVICE_FINGERPRINT_HMAC_SECRET,
   MAGIC_LINK_HMAC_SECRET,
@@ -60,9 +59,7 @@ const {
         mode: env.NODE_ENV === 'production' ? 'strict' : 'legacy',
         ...(env.DEFAULT_TENANT_ID ? { defaultTenantId: env.DEFAULT_TENANT_ID } : {}),
       },
-      trustedProxyPolicy: trustedProxyPolicyFromAddresses(
-        env.TRUSTED_PROXY_ADDRESSES,
-      ),
+      trustedProxyPolicy: trustedProxyPolicyFromAddresses(env.TRUSTED_PROXY_ADDRESSES),
     }),
 
     ValkeyModule.forRoot({
@@ -88,8 +85,8 @@ const {
 
     SecurityModule.forRoot({
       jwt: {
-        issuer: `${KC_URL}/realms/${KC_REALM}`,
-        jwksUri: `${KC_URL}/realms/${KC_REALM}/protocol/openid-connect/certs`,
+        issuer: env.PLATFORM_ISSUER,
+        jwksUri: env.PLATFORM_JWKS_URI,
       },
 
       jwe: {
@@ -166,6 +163,7 @@ const {
     AdminModule,
     HealthModule,
     AuthenticationModule,
+    PlatformTokenModule,
     ScalarsModule,
     HandlerModule,
   ],
