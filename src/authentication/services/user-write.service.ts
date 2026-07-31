@@ -35,14 +35,14 @@ import { AuthenticateReadService } from './read.service.js';
 import { ResetService } from './reset.service.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { DelayedJobKeys, DelayedJobService, ValkeyKey, ValkeyService } from '@omnixys/cache';
-import { ContextAccessor, type ClientContext } from '@omnixys/context';
-import { guestAuthKeySchema, guestSignUpTokenPayloadSchema } from '@omnixys/contracts';
-import { RealmRoleType } from '@omnixys/contracts';
-import { EventType, KafkaProducerService, KafkaTopics } from '@omnixys/kafka';
-import { OmnixysLogger } from '@omnixys/logger';
-import { TraceRunner } from '@omnixys/observability';
-import { EncryptionService } from '@omnixys/security';
+import { DelayedJobKeys, DelayedJobService, ValkeyKey, ValkeyService } from '@omnixys/cache-ts';
+import { ContextAccessor, type ClientContext } from '@omnixys/context-ts';
+import { guestAuthKeySchema, guestSignUpTokenPayloadSchema } from '@omnixys/contracts-ts';
+import { RealmRoleType } from '@omnixys/contracts-ts';
+import { EventType, KafkaProducerService, KafkaTopics } from '@omnixys/kafka-ts';
+import { OmnixysLogger } from '@omnixys/logger-ts';
+import { TraceRunner } from '@omnixys/observability-ts';
+import { EncryptionService } from '@omnixys/security-ts';
 import { randomBytes, randomInt } from 'node:crypto';
 
 const { SERVICE } = env;
@@ -462,7 +462,7 @@ export class UserWriteService extends AuthenticateBaseService {
     const type: EventType = 'EVENT';
     return {
       actorId,
-      tenantId: 'omnixys',
+      tenantId: env.DEFAULT_TENANT_ID,
       service: SERVICE,
       operation,
       version: '1',

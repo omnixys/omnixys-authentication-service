@@ -15,6 +15,7 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
+import { env } from '../../config/env.js';
 import { paths } from '../../config/keycloak.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuthenticationUserNotFoundException } from '../errors/authentication.error.js';
@@ -27,9 +28,9 @@ import { AuthenticateBaseService } from './keycloak-base.service.js';
 import { AuthenticateReadService } from './read.service.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { RealmRoleType } from '@omnixys/contracts';
-import { KafkaProducerService, KafkaTopics, type KafkaMetaInfo } from '@omnixys/kafka';
-import { OmnixysLogger } from '@omnixys/logger';
+import { RealmRoleType } from '@omnixys/contracts-ts';
+import { KafkaProducerService, KafkaTopics, type KafkaMetaInfo } from '@omnixys/kafka-ts';
+import { OmnixysLogger } from '@omnixys/logger-ts';
 
 /**
  * @file Mutierende Operationen gegen Keycloak (Authentication-Flows & User-Mutationen).
@@ -101,7 +102,7 @@ export class AdminWriteService extends AuthenticateBaseService {
       version: '1',
       type: 'EVENT' as const,
       actorId,
-      tenantId: 'omnixys',
+      tenantId: env.DEFAULT_TENANT_ID,
     });
 
     await Promise.all([

@@ -16,13 +16,13 @@ import { AuthWriteService } from './authentication-write.service.js';
 import { AuthenticateBaseService } from './keycloak-base.service.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { ValkeyKey, ValkeyService } from '@omnixys/cache';
-import type { SignUpTokenPayload } from '@omnixys/contracts';
-import { createTmpUsername, RealmRoleType } from '@omnixys/contracts';
-import { KafkaProducerService, KafkaTopics } from '@omnixys/kafka';
-import { OmnixysLogger } from '@omnixys/logger';
-import { TraceRunner } from '@omnixys/observability';
-import { EncryptionService } from '@omnixys/security';
+import { ValkeyKey, ValkeyService } from '@omnixys/cache-ts';
+import type { SignUpTokenPayload } from '@omnixys/contracts-ts';
+import { createTmpUsername, RealmRoleType } from '@omnixys/contracts-ts';
+import { KafkaProducerService, KafkaTopics } from '@omnixys/kafka-ts';
+import { OmnixysLogger } from '@omnixys/logger-ts';
+import { TraceRunner } from '@omnixys/observability-ts';
+import { EncryptionService } from '@omnixys/security-ts';
 import * as argon2 from 'argon2';
 
 const { SERVICE } = env;
@@ -177,7 +177,7 @@ export class RegisterService extends AuthenticateBaseService {
             version: '1',
             type: 'EVENT',
             actorId,
-            tenantId: 'omnixys',
+            tenantId: env.DEFAULT_TENANT_ID,
           },
         }),
 
@@ -190,7 +190,7 @@ export class RegisterService extends AuthenticateBaseService {
             version: '1',
             type: 'EVENT',
             actorId,
-            tenantId: 'omnixys',
+            tenantId: env.DEFAULT_TENANT_ID,
           },
         }),
       ]);
