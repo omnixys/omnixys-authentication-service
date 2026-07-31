@@ -107,9 +107,15 @@
         "description": "${role_default-roles}",
         "composite": true,
         "composites": {
-          "realm": ["offline_access", "uma_authorization"],
+          "realm": [
+            "offline_access",
+            "uma_authorization"
+          ],
           "client": {
-            "account": ["manage-account", "view-profile"]
+            "account": [
+              "manage-account",
+              "view-profile"
+            ]
           }
         },
         "clientRole": false,
@@ -196,7 +202,9 @@
           "composite": true,
           "composites": {
             "client": {
-              "realm-management": ["query-clients"]
+              "realm-management": [
+                "query-clients"
+              ]
             }
           },
           "clientRole": true,
@@ -246,7 +254,10 @@
           "composite": true,
           "composites": {
             "client": {
-              "realm-management": ["query-groups", "query-users"]
+              "realm-management": [
+                "query-groups",
+                "query-users"
+              ]
             }
           },
           "clientRole": true,
@@ -382,7 +393,9 @@
           "composite": true,
           "composites": {
             "client": {
-              "account": ["view-consent"]
+              "account": [
+                "view-consent"
+              ]
             }
           },
           "clientRole": true,
@@ -396,7 +409,9 @@
           "composite": true,
           "composites": {
             "client": {
-              "account": ["manage-account-links"]
+              "account": [
+                "manage-account-links"
+              ]
             }
           },
           "clientRole": true,
@@ -469,7 +484,9 @@
     "clientRole": false,
     "containerId": "db55c1e7-628b-4883-b580-63eb291dc542"
   },
-  "requiredCredentials": ["password"],
+  "requiredCredentials": [
+    "password"
+  ],
   "otpPolicyType": "totp",
   "otpPolicyAlgorithm": "HmacSHA1",
   "otpPolicyInitialCounter": 0,
@@ -484,7 +501,10 @@
   ],
   "localizationTexts": {},
   "webAuthnPolicyRpEntityName": "keycloak",
-  "webAuthnPolicySignatureAlgorithms": ["ES256", "RS256"],
+  "webAuthnPolicySignatureAlgorithms": [
+    "ES256",
+    "RS256"
+  ],
   "webAuthnPolicyRpId": "",
   "webAuthnPolicyAttestationConveyancePreference": "not specified",
   "webAuthnPolicyAuthenticatorAttachment": "not specified",
@@ -495,7 +515,10 @@
   "webAuthnPolicyAcceptableAaguids": [],
   "webAuthnPolicyExtraOrigins": [],
   "webAuthnPolicyPasswordlessRpEntityName": "keycloak",
-  "webAuthnPolicyPasswordlessSignatureAlgorithms": ["ES256", "RS256"],
+  "webAuthnPolicyPasswordlessSignatureAlgorithms": [
+    "ES256",
+    "RS256"
+  ],
   "webAuthnPolicyPasswordlessRpId": "",
   "webAuthnPolicyPasswordlessAttestationConveyancePreference": "not specified",
   "webAuthnPolicyPasswordlessAuthenticatorAttachment": "not specified",
@@ -527,9 +550,16 @@
       ],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": ["realm-admin", "Default user role", "ADMIN"],
+      "realmRoles": [
+        "realm-admin",
+        "Default user role",
+        "ADMIN"
+      ],
       "clientRoles": {
-        "realm-management": ["manage-users", "manage-realm"]
+        "realm-management": [
+          "manage-users",
+          "manage-realm"
+        ]
       },
       "notBefore": 0,
       "groups": []
@@ -556,7 +586,10 @@
       ],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": ["default-roles-omnixys", "USER"],
+      "realmRoles": [
+        "default-roles-omnixys",
+        "USER"
+      ],
       "notBefore": 0,
       "groups": []
     },
@@ -582,7 +615,10 @@
       ],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": ["default-roles-omnixys", "USER"],
+      "realmRoles": [
+        "default-roles-omnixys",
+        "USER"
+      ],
       "notBefore": 0,
       "groups": []
     },
@@ -608,7 +644,10 @@
       ],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": ["default-roles-omnixys", "USER"],
+      "realmRoles": [
+        "default-roles-omnixys",
+        "USER"
+      ],
       "notBefore": 0,
       "groups": []
     },
@@ -634,7 +673,10 @@
       ],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": ["default-roles-omnixys", "USER"],
+      "realmRoles": [
+        "default-roles-omnixys",
+        "USER"
+      ],
       "notBefore": 0,
       "groups": []
     },
@@ -660,7 +702,10 @@
       ],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": ["default-roles-omnixys", "USER"],
+      "realmRoles": [
+        "default-roles-omnixys",
+        "USER"
+      ],
       "notBefore": 0,
       "groups": []
     },
@@ -686,7 +731,10 @@
       ],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": ["default-roles-omnixys", "USER"],
+      "realmRoles": [
+        "default-roles-omnixys",
+        "USER"
+      ],
       "notBefore": 0,
       "groups": []
     },
@@ -698,7 +746,9 @@
       "email": "user@omnixys.de",
       "emailVerified": true,
       "attributes": {
-        "roles": ["ADMIN"]
+        "roles": [
+          "ADMIN"
+        ]
       },
       "enabled": true,
       "createdTimestamp": 1761659749205,
@@ -714,7 +764,9 @@
       ],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": ["Default user role"],
+      "realmRoles": [
+        "Default user role"
+      ],
       "notBefore": 0,
       "groups": []
     }
@@ -722,14 +774,19 @@
   "scopeMappings": [
     {
       "clientScope": "offline_access",
-      "roles": ["offline_access"]
+      "roles": [
+        "offline_access"
+      ]
     }
   ],
   "clientScopeMappings": {
     "account": [
       {
         "client": "account-console",
-        "roles": ["manage-account", "view-groups"]
+        "roles": [
+          "manage-account",
+          "view-groups"
+        ]
       }
     ]
   },
@@ -744,7 +801,9 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": ["/realms/omnixys/account/*"],
+      "redirectUris": [
+        "/realms/omnixys/account/*"
+      ],
       "webOrigins": [],
       "notBefore": 0,
       "bearerOnly": false,
@@ -789,7 +848,9 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": ["/realms/omnixys/account/*"],
+      "redirectUris": [
+        "/realms/omnixys/account/*"
+      ],
       "webOrigins": [],
       "notBefore": 0,
       "bearerOnly": false,
@@ -935,8 +996,12 @@
       "alwaysDisplayInConsole": true,
       "clientAuthenticatorType": "client-secret",
       "secret": "uogDKQIP4d9aEgaYfT38BeN4JuOvwHJL",
-      "redirectUris": ["/*"],
-      "webOrigins": ["/*"],
+      "redirectUris": [
+        "/*"
+      ],
+      "webOrigins": [
+        "/*"
+      ],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
@@ -1032,8 +1097,12 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": ["/admin/omnixys/console/*"],
-      "webOrigins": ["+"],
+      "redirectUris": [
+        "/admin/omnixys/console/*"
+      ],
+      "webOrigins": [
+        "+"
+      ],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
@@ -1803,7 +1872,9 @@
   },
   "smtpServer": {},
   "eventsEnabled": false,
-  "eventsListeners": ["jboss-logging"],
+  "eventsListeners": [
+    "jboss-logging"
+  ],
   "enabledEventTypes": [],
   "adminEventsEnabled": false,
   "adminEventsDetailsEnabled": false,
@@ -1818,7 +1889,9 @@
         "subType": "anonymous",
         "subComponents": {},
         "config": {
-          "allow-default-scopes": ["true"]
+          "allow-default-scopes": [
+            "true"
+          ]
         }
       },
       {
@@ -1855,7 +1928,9 @@
         "subType": "authenticated",
         "subComponents": {},
         "config": {
-          "allow-default-scopes": ["true"]
+          "allow-default-scopes": [
+            "true"
+          ]
         }
       },
       {
@@ -1865,8 +1940,12 @@
         "subType": "anonymous",
         "subComponents": {},
         "config": {
-          "host-sending-registration-request-must-match": ["true"],
-          "client-uris-must-match": ["true"]
+          "host-sending-registration-request-must-match": [
+            "true"
+          ],
+          "client-uris-must-match": [
+            "true"
+          ]
         }
       },
       {
@@ -1876,7 +1955,9 @@
         "subType": "anonymous",
         "subComponents": {},
         "config": {
-          "max-clients": ["200"]
+          "max-clients": [
+            "200"
+          ]
         }
       },
       {
@@ -1914,12 +1995,18 @@
         "providerId": "hmac-generated",
         "subComponents": {},
         "config": {
-          "kid": ["611d1251-1e19-4225-bb89-6069a2ed8881"],
+          "kid": [
+            "611d1251-1e19-4225-bb89-6069a2ed8881"
+          ],
           "secret": [
             "7ldu6YaoD4Obcty8GTKjzYLumY5dXxtbwc02QQLPMvULfZPZk9r7ZkU6fKJulJH2LFK2wWUIzpvoU1uUX_AOuJewsUsK1wQCMdF3eRZTus06QQwuTLE4z7TINPd2MBr_EYfP30LXwyZGRLwbhvxlxKX8G1VKlFR23pUo_n8lQOc"
           ],
-          "priority": ["100"],
-          "algorithm": ["HS512"]
+          "priority": [
+            "100"
+          ],
+          "algorithm": [
+            "HS512"
+          ]
         }
       },
       {
@@ -1928,9 +2015,15 @@
         "providerId": "aes-generated",
         "subComponents": {},
         "config": {
-          "kid": ["fb1dcc1e-29a3-4983-a77c-829dbdee7f6f"],
-          "secret": ["AU_w1m8Kd9HT1Q9aRbWafA"],
-          "priority": ["100"]
+          "kid": [
+            "fb1dcc1e-29a3-4983-a77c-829dbdee7f6f"
+          ],
+          "secret": [
+            "AU_w1m8Kd9HT1Q9aRbWafA"
+          ],
+          "priority": [
+            "100"
+          ]
         }
       },
       {
@@ -1945,8 +2038,12 @@
           "certificate": [
             "MIICnTCCAYUCBgGbhKfQNTANBgkqhkiG9w0BAQsFADASMRAwDgYDVQQDDAdvbW5peHlzMB4XDTI2MDEwMzE2MTcyOFoXDTM2MDEwMzE2MTkwOFowEjEQMA4GA1UEAwwHb21uaXh5czCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMooQTq80xBDDcI4xi7ITrqMM8abinCiEsTLLcB4tnukYZiYOKIdO7VexgjojC3+Sge583Yi7y9fpzIdwzS1u5lHtpQsze39JAtwU6yaAqa7lUg2dukBRxiiE1tK4e9OkYefU1paew4FUkxhHvoxy14TvxTPnaB0jgeLhRsFk4FyD9098S/Wagd81wuyj2T650SPimO08KXMnGWAqVVx/ssfA07y7CwBzp1+LQWp9/FasM41Y8+Hv0PS5w8hZKiYdf4PsR6C1T36eSf0zI6se0/t9NRv5dLrSCdMlQWaMw7nBxxBj/2c4sCSPdBMQsffiAIO98AT6LUeAqmsxocI2F8CAwEAATANBgkqhkiG9w0BAQsFAAOCAQEAEzEAQS5il3GCh2QBV7XnKpYjQtWv0RBA3ysUaE9HGaKfycKBts29++koJGqkGwr4D+N2XdEIYQxF9qanF/beDqqaeh6xtaMOYoBpcdsepYLlGlniS26CdNiyuZ6Sa4WPtzg3lzGdaNOPh1ED4srS304lJHTeCzUIa0DbzK2yEGsdh2p4Qu5pdNECxIT5ZsxmXVlLV8HG9jKlAvCB2Stk3rIfnZwivSb4FBVzq8Op6zh53yu0hgIAqDEb23cuSsRBHI4xdvGAevjssXwAPj0FdJ9KAVvMWlcNluEsSO22BGbZeyksiZFFzdjQvFuonvFFV7J7HxPJvLlVGZrXnhqieQ=="
           ],
-          "priority": ["100"],
-          "algorithm": ["RSA-OAEP"]
+          "priority": [
+            "100"
+          ],
+          "algorithm": [
+            "RSA-OAEP"
+          ]
         }
       },
       {
@@ -1961,7 +2058,9 @@
           "certificate": [
             "MIICnTCCAYUCBgGbhKfQhDANBgkqhkiG9w0BAQsFADASMRAwDgYDVQQDDAdvbW5peHlzMB4XDTI2MDEwMzE2MTcyOVoXDTM2MDEwMzE2MTkwOVowEjEQMA4GA1UEAwwHb21uaXh5czCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALKZjfE2sTkr8c/KJ8GQl5aUA1ZQZ+hU/jMYjEtHj59mvOvbbxJmCVV6IytCDdocQD43ySTdgx+XOldSbNwcbIur9l52MdKvvTWkuXLJJHtv/ug74fZgG/GQhrY17SVkQ84o1DVetUcn1TQztLl1r7W2dPOt10+uTNkmPZ9rNEzksEexSSNi0ldNxbzJ8UlXfG5gbP1I5SR3wigPqFXEkIsnI+MgYISiIM6Q1WpjWZ69tB2tH/mlsqNKGMWqDzEn9tyLvbP+Wt/ec3VSHrjbAPJsbSGBXVeawa/f7VP7f1EUdTkz9CeZcLScdG3dEBYePfgD7eBmxxGP02njGe0Lc5kCAwEAATANBgkqhkiG9w0BAQsFAAOCAQEANDQE0mikTlqfsoDcM4ZmTWS4YpcgtSjyopcn38lWBig2GtqWJZaQ6BSdmYc42idfWNFaaDULWds3maIHy7lslHXMiG+RZxnGK5rcbCZwbZPJ7VlUiV5+B2tUWIbWXyJkr0UiasCHCe3pB14m8o5Q9TjTWVEpRXa5ZIRgHIlNW1jWYvDyvoXfdF/q89OHLS4lKJ3DdCrX3il68zmr9cjZI1nh3kI40e+/9pUMpUJFHR3fZm15WCvXAYbNRdIhbCq0pkDw+A0lIvLDsnQaJIrqvbYGV1wSWfoHKmgSOk50Pu0AL4clfANp7eWjJ3XbRaJRfcw/bhjaxWlPEvkuZy7s/g=="
           ],
-          "priority": ["100"]
+          "priority": [
+            "100"
+          ]
         }
       }
     ]
@@ -2817,5 +2916,132 @@
   },
   "clientPolicies": {
     "policies": []
+  },
+  "userProfile": {
+    "attributes": [
+      {
+        "name": "username",
+        "displayName": "${username}",
+        "validations": {
+          "length": {
+            "min": 3,
+            "max": 255
+          },
+          "username-prohibited-characters": {},
+          "up-username-not-idn-homograph": {}
+        },
+        "permissions": {
+          "view": [
+            "admin",
+            "user"
+          ],
+          "edit": [
+            "admin",
+            "user"
+          ]
+        },
+        "multivalued": false
+      },
+      {
+        "name": "email",
+        "displayName": "${email}",
+        "validations": {
+          "email": {},
+          "length": {
+            "max": 255
+          }
+        },
+        "required": {
+          "roles": [
+            "user"
+          ]
+        },
+        "permissions": {
+          "view": [
+            "admin",
+            "user"
+          ],
+          "edit": [
+            "admin",
+            "user"
+          ]
+        },
+        "multivalued": false
+      },
+      {
+        "name": "firstName",
+        "displayName": "${firstName}",
+        "validations": {
+          "length": {
+            "max": 255
+          },
+          "person-name-prohibited-characters": {}
+        },
+        "required": {
+          "roles": [
+            "user"
+          ]
+        },
+        "permissions": {
+          "view": [
+            "admin",
+            "user"
+          ],
+          "edit": [
+            "admin",
+            "user"
+          ]
+        },
+        "multivalued": false
+      },
+      {
+        "name": "lastName",
+        "displayName": "${lastName}",
+        "validations": {
+          "length": {
+            "max": 255
+          },
+          "person-name-prohibited-characters": {}
+        },
+        "required": {
+          "roles": [
+            "user"
+          ]
+        },
+        "permissions": {
+          "view": [
+            "admin",
+            "user"
+          ],
+          "edit": [
+            "admin",
+            "user"
+          ]
+        },
+        "multivalued": false
+      },
+      {
+        "name": "tenants",
+        "displayName": "Tenant memberships (mirror of tenant-service)",
+        "validations": {},
+        "permissions": {
+          "view": [
+            "admin",
+            "user"
+          ],
+          "edit": [
+            "admin"
+          ]
+        },
+        "multivalued": true
+      }
+    ],
+    "groups": [
+      {
+        "name": "user-metadata",
+        "displayHeader": "User metadata",
+        "displayDescription": "Attributes, which refer to user metadata"
+      }
+    ]
   }
 }
