@@ -49,6 +49,7 @@ function requiredTenantId(): string {
 export const env = {
   NODE_ENV: getEnv('NODE_ENV', 'development'),
   DEFAULT_TENANT_ID: requiredTenantId(),
+  TRUSTED_PROXY_ADDRESSES: getEnv('TRUSTED_PROXY_ADDRESSES', ''),
   SCHEMA_TARGET: getEnv('SCHEMA_TARGET', 'true'),
   LOG_DEFAULT: getEnv('LOG_DEFAULT', 'false', { transform: toBool }),
   LOG_DIRECTORY: getEnv('LOG_DIRECTORY', 'log'),
