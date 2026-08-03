@@ -3,6 +3,32 @@
 All notable changes in this project will be documented in this file.
 
 
+## [3.3.0](https://github.com/omnixys/authentication-service/compare/v3.2.0...v3.3.0) (2026-08-03)
+
+### Analytics
+
+* **Analytics:** publish authentication facts via outbox ([](https://github.com/omnixys/authentication-service/commit/3e34625341b8c7435f81457c1693107046484585))
+
+### Config
+
+* **Config:** require and validate DEFAULT_TENANT_ID ([](https://github.com/omnixys/authentication-service/commit/2c0fd8d7f5cd80af80928d2d50fd2b43e8fd2b72))
+* **Config:** support trusted proxy address policy ([](https://github.com/omnixys/authentication-service/commit/e286af752ef1006ea0286b8389b992b690c13506))
+
+### Keycloak
+
+* **Keycloak:** declare tenants user-profile attribute in fixture ([](https://github.com/omnixys/authentication-service/commit/b8c9f595f0eca9ffae5063a74d507f7c881f5103))
+* **Keycloak:** map identity provider failures safely ([](https://github.com/omnixys/authentication-service/commit/038a14fd87aeda6f97d7b33952ab2ee993a7fd36))
+* **Keycloak:** drop unsupported userProfile field from test fixture ([](https://github.com/omnixys/authentication-service/commit/58ca9f8f3fcd419a3d9ad614979160cb7f8a55f1))
+
+### Platform-token
+
+* **Platform-token:** mint RS256 platform tokens with tenant claims and KC mirror ([](https://github.com/omnixys/authentication-service/commit/2bc81a8d4592be762ccea85efdd540100353d1dd))
+
+### Tenant
+
+* **Tenant:** wire tenant verification and drop default-tenant mode ([](https://github.com/omnixys/authentication-service/commit/388420ca837c828f2d9094945158e90d0ce3f1f7))
+* **Tenant:** use DEFAULT_TENANT_ID instead of hardcoded 'omnixys' ([](https://github.com/omnixys/authentication-service/commit/81142bce45e45e6d1cfc42ddc3d7ef49e6ccc1d4))
+
 ## [3.2.0](https://github.com/omnixys/authentication-service/compare/v3.1.0...v3.2.0) (2026-07-28)
 
 ### Auth
