@@ -24,13 +24,13 @@ import { BackupCodeService } from '../services/backup-code.service.js';
 import { SecurityQuestionService } from '../services/security-question.service.js';
 import { TotpService } from '../services/totp.service.js';
 import { WebAuthnService } from '../services/web-authn.service.js';
-import { getLogger } from '@omnixys/logger';
+import { getLogger } from '@omnixys/logger-ts';
 import {
   CookieAuthGuard,
   CurrentUser,
   CurrentUserData,
   InvalidCredentialsException,
-} from '@omnixys/security';
+} from '@omnixys/security-ts';
 import {
   AuthenticationResponseJSON,
   RegistrationResponseJSON,

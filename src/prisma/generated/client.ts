@@ -106,13 +106,3 @@ export type UserPresence = Prisma.UserPresenceModel
  * 
  */
 export type AnalyticsOutbox = Prisma.AnalyticsOutboxModel
-/**
- * Model TenantKeycloakSync
- * *
- *  * Outbox für die idempotente Spiegelung der autoritativen Tenant-Memberships
- *  * (tenant-service) in das Keycloak-`tenants`-Attribut (mirror).
- *  *  - PENDING → Processor schreibt KC-Attribut (nur bei Abweichung)
- *  *  - SYNCED  → KC entspricht tenant-service
- *  *  - FAILED  → Retry mit Backoff (nextAttemptAt), dann DLT/Lock
- */
-export type TenantKeycloakSync = Prisma.TenantKeycloakSyncModel

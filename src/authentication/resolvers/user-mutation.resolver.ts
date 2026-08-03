@@ -21,15 +21,15 @@ import { SuccessPayload } from '../models/payloads/success.payload.js';
 import { UserWriteService } from '../services/user-write.service.js';
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { ClientInfo, type ClientContext } from '@omnixys/context';
-import { OmnixysLogger } from '@omnixys/logger';
-import { TraceRunner } from '@omnixys/observability';
+import { ClientInfo, type ClientContext } from '@omnixys/context-ts';
+import { OmnixysLogger } from '@omnixys/logger-ts';
+import { TraceRunner } from '@omnixys/observability-ts';
 import {
   CookieAuthGuard,
   CurrentUser,
   CurrentUserData,
   InvalidCredentialsException,
-} from '@omnixys/security';
+} from '@omnixys/security-ts';
 
 @Resolver()
 export class UserMutationResolver {

@@ -18,18 +18,18 @@
 import { AdminWriteService } from '../authentication/services/admin-write.service.js';
 import { AuthenticateReadService } from '../authentication/services/read.service.js';
 import { Injectable } from '@nestjs/common';
-import { ContextAccessor } from '@omnixys/context';
-import type { UserIdDTO, UserIdListDTO } from '@omnixys/contracts';
-import { RealmRoleType } from '@omnixys/contracts';
+import { ContextAccessor } from '@omnixys/context-ts';
+import type { UserIdDTO, UserIdListDTO } from '@omnixys/contracts-ts';
+import { RealmRoleType } from '@omnixys/contracts-ts';
 import {
   IKafkaEventContext,
   KAFKA_HEADERS,
   KafkaEvent,
   KafkaEventHandler,
   KafkaTopics,
-} from '@omnixys/kafka';
-import { OmnixysLogger } from '@omnixys/logger';
-import { TraceRunner } from '@omnixys/observability';
+} from '@omnixys/kafka-ts';
+import { OmnixysLogger } from '@omnixys/logger-ts';
+import { TraceRunner } from '@omnixys/observability-ts';
 
 /**
  * Central Kafka Authentication Handler.

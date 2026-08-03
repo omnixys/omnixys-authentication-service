@@ -5,8 +5,8 @@ import {
   DelayedJobHandler,
   DelayedJobKeys,
   ValkeyLockService,
-} from '@omnixys/cache';
-import { OmnixysLogger } from '@omnixys/logger';
+} from '@omnixys/cache-ts';
+import { OmnixysLogger } from '@omnixys/logger-ts';
 
 @Injectable()
 @DelayedJobHandler()

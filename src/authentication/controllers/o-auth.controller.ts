@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
+import { env } from '../../config/env.js';
 import { AuthenticationInputException } from '../errors/authentication.error.js';
 import { OAuthService } from '../services/o-auth.service.js';
 import { Controller, Get, Param, Query, Res } from '@nestjs/common';
-import { ClientInfo, type ClientContext } from '@omnixys/context';
-import { getLogger } from '@omnixys/logger';
+import { ClientInfo, type ClientContext } from '@omnixys/context-ts';
+import { getLogger } from '@omnixys/logger-ts';
 import { FastifyReply } from 'fastify';
 
-const isProd = process.env.NODE_ENV === 'production';
+const { NODE_ENV, FRONTEND_URL } = env;
+
+const isProd = NODE_ENV === 'production';
 const logger = getLogger('OAuthController');
 
 @Controller('auth/oauth')
@@ -43,7 +46,7 @@ export class OAuthController {
   ) {
     if (error) {
       logger.warn({ provider, error }, 'oauth_callback_error');
-      return reply.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
+      return reply.redirect(`${FRONTEND_URL}/login?error=oauth_failed`);
     }
 
     if (!code || !state) {

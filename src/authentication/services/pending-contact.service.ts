@@ -2,8 +2,8 @@ import { env } from '../../config/env.js';
 import { AuthenticationStateException } from '../errors/authentication.error.js';
 import { PendingContact } from '../models/dtos/pending-contact.dto.js';
 import { Injectable } from '@nestjs/common';
-import { ValkeyKey, ValkeyService } from '@omnixys/cache';
-import { getLogger } from '@omnixys/logger';
+import { ValkeyKey, ValkeyService } from '@omnixys/cache-ts';
+import { getLogger } from '@omnixys/logger-ts';
 import { randomUUID } from 'crypto';
 import * as jose from 'jose';
 

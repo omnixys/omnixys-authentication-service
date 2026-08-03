@@ -18,7 +18,7 @@
 import { SignUpPayload } from '../models/payloads/sign-in.payload.js';
 import { RegisterService } from '../services/register.service.js';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { OmnixysLogger } from '@omnixys/logger';
+import { OmnixysLogger } from '@omnixys/logger-ts';
 
 @Resolver()
 // @UseInterceptors(ResponseTimeInterceptor)

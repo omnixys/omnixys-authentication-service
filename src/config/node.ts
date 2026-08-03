@@ -24,14 +24,21 @@ import { hostname } from 'node:os';
 export interface NodeConfig {
   host: string;
   port: number;
-  httpsOptions: HttpsOptions | undefined;
   nodeEnv: 'development' | 'production' | 'test';
-  tempo: string;
+  serviceName: string;
+
+  httpsOptions: HttpsOptions | undefined;
   protocoll: boolean;
   keysPath: string;
+
+  tempo: string;
+  otel: string;
+  otelTransportMode: string;
+
   keycloak: typeof keycloakConfig;
+
   logger: LogDetail;
-  serviceName: string;
+
   kafkaUri: string;
 }
 
@@ -56,6 +63,8 @@ const {
   LOG_LEVEL,
   SERVICE,
   KAFKA_BROKER,
+  OTEL_URI,
+  OTEL_TRANSPORT_MODE,
 } = env;
 
 /**
@@ -73,6 +82,8 @@ export const nodeConfig: NodeConfig = {
   httpsOptions,
   nodeEnv: NODE_ENV as 'development' | 'production' | 'test',
   tempo: TEMPO_URI,
+  otel: OTEL_URI,
+  otelTransportMode: OTEL_TRANSPORT_MODE,
   protocoll: HTTPS,
   keysPath: KEYS_PATH,
   keycloak: keycloakConfig,

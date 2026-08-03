@@ -24,17 +24,17 @@ import { TokenPayload } from '../models/payloads/token.payload.js';
 import { AdminWriteService } from '../services/admin-write.service.js';
 import { UseGuards } from '@nestjs/common';
 import { Args, ID, Mutation, Resolver } from '@nestjs/graphql';
-import { RealmRoleType } from '@omnixys/contracts';
-// import { GqlFastifyContext, gqlSetTokens } from '@omnixys/context';
-import { getLogger } from '@omnixys/logger';
-import { TraceRunner } from '@omnixys/observability';
+import { RealmRoleType } from '@omnixys/contracts-ts';
+// import { GqlFastifyContext, gqlSetTokens } from '@omnixys/context-ts';
+import { getLogger } from '@omnixys/logger-ts';
+import { TraceRunner } from '@omnixys/observability-ts';
 import {
   CookieAuthGuard,
   CurrentUser,
   CurrentUserData,
   RoleGuard,
   Roles,
-} from '@omnixys/security';
+} from '@omnixys/security-ts';
 
 /**
  * @fileoverview

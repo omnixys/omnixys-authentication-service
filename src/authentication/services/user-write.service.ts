@@ -45,7 +45,7 @@ import { TraceRunner } from '@omnixys/observability-ts';
 import { EncryptionService } from '@omnixys/security-ts';
 import { randomBytes, randomInt } from 'node:crypto';
 
-const { SERVICE } = env;
+const { SERVICE, DEFAULT_TENANT_ID } = env;
 
 export interface SignUpResult {
   userId: string;
@@ -460,9 +460,11 @@ export class UserWriteService extends AuthenticateBaseService {
     type: EventType;
   } {
     const type: EventType = 'EVENT';
+    const context = ContextAccessor.get();
     return {
       actorId,
-      tenantId: env.DEFAULT_TENANT_ID,
+      tenantId:
+        context?.tenant?.tenantId ?? context?.principal?.tenantId ?? DEFAULT_TENANT_ID ?? 'omnixys',
       service: SERVICE,
       operation,
       version: '1',

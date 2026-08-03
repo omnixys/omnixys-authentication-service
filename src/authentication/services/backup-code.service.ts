@@ -1,7 +1,7 @@
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { Injectable } from '@nestjs/common';
-import { getLogger } from '@omnixys/logger';
-import { HashService } from '@omnixys/security';
+import { getLogger } from '@omnixys/logger-ts';
+import { HashService } from '@omnixys/security-ts';
 import { randomBytes } from 'crypto';
 
 @Injectable()

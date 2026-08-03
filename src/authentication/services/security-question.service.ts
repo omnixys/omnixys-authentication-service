@@ -8,8 +8,8 @@ import {
 } from '../errors/authentication.error.js';
 import { SecurityQuestionInput } from '../models/inputs/security-question.input.js';
 import { Injectable } from '@nestjs/common';
-import { getLogger } from '@omnixys/logger';
-import { HashService } from '@omnixys/security';
+import { getLogger } from '@omnixys/logger-ts';
+import { HashService } from '@omnixys/security-ts';
 
 export interface AddSecurityQuestionAnswerInput {
   questionId: string;

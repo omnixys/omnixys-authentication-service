@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /**
  * @license GPL-3.0-or-later
  * Copyright (C) 2025 Caleb Gyamfi - Omnixys Technologies
@@ -40,10 +37,10 @@ import {
   FrameworkException,
   type RealmRoleType,
   type RoleData,
-} from '@omnixys/contracts';
-import type { OmnixysLogger } from '@omnixys/logger';
-import { TraceRunner } from '@omnixys/observability';
-import { InvalidCredentialsException } from '@omnixys/security';
+} from '@omnixys/contracts-ts';
+import type { OmnixysLogger } from '@omnixys/logger-ts';
+import { TraceRunner } from '@omnixys/observability-ts';
+import { InvalidCredentialsException } from '@omnixys/security-ts';
 import * as jose from 'jose';
 import { firstValueFrom } from 'rxjs';
 
@@ -165,8 +162,7 @@ export abstract class AuthenticateBaseService {
 
         if (
           behavior.mapTo === 'null-on-401' &&
-          (oauthError === 'invalid_grant' ||
-            (!oauthError && (status === 400 || status === 401)))
+          (oauthError === 'invalid_grant' || (!oauthError && (status === 400 || status === 401)))
         ) {
           return null as T;
         }
@@ -270,10 +266,7 @@ export abstract class AuthenticateBaseService {
         !Number.isFinite(expiresIn) ||
         expiresIn <= 0
       ) {
-        throw new IdentityProviderResponseException(
-          'acquire-admin-token',
-          res.status,
-        );
+        throw new IdentityProviderResponseException('acquire-admin-token', res.status);
       }
       this.#adminToken = {
         token,
@@ -286,13 +279,7 @@ export abstract class AuthenticateBaseService {
         throw error;
       }
       const info = this.keycloakErrorInfo(error);
-      throw this.mapKeycloakError(
-        error,
-        info,
-        'acquire-admin-token',
-        true,
-        true,
-      );
+      throw this.mapKeycloakError(error, info, 'acquire-admin-token', true, true);
     }
   }
 
@@ -455,12 +442,7 @@ export abstract class AuthenticateBaseService {
     if (status === undefined || status >= 500) {
       return new IdentityProviderException('keycloak', operation, status, error);
     }
-    return new IdentityProviderRequestRejectedException(
-      operation,
-      status,
-      oauthError,
-      error,
-    );
+    return new IdentityProviderRequestRejectedException(operation, status, oauthError, error);
   }
 
   private keycloakErrorInfo(error: unknown): KeycloakErrorInfo {
@@ -479,8 +461,7 @@ export abstract class AuthenticateBaseService {
       responseData && typeof responseData === 'object'
         ? (responseData as Record<string, unknown>)
         : undefined;
-    const oauthError =
-      typeof body?.error === 'string' ? body.error.toLowerCase() : undefined;
+    const oauthError = typeof body?.error === 'string' ? body.error.toLowerCase() : undefined;
     const rawMessage =
       typeof body?.errorMessage === 'string'
         ? body.errorMessage
@@ -494,8 +475,7 @@ export abstract class AuthenticateBaseService {
       status,
       responseData,
       oauthError,
-      networkCode:
-        typeof candidate?.code === 'string' ? candidate.code : undefined,
+      networkCode: typeof candidate?.code === 'string' ? candidate.code : undefined,
       safeMessage: rawMessage.slice(0, 500),
     };
   }

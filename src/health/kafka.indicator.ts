@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { HealthIndicatorResult } from '@nestjs/terminus';
-import { KafkaLifecycleService } from '@omnixys/kafka';
-import { OmnixysLogger } from '@omnixys/logger';
+import { KafkaLifecycleService } from '@omnixys/kafka-ts';
+import { OmnixysLogger } from '@omnixys/logger-ts';
 
 @Injectable()
 export class KafkaIndicator {

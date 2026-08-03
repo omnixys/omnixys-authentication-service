@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 
+import { env } from '../../config/env.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import {
   AuthenticationInputException,
@@ -12,9 +12,18 @@ import { AuthenticateBaseService } from './keycloak-base.service.js';
 import { UserWriteService } from './user-write.service.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { ValkeyKey, ValkeyService } from '@omnixys/cache';
-import type { ClientContext } from '@omnixys/context';
-import { OmnixysLogger } from '@omnixys/logger';
+import { ValkeyKey, ValkeyService } from '@omnixys/cache-ts';
+import type { ClientContext } from '@omnixys/context-ts';
+import { OmnixysLogger } from '@omnixys/logger-ts';
+
+const {
+  GITHUB_CLIENT_ID,
+  GITHUB_REDIRECT_URI,
+  GITHUB_CLIENT_SECRET,
+  GOOGLE_CLIENT_ID,
+  GOOGLE_REDIRECT_URI,
+  GOOGLE_CLIENT_SECRET,
+} = env;
 
 /* =========================================================
    TYPE DEFINITIONS
@@ -78,13 +87,13 @@ export class OAuthService extends AuthenticateBaseService {
 
     if (provider === 'github') {
       return {
-        url: `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${process.env.GITHUB_REDIRECT_URI}&scope=user:email&state=${state}`,
+        url: `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${GITHUB_REDIRECT_URI}&scope=user:email&state=${state}`,
       };
     }
 
     if (provider === 'google') {
       return {
-        url: `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${process.env.GOOGLE_REDIRECT_URI}&response_type=code&scope=openid%20email%20profile&state=${state}`,
+        url: `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${GOOGLE_REDIRECT_URI}&response_type=code&scope=openid%20email%20profile&state=${state}`,
       };
     }
 
@@ -129,8 +138,8 @@ export class OAuthService extends AuthenticateBaseService {
       method: 'POST',
       headers: { Accept: 'application/json' },
       body: new URLSearchParams({
-        client_id: process.env.GITHUB_CLIENT_ID!,
-        client_secret: process.env.GITHUB_CLIENT_SECRET!,
+        client_id: GITHUB_CLIENT_ID,
+        client_secret: GITHUB_CLIENT_SECRET,
         code,
       }),
     });
@@ -204,11 +213,11 @@ export class OAuthService extends AuthenticateBaseService {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
-        client_id: process.env.GOOGLE_CLIENT_ID!,
-        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
         code,
         grant_type: 'authorization_code',
-        redirect_uri: process.env.GOOGLE_REDIRECT_URI!,
+        redirect_uri: GOOGLE_REDIRECT_URI,
       }),
     });
 

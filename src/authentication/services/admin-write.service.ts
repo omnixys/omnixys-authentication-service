@@ -15,7 +15,6 @@
  * For more information, visit <https://www.gnu.org/licenses/>.
  */
 
-import { env } from '../../config/env.js';
 import { paths } from '../../config/keycloak.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuthenticationUserNotFoundException } from '../errors/authentication.error.js';
@@ -102,7 +101,7 @@ export class AdminWriteService extends AuthenticateBaseService {
       version: '1',
       type: 'EVENT' as const,
       actorId,
-      tenantId: env.DEFAULT_TENANT_ID,
+      tenantId: 'omnixys',
     });
 
     await Promise.all([

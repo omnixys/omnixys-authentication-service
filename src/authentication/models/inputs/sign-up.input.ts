@@ -16,7 +16,7 @@
  */
 
 import { Field, InputType } from '@nestjs/graphql';
-import { PhoneNumberInput } from '@omnixys/graphql';
+import { PhoneNumberInput } from '@omnixys/graphql-ts';
 
 @InputType()
 export class AdminSignUpInput {

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 
+import { env } from '../../config/env.js';
 import { ResetTokenState } from '../../prisma/generated/client.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import {
@@ -21,13 +22,15 @@ import { TotpService } from './totp.service.js';
 import { WebAuthnService } from './web-authn.service.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import type { ClientContext } from '@omnixys/context';
-import { KafkaProducerService, KafkaTopics } from '@omnixys/kafka';
-import { OmnixysLogger } from '@omnixys/logger';
-import { HashService, HmacService, InvalidCredentialsException } from '@omnixys/security';
+import type { ClientContext } from '@omnixys/context-ts';
+import { KafkaProducerService, KafkaTopics } from '@omnixys/kafka-ts';
+import { OmnixysLogger } from '@omnixys/logger-ts';
+import { HashService, HmacService, InvalidCredentialsException } from '@omnixys/security-ts';
 import { AuthenticationResponseJSON } from '@simplewebauthn/server';
 import { randomBytes } from 'crypto';
 import { addMinutes } from 'date-fns';
+
+const { KC_REALM } = env;
 
 @Injectable()
 export class ResetService extends AuthenticateBaseService {
@@ -247,23 +250,16 @@ export class ResetService extends AuthenticateBaseService {
     }
 
     // 3️⃣ Update password in Keycloak
-    await this.kcRequest(
-      'put',
-      `/admin/realms/${process.env.KC_REALM}/users/${token.user.id}/reset-password`,
-      {
-        data: {
-          type: 'password',
-          value: input.newPassword,
-          temporary: false,
-        },
+    await this.kcRequest('put', `/admin/realms/${KC_REALM}/users/${token.user.id}/reset-password`, {
+      data: {
+        type: 'password',
+        value: input.newPassword,
+        temporary: false,
       },
-    );
+    });
 
     // 4️⃣ Invalidate all Keycloak sessions
-    await this.kcRequest(
-      'post',
-      `/admin/realms/${process.env.KC_REALM}/users/${token.user.id}/logout`,
-    );
+    await this.kcRequest('post', `/admin/realms/${KC_REALM}/users/${token.user.id}/logout`);
 
     // 5️⃣ Mark this token as completed
     await this.prisma.passwordResetToken.update({

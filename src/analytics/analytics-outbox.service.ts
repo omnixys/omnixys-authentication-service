@@ -1,10 +1,16 @@
+import { env } from '../config/env.js';
 import type { Prisma } from '../prisma/generated/client.js';
 import { Injectable } from '@nestjs/common';
-import { ContextAccessor } from '@omnixys/context';
-import { AnalyticsDomainFactSchema, type AnalyticsDomainFact } from '@omnixys/contracts/analytics';
+import { ContextAccessor } from '@omnixys/context-ts';
+import {
+  AnalyticsDomainFactSchema,
+  type AnalyticsDomainFact,
+} from '@omnixys/contracts-ts/analytics';
 import { isUUID } from 'class-validator';
 
 type Transaction = Prisma.TransactionClient;
+
+const { DEFAULT_TENANT_ID } = env;
 
 @Injectable()
 export class AnalyticsOutboxService {
@@ -14,7 +20,7 @@ export class AnalyticsOutboxService {
     fact: Omit<AnalyticsDomainFact, 'producer' | 'occurredAt'>,
   ): Promise<unknown> {
     const context = ContextAccessor.get();
-    const tenantId = context?.tenant?.verified ? context.tenant.tenantId : undefined;
+    const tenantId = context?.tenant?.tenantId ?? DEFAULT_TENANT_ID;
     if (!tenantId || !isUUID(tenantId)) {
       throw new Error('Verified UUID tenant context is required for analytics facts');
     }

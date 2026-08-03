@@ -29,8 +29,8 @@ import {
   FastifyAdapter,
   type NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { OmnixysLogger } from '@omnixys/logger';
-import { registerFastifyTracing } from '@omnixys/observability';
+import { OmnixysLogger } from '@omnixys/logger-ts';
+import { registerFastifyTracing } from '@omnixys/observability-ts';
 import 'reflect-metadata';
 
 /**
@@ -151,8 +151,8 @@ async function bootstrap(): Promise<void> {
    */
   const config = app.get(ConfigService);
 
-  /** Port-Definition (Standard: 4000) */
-  const port = Number(config.get('PORT') ?? 4000);
+  /** Port-Definition (Standard: 3000) */
+  const port = Number(config.get('PORT') ?? 3000);
   const service = config.get<string>('SERVICE') ?? env.SERVICE;
 
   // ======================================================

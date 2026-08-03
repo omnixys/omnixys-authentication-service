@@ -10,8 +10,8 @@ import {
   ObjectType,
   Resolver,
 } from '@nestjs/graphql';
-import { ClientInfo, type ClientContext } from '@omnixys/context';
-import { OmnixysLogger } from '@omnixys/logger';
+import { ClientInfo, type ClientContext } from '@omnixys/context-ts';
+import { OmnixysLogger } from '@omnixys/logger-ts';
 import { AuthenticationResponseJSON } from '@simplewebauthn/server';
 
 /* =======================================================

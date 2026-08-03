@@ -177,7 +177,7 @@ export class RegisterService extends AuthenticateBaseService {
             version: '1',
             type: 'EVENT',
             actorId,
-            tenantId: env.DEFAULT_TENANT_ID,
+            tenantId: 'omnixys',
           },
         }),
 
@@ -190,7 +190,7 @@ export class RegisterService extends AuthenticateBaseService {
             version: '1',
             type: 'EVENT',
             actorId,
-            tenantId: env.DEFAULT_TENANT_ID,
+            tenantId: 'omnixys',
           },
         }),
       ]);

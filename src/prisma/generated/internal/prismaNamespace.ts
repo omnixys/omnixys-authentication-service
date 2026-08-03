@@ -409,8 +409,7 @@ export const ModelName = {
   LoginHistory: 'LoginHistory',
   OAuthAccount: 'OAuthAccount',
   UserPresence: 'UserPresence',
-  AnalyticsOutbox: 'AnalyticsOutbox',
-  TenantKeycloakSync: 'TenantKeycloakSync'
+  AnalyticsOutbox: 'AnalyticsOutbox'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -426,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "authUser" | "totpCredential" | "webAuthnCredential" | "backupCode" | "securityQuestion" | "userSecurityQuestion" | "passwordResetToken" | "rateLimitBucket" | "knownDevice" | "loginHistory" | "oAuthAccount" | "userPresence" | "analyticsOutbox" | "tenantKeycloakSync"
+    modelProps: "authUser" | "totpCredential" | "webAuthnCredential" | "backupCode" | "securityQuestion" | "userSecurityQuestion" | "passwordResetToken" | "rateLimitBucket" | "knownDevice" | "loginHistory" | "oAuthAccount" | "userPresence" | "analyticsOutbox"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1392,80 +1391,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    TenantKeycloakSync: {
-      payload: Prisma.$TenantKeycloakSyncPayload<ExtArgs>
-      fields: Prisma.TenantKeycloakSyncFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.TenantKeycloakSyncFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantKeycloakSyncPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.TenantKeycloakSyncFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantKeycloakSyncPayload>
-        }
-        findFirst: {
-          args: Prisma.TenantKeycloakSyncFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantKeycloakSyncPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.TenantKeycloakSyncFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantKeycloakSyncPayload>
-        }
-        findMany: {
-          args: Prisma.TenantKeycloakSyncFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantKeycloakSyncPayload>[]
-        }
-        create: {
-          args: Prisma.TenantKeycloakSyncCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantKeycloakSyncPayload>
-        }
-        createMany: {
-          args: Prisma.TenantKeycloakSyncCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.TenantKeycloakSyncCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantKeycloakSyncPayload>[]
-        }
-        delete: {
-          args: Prisma.TenantKeycloakSyncDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantKeycloakSyncPayload>
-        }
-        update: {
-          args: Prisma.TenantKeycloakSyncUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantKeycloakSyncPayload>
-        }
-        deleteMany: {
-          args: Prisma.TenantKeycloakSyncDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.TenantKeycloakSyncUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.TenantKeycloakSyncUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantKeycloakSyncPayload>[]
-        }
-        upsert: {
-          args: Prisma.TenantKeycloakSyncUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantKeycloakSyncPayload>
-        }
-        aggregate: {
-          args: Prisma.TenantKeycloakSyncAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateTenantKeycloakSync>
-        }
-        groupBy: {
-          args: Prisma.TenantKeycloakSyncGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TenantKeycloakSyncGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.TenantKeycloakSyncCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.TenantKeycloakSyncCountAggregateOutputType> | number
-        }
-      }
-    }
   }
 } & {
   other: {
@@ -1669,24 +1594,6 @@ export const AnalyticsOutboxScalarFieldEnum = {
 export type AnalyticsOutboxScalarFieldEnum = (typeof AnalyticsOutboxScalarFieldEnum)[keyof typeof AnalyticsOutboxScalarFieldEnum]
 
 
-export const TenantKeycloakSyncScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  tenantIds: 'tenantIds',
-  state: 'state',
-  attempts: 'attempts',
-  nextAttemptAt: 'nextAttemptAt',
-  lockedAt: 'lockedAt',
-  lockedBy: 'lockedBy',
-  lastError: 'lastError',
-  syncedAt: 'syncedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type TenantKeycloakSyncScalarFieldEnum = (typeof TenantKeycloakSyncScalarFieldEnum)[keyof typeof TenantKeycloakSyncScalarFieldEnum]
-
-
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1835,20 +1742,6 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-/**
- * Reference to a field of type 'TenantSyncState'
- */
-export type EnumTenantSyncStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TenantSyncState'>
-    
-
-
-/**
- * Reference to a field of type 'TenantSyncState[]'
- */
-export type ListEnumTenantSyncStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TenantSyncState[]'>
     
 
 
@@ -2029,7 +1922,6 @@ export type GlobalOmitConfig = {
   oAuthAccount?: Prisma.OAuthAccountOmit
   userPresence?: Prisma.UserPresenceOmit
   analyticsOutbox?: Prisma.AnalyticsOutboxOmit
-  tenantKeycloakSync?: Prisma.TenantKeycloakSyncOmit
 }
 
 /* Types for Logging */

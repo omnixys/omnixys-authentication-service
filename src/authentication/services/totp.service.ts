@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { Injectable } from '@nestjs/common';
-import { getLogger } from '@omnixys/logger';
-import { EncryptionService } from '@omnixys/security';
+import { getLogger } from '@omnixys/logger-ts';
+import { EncryptionService } from '@omnixys/security-ts';
 import { generateSecret, generateURI, verify } from 'otplib';
 
 @Injectable()

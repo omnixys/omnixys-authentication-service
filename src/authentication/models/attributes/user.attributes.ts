@@ -16,7 +16,7 @@
  */
 
 import { AuthenticationInputException } from '../../errors/authentication.error.js';
-import type { RealmRoleType } from '@omnixys/contracts';
+import type { RealmRoleType } from '@omnixys/contracts-ts';
 
 // Zentrales, typsicheres Attribut-Schema für Keycloak-User-Attributes
 

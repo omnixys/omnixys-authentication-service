@@ -4,14 +4,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuthenticationStateException } from '../errors/authentication.error.js';
 import { Injectable } from '@nestjs/common';
-import { ValkeyKey, ValkeyService } from '@omnixys/cache';
-import { getLogger } from '@omnixys/logger';
+import { ValkeyKey, ValkeyService } from '@omnixys/cache-ts';
+import { getLogger } from '@omnixys/logger-ts';
 
+import { env } from '../../config/env.js';
 import {
   verifyAuthenticationResponse,
   verifyRegistrationResponse,
@@ -25,6 +24,7 @@ import {
 } from '@simplewebauthn/server';
 // import { WebAuthnDevicePayload } from '../resolvers/mfa-mutation.resolver.js';
 
+const { WEBAUTHN_RP_ID, WEBAUTHN_ORIGIN } = env;
 @Injectable()
 export class WebAuthnService {
   readonly #logger = getLogger(WebAuthnService.name);
@@ -143,7 +143,7 @@ export class WebAuthnService {
 
   async generateDiscoverableAuthOptions(): Promise<PublicKeyCredentialRequestOptionsJSON> {
     const options = await generateAuthenticationOptions({
-      rpID: process.env.WEBAUTHN_RP_ID!,
+      rpID: WEBAUTHN_RP_ID,
       userVerification: 'required',
       // 🚀 no allowCredentials → discoverable credentials
     });
@@ -199,8 +199,8 @@ export class WebAuthnService {
     const verification = await verifyAuthenticationResponse({
       response,
       expectedChallenge,
-      expectedOrigin: process.env.WEBAUTHN_ORIGIN!,
-      expectedRPID: process.env.WEBAUTHN_RP_ID!,
+      expectedOrigin: WEBAUTHN_ORIGIN,
+      expectedRPID: WEBAUTHN_RP_ID,
       credential: {
         id: credentialRecord.credentialId,
         publicKey: new Uint8Array(Buffer.from(credentialRecord.publicKey, 'base64url')),
@@ -264,8 +264,8 @@ export class WebAuthnService {
     const verification = await verifyAuthenticationResponse({
       response,
       expectedChallenge,
-      expectedOrigin: process.env.WEBAUTHN_ORIGIN!,
-      expectedRPID: process.env.WEBAUTHN_RP_ID!,
+      expectedOrigin: WEBAUTHN_ORIGIN,
+      expectedRPID: WEBAUTHN_RP_ID,
       credential,
     });
 
@@ -307,7 +307,7 @@ export class WebAuthnService {
 
     const options = await generateRegistrationOptions({
       rpName: 'Omnixys',
-      rpID: process.env.WEBAUTHN_RP_ID!,
+      rpID: WEBAUTHN_RP_ID,
       userID: new TextEncoder().encode(userId),
       userName: email,
       attestationType: 'none',
@@ -340,8 +340,8 @@ export class WebAuthnService {
     const verification = await verifyRegistrationResponse({
       response,
       expectedChallenge,
-      expectedOrigin: process.env.WEBAUTHN_ORIGIN!,
-      expectedRPID: process.env.WEBAUTHN_RP_ID!,
+      expectedOrigin: WEBAUTHN_ORIGIN,
+      expectedRPID: WEBAUTHN_RP_ID,
     });
 
     if (!verification.verified || !verification.registrationInfo) {
@@ -379,7 +379,7 @@ export class WebAuthnService {
     });
 
     const options = await generateAuthenticationOptions({
-      rpID: process.env.WEBAUTHN_RP_ID!,
+      rpID: WEBAUTHN_RP_ID,
       allowCredentials: credentials.map((c) => ({
         id: c.credentialId,
       })),

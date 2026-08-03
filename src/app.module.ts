@@ -19,15 +19,14 @@ import { RateLimitValkeyAdapterModule } from './adapter/rate-limit/rate-limit-va
 import { ZeroTrustValkeyAdapterModule } from './adapter/zero-trust/zero-trust-valkey-adapter.module.js';
 import { AdminModule } from './admin/admin.module.js';
 import { AuthenticationModule } from './authentication/authentication.module.js';
-import { BannerService } from './banner.service.js';
+import { BannerService } from './config/banner.service.js';
 import { env } from './config/env.js';
 import { ScalarsModule } from './core/scalars/scalar.module.js';
 import { HandlerModule } from './handlers/handler.module.js';
 import { HealthModule } from './health/health.module.js';
-import { PlatformTokenModule } from './platform-token/platform-token.module.js';
 import { Module } from '@nestjs/common';
 import { ValkeyModule } from '@omnixys/cache-ts';
-import { ContextModule, trustedProxyPolicyFromAddresses } from '@omnixys/context-ts';
+import { ContextModule } from '@omnixys/context-ts';
 import { OmnixysGraphQLModule } from '@omnixys/graphql-ts';
 import { OmnixysHttpModule } from '@omnixys/http-ts';
 import { KafkaModule } from '@omnixys/kafka-ts';
@@ -39,28 +38,48 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 const {
   SCHEMA_TARGET,
   SERVICE,
+  NODE_ENV,
+
+  KC_URL,
+  KC_REALM,
+
+  TENANT_SERVICE_URL,
+  TENANT_GRPC_SERVICE_TOKEN,
+
   KAFKA_BROKER,
-  TEMPO_URI,
+  KAFKA_IDEMPOTENCY_ENABLE,
+  KAFKA_IDEMPOTENCY_TTL,
+  KAFKA_RETRY,
+
+  OTEL_URI,
+  OTEL_TRANSPORT_MODE,
+  OTEL_SAMPLING_RATIO,
+  PROMETHEUS_ENABLE,
+  PROMETHEUS_PORT,
+
   VALKEY_URL,
   VALKEY_PASSWORD,
+
   PC_JWE_KEY,
+
   RESET_TOKEN_HMAC_SECRET,
   DEVICE_FINGERPRINT_HMAC_SECRET,
   MAGIC_LINK_HMAC_SECRET,
   ENCRYPTION_KEY,
   FINGERPRINT_SECRET,
-  NODE_ENV,
+
+  RATE_LIMIT_ENABLE,
+  RATE_LIMIT_REQUESTS,
+  RATE_LIMIT_WINDOW,
+
+  LOG_BATCH_ENABLE,
+  LOG_BATCH_FLUSH_INTERVAL,
+  LOG_BATCH_MAX_SIZE,
 } = env;
 
 @Module({
   imports: [
-    ContextModule.forRoot({
-      tenant: {
-        mode: env.NODE_ENV === 'production' ? 'strict' : 'legacy',
-        ...(env.DEFAULT_TENANT_ID ? { defaultTenantId: env.DEFAULT_TENANT_ID } : {}),
-      },
-      trustedProxyPolicy: trustedProxyPolicyFromAddresses(env.TRUSTED_PROXY_ADDRESSES),
-    }),
+    ContextModule.forRoot(),
 
     ValkeyModule.forRoot({
       serviceName: SERVICE,
@@ -81,12 +100,17 @@ const {
             : { path: 'dist/schema.gql', federation: 2 },
       sortSchema: true,
     }),
-    OmnixysHttpModule.forRoot({ serviceName: 'authentication' }),
+    OmnixysHttpModule.forRoot({ serviceName: SERVICE }),
 
     SecurityModule.forRoot({
       jwt: {
-        issuer: env.PLATFORM_ISSUER,
-        jwksUri: env.PLATFORM_JWKS_URI,
+        issuer: `${KC_URL}/realms/${KC_REALM}`,
+        jwksUri: `${KC_URL}/realms/${KC_REALM}/protocol/openid-connect/certs`,
+      },
+
+      tenantVerification: {
+        url: TENANT_SERVICE_URL,
+        callerToken: TENANT_GRPC_SERVICE_TOKEN,
       },
 
       jwe: {
@@ -99,9 +123,9 @@ const {
       },
 
       rateLimit: {
-        enabled: true,
-        defaultLimit: 100,
-        defaultWindowMs: 60000,
+        enabled: RATE_LIMIT_ENABLE,
+        defaultLimit: RATE_LIMIT_REQUESTS,
+        defaultWindowMs: RATE_LIMIT_WINDOW,
         imports: [RateLimitValkeyAdapterModule],
       },
 
@@ -130,22 +154,22 @@ const {
       brokers: [KAFKA_BROKER],
       groupId: `${SERVICE}-group`,
       serviceName: SERVICE,
-      retry: { maxRetries: 5 },
-      idempotency: { enabled: true, ttlSeconds: 86_400 },
+      retry: { maxRetries: KAFKA_RETRY },
+      idempotency: { enabled: KAFKA_IDEMPOTENCY_ENABLE, ttlSeconds: KAFKA_IDEMPOTENCY_TTL },
     }),
 
     ObservabilityModule.forRoot({
       serviceName: SERVICE,
 
       otel: {
-        endpoint: TEMPO_URI,
-        transport: 'http',
-        samplingRatio: 1,
+        endpoint: OTEL_URI,
+        transport: OTEL_TRANSPORT_MODE as 'http' | 'grpc',
+        samplingRatio: OTEL_SAMPLING_RATIO,
       },
 
       metrics: {
-        port: 17501,
-        enabled: true,
+        port: PROMETHEUS_PORT,
+        enabled: PROMETHEUS_ENABLE,
       },
     }),
 
@@ -154,16 +178,15 @@ const {
       registerGlobalInterceptor: true,
 
       batch: {
-        enabled: true,
-        maxSize: 50,
-        flushInterval: 2000,
+        enabled: LOG_BATCH_ENABLE,
+        maxSize: LOG_BATCH_MAX_SIZE,
+        flushInterval: LOG_BATCH_FLUSH_INTERVAL,
       },
     }),
 
     AdminModule,
     HealthModule,
     AuthenticationModule,
-    PlatformTokenModule,
     ScalarsModule,
     HandlerModule,
   ],

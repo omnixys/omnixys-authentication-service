@@ -16,7 +16,7 @@
  */
 
 import { Field, InputType } from '@nestjs/graphql';
-import { PhoneNumberInput } from '@omnixys/graphql';
+import { PhoneNumberInput } from '@omnixys/graphql-ts';
 import { IsEmail, IsString, Length } from 'class-validator';
 
 /**

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { ValkeyService } from '@omnixys/cache';
-import { RiskMemoryStore } from '@omnixys/security';
+import { ValkeyService } from '@omnixys/cache-ts';
+import { RiskMemoryStore } from '@omnixys/security-ts';
 
 @Injectable()
 export class ValkeyRiskMemoryStore implements RiskMemoryStore {

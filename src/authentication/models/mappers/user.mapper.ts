@@ -18,7 +18,7 @@
 import type { KeycloakTokenPayload } from '../dtos/kc-token.dto.js';
 import type { KeycloakUser } from '../dtos/kc-user.dto.js';
 import type { KcUser } from '../entitys/user.entity.js';
-import { RealmRoleType, toEnumRoles } from '@omnixys/contracts';
+import { RealmRoleType, toEnumRoles } from '@omnixys/contracts-ts';
 
 /**
  * Ist es ein Admin-API-User?

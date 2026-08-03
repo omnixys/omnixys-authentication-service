@@ -17,12 +17,10 @@
  */
 
 import { JsonScalar } from '../../core/scalars/json.scalar.js';
-import { PlatformTokenService } from '../../platform-token/platform-token.service.js';
 import { AuthenticationInputException } from '../errors/authentication.error.js';
 import { LogInInput } from '../models/inputs/log-in.input.js';
 import { LoginTotpInput } from '../models/inputs/login-totp.input.js';
 import { SuccessPayload } from '../models/payloads/success.payload.js';
-import { SwitchTenantPayload } from '../models/payloads/switch-tenant.payload.js';
 import { TokenPayload } from '../models/payloads/token.payload.js';
 import { AuthWriteService } from '../services/authentication-write.service.js';
 import { WebAuthnService } from '../services/web-authn.service.js';
@@ -67,7 +65,6 @@ export class AuthMutationResolver {
     private readonly authService: AuthWriteService,
     private readonly webAuthnService: WebAuthnService,
     private readonly tokenCookies: TokenCookieService,
-    private readonly platformTokens: PlatformTokenService,
   ) {
     this.logger = this.omnixysLogger.log(AuthMutationResolver.name);
   }
@@ -140,23 +137,17 @@ export class AuthMutationResolver {
   @UseGuards(CookieAuthGuard)
   async refresh(
     @CurrentUser() user: CurrentUserData,
-    @Args('tenantId', { type: () => String, nullable: true })
-    tenantId: string | undefined,
     @Context() context: GqlFastifyContext,
   ): Promise<TokenPayload> {
     return TraceRunner.run('Refresh Resolver', async () => {
       this.logger.debug(
         '[authentication-mutation.resolver.ts] Refresh %s accessToken...',
-        user.username ?? user.id,
+        user.username,
       );
 
       const refreshToken = user.refresh_token;
 
-      const result = await this.authService.refresh(
-        refreshToken,
-        user.id,
-        tenantId,
-      );
+      const result = await this.authService.refresh(refreshToken);
       if (!result) {
         throw new RefreshTokenExpiredException();
       }
@@ -198,48 +189,6 @@ export class AuthMutationResolver {
       await this.authService.logout(value, user.id);
       this.tokenCookies.clearTokens(context.reply);
       return { ok: true, message: 'Successfully logged out.' };
-    });
-  }
-
-  /**
-   * Wechselt den aktiven Tenant einer laufenden Session. Das bisherige
-   * Plattformtoken wird widerrufen (jti → Valkey-Revocation-Liste), anschließend
-   * wird ein neues Plattformtoken für den Ziel-Tenant ausgestellt.
-   *
-   * @param tenantId - Ziel-Tenant (aktive Membership erforderlich).
-   * @param user - Verifizierter Nutzer der aktuellen Session.
-   * @param ctx - GraphQL-Kontext für Cookie-Antworten.
-   * @returns Frisches Plattformtoken für den Ziel-Tenant.
-   */
-  @UseGuards(CookieAuthGuard)
-  @Mutation(() => SwitchTenantPayload, { name: 'switchTenant' })
-  async switchTenant(
-    @Args('tenantId', { type: () => String }) tenantId: string,
-    @CurrentUser() user: CurrentUserData,
-    @Context() context: GqlFastifyContext,
-  ): Promise<SwitchTenantPayload> {
-    return TraceRunner.run('Switch Tenant Resolver', async () => {
-      const result = await this.platformTokens.switchTenant(
-        user.access_token ?? '',
-        user.id,
-        tenantId,
-      );
-      this.tokenCookies.setTokens(
-        context.reply,
-        {
-          accessToken: result.accessToken,
-          refreshToken: context.reply.request.cookies?.refresh_token ?? '',
-        },
-        {
-          accessTokenMaxAgeMs: result.expiresIn * 1_000,
-        },
-      );
-      return {
-        accessToken: result.accessToken,
-        expiresIn: result.expiresIn,
-        tenantId: result.tenantId,
-        role: result.role,
-      };
     });
   }
 

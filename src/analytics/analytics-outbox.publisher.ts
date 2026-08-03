@@ -1,7 +1,7 @@
 import { PrismaService } from '../prisma/prisma.service.js';
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
-import { KafkaProducerService } from '@omnixys/kafka';
+import { KafkaProducerService } from '@omnixys/kafka-ts';
 import { randomUUID } from 'node:crypto';
 
 @Injectable()
@@ -16,7 +16,9 @@ export class AnalyticsOutboxPublisher implements OnModuleDestroy {
 
   @Interval(1_000)
   async publishReady(): Promise<void> {
-    if (!this.running) return;
+    if (!this.running) {
+      return;
+    }
     const candidates = await this.prisma.analyticsOutbox.findMany({
       where: {
         publishedAt: null,
@@ -43,7 +45,9 @@ export class AnalyticsOutboxPublisher implements OnModuleDestroy {
         },
         data: { lockedAt: new Date(), lockedBy: this.instanceId },
       });
-      if (claimed.count !== 1) continue;
+      if (claimed.count !== 1) {
+        continue;
+      }
       await this.publish(candidate.id);
     }
   }
