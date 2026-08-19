@@ -3,6 +3,20 @@
 All notable changes in this project will be documented in this file.
 
 
+## [3.3.1](https://github.com/omnixys/authentication-service/compare/v3.3.0...v3.3.1) (2026-08-19)
+
+### Agent
+
+* **Agent:** add repository development instructions ([](https://github.com/omnixys/authentication-service/commit/7a577013b5162308ea41753dd5b705a7aee64875))
+
+### Authentication
+
+* **Authentication:** exclude health endpoints from rate-limit and bump version ([](https://github.com/omnixys/authentication-service/commit/9444eeb6e06b2fb39f107448282e3e106a885215))
+
+### Rate-limit
+
+* **Rate-limit:** replace deprecated skip with allowList for @fastify/rate-limit v10 ([](https://github.com/omnixys/authentication-service/commit/b1cc02148149f8f54b40e82258de3d59f075d4ce))
+
 ## [3.3.0](https://github.com/omnixys/authentication-service/compare/v3.2.0...v3.3.0) (2026-08-03)
 
 ### Analytics
