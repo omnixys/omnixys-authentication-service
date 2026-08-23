@@ -3,6 +3,20 @@
 All notable changes in this project will be documented in this file.
 
 
+## [3.3.5](https://github.com/omnixys/authentication-service/compare/v3.3.4...v3.3.5) (2026-08-23)
+
+### Auth
+
+* **Auth:** remove credential debug logging ([](https://github.com/omnixys/authentication-service/commit/6dd7a121978346a18fe3a31cb7d1849095740f20))
+
+### Logger
+
+* **Logger:** fix terminal logger ([](https://github.com/omnixys/authentication-service/commit/60d9074ffe8c7b7c49c84bcda57751a735f868c4))
+
+### Other
+
+* **Other:** Merge branch 'main' of https://github.com/omnixys/authentication-service ([](https://github.com/omnixys/authentication-service/commit/a4c8cacfc46389634d455ad8a6fa1b435caa8907))
+
 ## [3.3.4](https://github.com/omnixys/authentication-service/compare/v3.3.3...v3.3.4) (2026-08-23)
 
 ### Logger
