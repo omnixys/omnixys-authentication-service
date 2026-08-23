@@ -18,7 +18,10 @@
 import { AnalyticsOutboxService } from '../../analytics/analytics-outbox.service.js';
 import { keycloakConfig, paths } from '../../config/keycloak.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
-import { AuthenticationInputException } from '../errors/authentication.error.js';
+import {
+  AuthenticationInputException,
+  AuthenticationUserNotFoundException,
+} from '../errors/authentication.error.js';
 import type { KeycloakToken } from '../models/dtos/kc-token.dto.js';
 import type { LogInInput } from '../models/inputs/log-in.input.js';
 import { LoginTotpInput } from '../models/inputs/login-totp.input.js';
@@ -85,16 +88,43 @@ export class AuthWriteService extends AuthenticateBaseService {
   async passwordLogin(input: LogInInput & RequestContext): Promise<TokenPayload> {
     const { username, password } = input;
 
+    this.logger.info('auth.login.start', { phase: 'login.start' });
+
     if (!username || !password) {
       throw new InvalidCredentialsException();
     }
 
     let userId: string;
+    const userLookupStartedAt = Date.now();
+    this.logger.info('auth.login.phase.start', {
+      phase: 'keycloak.user-lookup',
+      endpoint: paths.users,
+    });
     try {
       userId = (await this.readService.findByUsername(username)).id;
-    } catch {
+      this.logger.info('auth.login.phase.success', {
+        phase: 'keycloak.user-lookup',
+        endpoint: paths.users,
+        durationMs: Date.now() - userLookupStartedAt,
+      });
+    } catch (error) {
       await this.hashService.dummyVerify();
-      throw new InvalidCredentialsException();
+      if (error instanceof AuthenticationUserNotFoundException) {
+        this.logger.info('auth.login.phase.failure', {
+          phase: 'keycloak.user-lookup',
+          endpoint: paths.users,
+          durationMs: Date.now() - userLookupStartedAt,
+          result: 'user-not-found',
+        });
+        throw new InvalidCredentialsException();
+      }
+      this.logger.warn('auth.login.phase.failure', {
+        phase: 'keycloak.user-lookup',
+        endpoint: paths.users,
+        durationMs: Date.now() - userLookupStartedAt,
+        result: 'provider-error',
+      });
+      throw error;
     }
 
     // const riskResult = await this.zeroTrustService.evaluate({
@@ -116,12 +146,20 @@ export class AuthWriteService extends AuthenticateBaseService {
     //   throw new StepUpRequiredException(riskResult.stepUp!, riskResult.reasons);
     // }
 
+    const passwordGrantStartedAt = Date.now();
     try {
       const body = new URLSearchParams({
         grant_type: 'password',
+        client_id: keycloakConfig.clientId,
+        client_secret: keycloakConfig.clientSecret,
         username,
         password,
         scope: 'openid',
+      });
+
+      this.logger.info('auth.login.phase.start', {
+        phase: 'keycloak.password-grant',
+        endpoint: paths.accessToken,
       });
 
       const data = await this.kcRequest<KeycloakToken>(
@@ -141,6 +179,12 @@ export class AuthWriteService extends AuthenticateBaseService {
         throw new InvalidCredentialsException();
       }
 
+      this.logger.info('auth.login.phase.success', {
+        phase: 'keycloak.password-grant',
+        endpoint: paths.accessToken,
+        durationMs: Date.now() - passwordGrantStartedAt,
+      });
+
       await this.riskMemory.resetFailures(userId);
 
       if (input.ip) {
@@ -154,6 +198,13 @@ export class AuthWriteService extends AuthenticateBaseService {
     } catch (err) {
       // zusätzliche Sicherheit (Timing / Side-channel)
       await this.hashService.dummyVerify();
+      this.logger.warn('auth.login.phase.failure', {
+        phase: 'keycloak.password-grant',
+        endpoint: paths.accessToken,
+        durationMs: Date.now() - passwordGrantStartedAt,
+        result:
+          err instanceof InvalidCredentialsException ? 'invalid-credentials' : 'provider-error',
+      });
       if (err instanceof InvalidCredentialsException) {
         await this.recordLoginFact(userId, input.ip, false, 'password', 'INVALID_CREDENTIALS');
       }

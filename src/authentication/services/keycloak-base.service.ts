@@ -121,6 +121,12 @@ export abstract class AuthenticateBaseService {
     return TraceRunner.run(`Keycloak Request: ${url}`, async () => {
       const headers: Record<string, string> = { ...cfg.headers };
       const baseURL = keycloakConfig.url;
+      const startedAt = Date.now();
+
+      this.logger.info('auth.keycloak.request.start', {
+        method: method.toUpperCase(),
+        endpoint: url,
+      });
 
       if (cfg.adminAuth !== false) {
         const token = await this.getAdminToken();
@@ -134,7 +140,9 @@ export abstract class AuthenticateBaseService {
           url,
           cfg.data && typeof cfg.data === 'object'
             ? this.sanitizeLogPayload(cfg.data as Record<string, unknown>)
-            : cfg.data,
+            : typeof cfg.data === 'string'
+              ? '[form-urlencoded omitted]'
+              : cfg.data,
         );
 
         const res = await firstValueFrom(
@@ -147,10 +155,24 @@ export abstract class AuthenticateBaseService {
             headers,
           }),
         );
+        this.logger.info('auth.keycloak.request.success', {
+          method: method.toUpperCase(),
+          endpoint: url,
+          status: res.status,
+          durationMs: Date.now() - startedAt,
+        });
         return res.data;
       } catch (err: unknown) {
         const info = this.keycloakErrorInfo(err);
         const { status, responseData, oauthError, safeMessage } = info;
+
+        this.logger.warn('auth.keycloak.request.failure', {
+          method: method.toUpperCase(),
+          endpoint: url,
+          status,
+          oauthError,
+          durationMs: Date.now() - startedAt,
+        });
 
         this.logger.warn(
           'Keycloak request rejected method=%s path=%s status=%s oauthError=%s',
@@ -246,7 +268,12 @@ export abstract class AuthenticateBaseService {
       scope: 'openid',
     });
 
+    const startedAt = Date.now();
     try {
+      this.logger.info('auth.keycloak.admin-token.start', {
+        phase: 'keycloak.admin-token',
+        endpoint: '/realms/omnixys/protocol/openid-connect/token',
+      });
       const res = await firstValueFrom(
         this.http.post<{ access_token: string; expires_in: number }>(
           `/realms/omnixys/protocol/openid-connect/token`,
@@ -273,8 +300,22 @@ export abstract class AuthenticateBaseService {
         expiresAt: Date.now() + Math.max(1, expiresIn - 30) * 1000,
       };
       this.logger.info('admin_token_acquired', { expiresIn });
+      this.logger.info('auth.keycloak.admin-token.success', {
+        phase: 'keycloak.admin-token',
+        endpoint: '/realms/omnixys/protocol/openid-connect/token',
+        status: res.status,
+        durationMs: Date.now() - startedAt,
+      });
       return token;
     } catch (error: unknown) {
+      const infoForLog = this.keycloakErrorInfo(error);
+      this.logger.warn('auth.keycloak.admin-token.failure', {
+        phase: 'keycloak.admin-token',
+        endpoint: '/realms/omnixys/protocol/openid-connect/token',
+        status: infoForLog.status,
+        oauthError: infoForLog.oauthError,
+        durationMs: Date.now() - startedAt,
+      });
       if (error instanceof FrameworkException) {
         throw error;
       }
