@@ -3,6 +3,12 @@
 All notable changes in this project will be documented in this file.
 
 
+## [3.3.3](https://github.com/omnixys/authentication-service/compare/v3.3.2...v3.3.3) (2026-08-23)
+
+### Error
+
+* **Error:** update error handling ([](https://github.com/omnixys/authentication-service/commit/bdac4ddebf5f1ec064eb8ed60cdb547bb92b9cf4))
+
 ## [3.3.2](https://github.com/omnixys/authentication-service/compare/v3.3.1...v3.3.2) (2026-08-23)
 
 ### Observability
