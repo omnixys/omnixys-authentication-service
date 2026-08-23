@@ -3,6 +3,12 @@
 All notable changes in this project will be documented in this file.
 
 
+## [3.3.4](https://github.com/omnixys/authentication-service/compare/v3.3.3...v3.3.4) (2026-08-23)
+
+### Logger
+
+* **Logger:** update logger deps ([](https://github.com/omnixys/authentication-service/commit/c1cc7ac237a6168102a9c6c40409164de2cbbe07))
+
 ## [3.3.3](https://github.com/omnixys/authentication-service/compare/v3.3.2...v3.3.3) (2026-08-23)
 
 ### Error
