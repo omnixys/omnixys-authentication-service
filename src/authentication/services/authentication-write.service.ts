@@ -88,7 +88,10 @@ export class AuthWriteService extends AuthenticateBaseService {
   async passwordLogin(input: LogInInput & RequestContext): Promise<TokenPayload> {
     const { username, password } = input;
 
-    this.logger.info('auth.login.start', { phase: 'login.start' });
+    this.logger.info('auth.login.start', {
+      phase: 'login.start',
+      operation: 'passwordLogin',
+    });
 
     if (!username || !password) {
       throw new InvalidCredentialsException();
@@ -156,10 +159,10 @@ export class AuthWriteService extends AuthenticateBaseService {
         password,
         scope: 'openid',
       });
-
       this.logger.info('auth.login.phase.start', {
         phase: 'keycloak.password-grant',
         endpoint: paths.accessToken,
+        operation: 'passwordLogin',
       });
 
       const data = await this.kcRequest<KeycloakToken>(
