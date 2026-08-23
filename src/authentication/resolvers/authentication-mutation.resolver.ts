@@ -91,7 +91,7 @@ export class AuthMutationResolver {
     return TraceRunner.run('Credentials Login Resolver', async () => {
       // const res = ctx?.reply;
       this.logger.debug('Credentials login requested', {
-        username: input.username,
+        operation: 'credentialsLogin',
       });
 
       const ip = client.ip;

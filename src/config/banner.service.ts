@@ -35,11 +35,11 @@ export class BannerService implements OnApplicationBootstrap {
       this.#logger.info(chalk.cyan('Pretty Logging: ') + chalk.yellow(logger.logPretty));
       this.#logger.info(chalk.cyan('Custom Log Level: ') + chalk.yellow(logger.logLevel));
     }
-    this.#printEnv(nodeEnv);
+    this.#printEnv();
     this.#logger.info(chalk.green('==============================='));
   }
 
-  #printEnv(nodeEnv: string): void {
+  #printEnv(): void {
     const groups = new Map<string, Array<[string, string]>>();
     const order = [
       'LOGGER',
@@ -77,9 +77,7 @@ export class BannerService implements OnApplicationBootstrap {
       }
       this.#logger.info(chalk.green(`==============${section}===========`));
       for (const [key, value] of entries) {
-        this.#logger.info(
-          chalk.cyan(`${key}: `) + chalk.yellow(this.#displayValue(key, value, nodeEnv)),
-        );
+        this.#logger.info(chalk.cyan(`${key}: `) + chalk.yellow(this.#displayValue(key, value)));
       }
     }
   }
@@ -131,8 +129,8 @@ export class BannerService implements OnApplicationBootstrap {
     return 'GENERAL';
   }
 
-  #displayValue(_key: string, value: string, nodeEnv: string): string {
-    if (nodeEnv !== 'development' && this.#isSensitiveKey(_key)) {
+  #displayValue(key: string, value: string): string {
+    if (this.#isSensitiveKey(key)) {
       return '****';
     }
     return value;

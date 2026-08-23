@@ -134,16 +134,9 @@ export abstract class AuthenticateBaseService {
       }
 
       try {
-        this.logger.debug(
-          'KC request → %s %s | body: %o',
-          method.toUpperCase(),
-          url,
-          cfg.data && typeof cfg.data === 'object'
-            ? this.sanitizeLogPayload(cfg.data as Record<string, unknown>)
-            : typeof cfg.data === 'string'
-              ? '[form-urlencoded omitted]'
-              : cfg.data,
-        );
+        this.logger.debug('KC request → %s', method.toUpperCase(), {
+          hasBody: cfg.data !== undefined,
+        });
 
         const res = await firstValueFrom(
           this.http.request<T>({
@@ -396,24 +389,6 @@ export abstract class AuthenticateBaseService {
   protected mapRoleInput(input: RealmRoleType | string): string {
     const key = String(input).toUpperCase() as RealmRoleType;
     return ENUM_TO_KC[key] ?? String(input);
-  }
-
-  /**
-   * Strips sensitive fields from a payload object for safe debug logging.
-   */
-  private sanitizeLogPayload(data: Record<string, unknown>): Record<string, unknown> {
-    const safe = { ...data };
-    if ('password' in safe) {
-      const pwLen = typeof safe.password === 'string' ? safe.password.length : 0;
-      safe.password = safe.password ? `[defined len=${pwLen}]` : '[undefined]';
-    }
-    if ('credentials' in safe && Array.isArray(safe.credentials)) {
-      safe.credentials = safe.credentials.map((c: Record<string, unknown>) => ({
-        ...c,
-        value: c.value ? '[REDACTED]' : '[undefined]',
-      }));
-    }
-    return safe;
   }
 
   /**
