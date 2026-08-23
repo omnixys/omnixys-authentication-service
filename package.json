@@ -82,7 +82,7 @@
     "@omnixys/http-ts": "^1.0.1",
     "@omnixys/kafka-ts": "^3.2.1",
     "@omnixys/graphql-ts": "^3.1.4",
-    "@omnixys/logger-ts": "^3.2.3",
+    "@omnixys/logger-ts": "^3.2.4",
     "@omnixys/observability-ts": "^3.3.2",
     "@omnixys/security-ts": "^4.0.2",
     "@prisma/adapter-pg": "^7.9.1",
