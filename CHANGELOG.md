@@ -3,6 +3,13 @@
 All notable changes in this project will be documented in this file.
 
 
+## [3.3.2](https://github.com/omnixys/authentication-service/compare/v3.3.1...v3.3.2) (2026-08-23)
+
+### Observability
+
+* **Observability:** update ([](https://github.com/omnixys/authentication-service/commit/8298460addde03c505d0dedc8e6f8b04c166e79d))
+* **Observability:** update dependency ([](https://github.com/omnixys/authentication-service/commit/2328ba5f22c08c9d8efc01b1a730c697fc614371))
+
 ## [3.3.1](https://github.com/omnixys/authentication-service/compare/v3.3.0...v3.3.1) (2026-08-19)
 
 ### Agent
