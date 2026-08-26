@@ -3,6 +3,13 @@
 All notable changes in this project will be documented in this file.
 
 
+## [3.4.1](https://github.com/omnixys/authentication-service/compare/v3.4.0...v3.4.1) (2026-08-26)
+
+### Deps
+
+* **Deps:** update logger to 3.2.6 ([](https://github.com/omnixys/authentication-service/commit/f8a529aa97ec9f0a2554b4c6d5fb6915673c63d6))
+* **Deps:** update shared TypeScript packages ([](https://github.com/omnixys/authentication-service/commit/f5a28cf1a1feb51b94faa95cfe77c99d9f12d129))
+
 ## [3.4.0](https://github.com/omnixys/authentication-service/compare/v3.3.5...v3.4.0) (2026-08-26)
 
 ### Deps
