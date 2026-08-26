@@ -3,6 +3,16 @@
 All notable changes in this project will be documented in this file.
 
 
+## [3.4.0](https://github.com/omnixys/authentication-service/compare/v3.3.5...v3.4.0) (2026-08-26)
+
+### Deps
+
+* **Deps:** update omnixys ts packages ([](https://github.com/omnixys/authentication-service/commit/7313fb202a108d0f9ebc8f4680d7bc9ab1b55fb5))
+
+### Otel
+
+* **Otel:** add otel logs ([](https://github.com/omnixys/authentication-service/commit/98ae255cb239dc3d9d99d21e42732cff755d5bb5))
+
 ## [3.3.5](https://github.com/omnixys/authentication-service/compare/v3.3.4...v3.3.5) (2026-08-23)
 
 ### Auth
