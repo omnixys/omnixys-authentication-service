@@ -148,5 +148,10 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.67.0",
     "vitest": "^4.1.11"
+  },
+   "pnpm": {
+    "overrides": {
+      "fastify": "5.8.5"
+    }
   }
 }
