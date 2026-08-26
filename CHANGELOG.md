@@ -3,6 +3,16 @@
 All notable changes in this project will be documented in this file.
 
 
+## [3.4.3](https://github.com/omnixys/authentication-service/compare/v3.4.2...v3.4.3) (2026-08-26)
+
+### Build
+
+* **Build:** fix build errors ([](https://github.com/omnixys/authentication-service/commit/f2244709012d47a4a7f4f6a791c892b3a0802d38))
+
+### Other
+
+* **Other:** Merge branch 'main' of https://github.com/omnixys/authentication-service ([](https://github.com/omnixys/authentication-service/commit/561d122fb36598884714ce112be2f74b9de2c469))
+
 ## [3.4.2](https://github.com/omnixys/authentication-service/compare/v3.4.1...v3.4.2) (2026-08-26)
 
 ### Build
