@@ -10,7 +10,7 @@
 Omnixys Authentication Service – central authentication and authorization (Keycloak, JWT, SSO, WebAuthn, TOTP).
 
 - Repository path: `services/authentication` (relative to the Omnixys root)
-- Package: `authentication-service` (version: 3.3.0)
+- Package: `authentication-service` (version: 3.4.0)
 - Runtime: Node >=25.8.2 (pnpm >=10.33.0)
 - Kind: Service
 
