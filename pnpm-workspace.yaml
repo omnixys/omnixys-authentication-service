@@ -20,3 +20,5 @@ onlyBuiltDependencies:
   - esbuild
   - prisma
   - protobufjs
+overrides:
+  fastify: 5.8.5
