@@ -37,4 +37,6 @@ export class KcUser {
 
   @Field(() => RealmRoleType, { nullable: true })
   role?: RealmRoleType;
+
+  attributes?: Record<string, string[]>;
 }

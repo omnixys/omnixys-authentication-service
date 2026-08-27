@@ -45,6 +45,7 @@ function fromKeycloakUser(u: KeycloakUser): KcUser {
     firstName: u.firstName ?? 'N/A',
     lastName: u.lastName ?? 'N/A',
     email: u.email,
+    attributes: u.attributes,
   };
 }
 

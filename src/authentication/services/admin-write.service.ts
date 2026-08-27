@@ -22,6 +22,7 @@ import { KeycloakUserPatch } from '../models/dtos/kc-user.dto.js';
 import type { AdminSignUpInput } from '../models/inputs/sign-up.input.js';
 import { UpdateMyProfileInput } from '../models/inputs/user-update.input.js';
 import type { TokenPayload } from '../models/payloads/token.payload.js';
+import { keycloakTenantAttributes } from '../utils/tenant-context.js';
 import { AuthWriteService } from './authentication-write.service.js';
 import { AuthenticateBaseService } from './keycloak-base.service.js';
 import { AuthenticateReadService } from './read.service.js';
@@ -68,6 +69,7 @@ export class AdminWriteService extends AuthenticateBaseService {
       credentials,
       emailVerified: true,
       requiredActions: [],
+      attributes: keycloakTenantAttributes(),
     };
 
     await this.kcRequest('post', paths.users, {

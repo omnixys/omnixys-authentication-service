@@ -24,6 +24,7 @@ export interface KeycloakUser {
   email: string;
   emailVerified?: boolean;
   requiredActions?: string[];
+  attributes?: Record<string, string[]>;
 }
 
 export interface KeycloakUserPatch {

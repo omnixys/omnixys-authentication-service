@@ -28,6 +28,7 @@ import { KeycloakUser, KeycloakUserPatch } from '../models/dtos/kc-user.dto.js';
 import { updatePasswortDTO } from '../models/dtos/update-password.dto.js';
 import { UpdateMyProfileInput } from '../models/inputs/user-update.input.js';
 import { toUsers } from '../models/mappers/user.mapper.js';
+import { keycloakTenantAttributes, resolveTenantId } from '../utils/tenant-context.js';
 import { AdminWriteService } from './admin-write.service.js';
 import { AuthWriteService } from './authentication-write.service.js';
 import { AuthenticateBaseService } from './keycloak-base.service.js';
@@ -45,7 +46,7 @@ import { TraceRunner } from '@omnixys/observability-ts';
 import { EncryptionService } from '@omnixys/security-ts';
 import { randomBytes, randomInt } from 'node:crypto';
 
-const { SERVICE, DEFAULT_TENANT_ID } = env;
+const { SERVICE } = env;
 
 export interface SignUpResult {
   userId: string;
@@ -141,6 +142,7 @@ export class UserWriteService extends AuthenticateBaseService {
             lastName: invitee.lastName,
             email: invitee.email,
             eventEndsAt: input.eventEndsAt,
+            tenantId: input.tenantId,
           });
 
           results.push(user);
@@ -158,7 +160,7 @@ export class UserWriteService extends AuthenticateBaseService {
                 username: user.username,
                 email: user.email,
               },
-              meta: this.meta(user.userId, 'create guest user'),
+              meta: this.meta(user.userId, 'create guest user', input.tenantId),
             }),
 
             this.kafkaProducer.send({
@@ -168,7 +170,7 @@ export class UserWriteService extends AuthenticateBaseService {
                 invitationId: invitee.invitationId,
                 token: signUpToken,
               },
-              meta: this.meta(user.userId, 'assign role'),
+              meta: this.meta(user.userId, 'assign role', input.tenantId),
             }),
 
             this.kafkaProducer.send({
@@ -178,7 +180,7 @@ export class UserWriteService extends AuthenticateBaseService {
                 invitationId: invitee.invitationId,
                 token: signUpToken,
               },
-              meta: this.meta(user.userId, 'assign seat'),
+              meta: this.meta(user.userId, 'assign seat', input.tenantId),
             }),
           ]);
         }
@@ -207,6 +209,7 @@ export class UserWriteService extends AuthenticateBaseService {
     lastName: string;
     email?: string;
     eventEndsAt: Date;
+    tenantId: string;
   }): Promise<SignUpResult> {
     /**
      * Generate credentials
@@ -227,6 +230,7 @@ export class UserWriteService extends AuthenticateBaseService {
         firstName: data.firstName,
         lastName: data.lastName,
         email: finalEmail,
+        attributes: keycloakTenantAttributes(data.tenantId),
         credentials: [
           {
             type: 'password',
@@ -298,6 +302,7 @@ export class UserWriteService extends AuthenticateBaseService {
       attributes: {
         provider: data.provider,
         providerId: data.providerId,
+        ...keycloakTenantAttributes(),
       },
     };
 
@@ -437,6 +442,7 @@ export class UserWriteService extends AuthenticateBaseService {
       firstName: firstName ?? kcUser.firstName,
       lastName: lastName ?? kcUser.lastName,
       email: email ?? kcUser.email,
+      ...(kcUser.attributes ? { attributes: kcUser.attributes } : {}),
     };
 
     await this.kcRequest('put', `${paths.users}/${encodeURIComponent(id)}`, {
@@ -451,6 +457,7 @@ export class UserWriteService extends AuthenticateBaseService {
   private meta(
     actorId: string,
     operation: string,
+    explicitTenantId?: string,
   ): {
     actorId: string;
     tenantId: string;
@@ -460,11 +467,9 @@ export class UserWriteService extends AuthenticateBaseService {
     type: EventType;
   } {
     const type: EventType = 'EVENT';
-    const context = ContextAccessor.get();
     return {
       actorId,
-      tenantId:
-        context?.tenant?.tenantId ?? context?.principal?.tenantId ?? DEFAULT_TENANT_ID ?? 'omnixys',
+      tenantId: resolveTenantId(explicitTenantId),
       service: SERVICE,
       operation,
       version: '1',

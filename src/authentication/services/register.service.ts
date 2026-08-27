@@ -11,6 +11,7 @@ import {
 } from '../errors/authentication.error.js';
 import { KCSignUpDTO } from '../models/dtos/kc-sign-up.dto.js';
 import { SignUpPayload } from '../models/payloads/sign-in.payload.js';
+import { keycloakTenantAttributes } from '../utils/tenant-context.js';
 import { AdminWriteService } from './admin-write.service.js';
 import { AuthWriteService } from './authentication-write.service.js';
 import { AuthenticateBaseService } from './keycloak-base.service.js';
@@ -117,6 +118,7 @@ export class RegisterService extends AuthenticateBaseService {
         lastName,
         email,
         credentials,
+        attributes: keycloakTenantAttributes(),
       };
 
       await this.kcRequest('post', paths.users, {
