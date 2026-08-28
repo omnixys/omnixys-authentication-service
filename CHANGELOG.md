@@ -3,6 +3,16 @@
 All notable changes in this project will be documented in this file.
 
 
+## [3.4.5](https://github.com/omnixys/authentication-service/compare/v3.4.4...v3.4.5) (2026-08-28)
+
+### Deps
+
+* **Deps:** update contracts-ts ([](https://github.com/omnixys/authentication-service/commit/d2b81c33178b7952273b7b557e64c63762715a77))
+
+### Tenants
+
+* **Tenants:** assign tenant claims to created users ([](https://github.com/omnixys/authentication-service/commit/7330c194a2a1e66745af4c5842fd7ea32d250d07))
+
 ## [3.4.4](https://github.com/omnixys/authentication-service/compare/v3.4.3...v3.4.4) (2026-08-26)
 
 ### Build
