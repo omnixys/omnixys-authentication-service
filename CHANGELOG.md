@@ -3,6 +3,12 @@
 All notable changes in this project will be documented in this file.
 
 
+## [3.5.0](https://github.com/omnixys/authentication-service/compare/v3.4.5...v3.5.0) (2026-08-30)
+
+### Mail
+
+* **Mail:** add downscoped Stalwart token exchange ([](https://github.com/omnixys/authentication-service/commit/8059d17856fc1bd7f98b3b3824e9eaf8d3041e2f))
+
 ## [3.4.5](https://github.com/omnixys/authentication-service/compare/v3.4.4...v3.4.5) (2026-08-28)
 
 ### Deps
