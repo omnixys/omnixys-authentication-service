@@ -16,10 +16,7 @@
  */
 
 import { keycloakConfig, paths } from '../../config/keycloak.js';
-import {
-  AuthenticationStateException,
-  AuthenticationUserNotFoundException,
-} from '../errors/authentication.error.js';
+import { AuthenticationUserNotFoundException } from '../errors/authentication.error.js';
 import type { KeycloakTokenPayload } from '../models/dtos/kc-token.dto.js';
 import type { KeycloakUser } from '../models/dtos/kc-user.dto.js';
 import type { KcUser } from '../models/entitys/user.entity.js';
@@ -29,7 +26,6 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { OmnixysLogger } from '@omnixys/logger-ts';
 import { TraceRunner } from '@omnixys/observability-ts';
-import * as jose from 'jose';
 
 /**
  * @file Read-Only Zugriff auf Keycloak (Admin-API & Token-Lesen).
@@ -153,12 +149,13 @@ export class AuthenticateReadService extends AuthenticateBaseService {
    * Benutzerinfo aus verifiziertem JWT.
    */
   async getUserInfo(accessToken: string): Promise<KcUser> {
-    const decoded = jose.decodeJwt(accessToken);
-    const iss = decoded.iss;
-    if (!iss) {
-      throw new AuthenticationStateException('token-issuer-missing');
-    }
-    const payload = await this.verifyJwt<KeycloakTokenPayload>(accessToken, iss);
+    const payload = await this.verifyAccessToken(accessToken);
     return toUser(payload);
+  }
+
+  /** Verify an access token against the configured realm, never a token-supplied issuer. */
+  async verifyAccessToken(accessToken: string): Promise<KeycloakTokenPayload> {
+    const issuer = `${keycloakConfig.url.replace(/\/$/, '')}/realms/${keycloakConfig.realm}`;
+    return this.verifyJwt<KeycloakTokenPayload>(accessToken, issuer);
   }
 }

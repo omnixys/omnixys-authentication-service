@@ -27,7 +27,16 @@ export type KeycloakTokenPayload = jose.JWTPayload & {
   realm_access?: { roles?: string[] };
   iss?: string; // issuer
   azp?: string; // authorized party (client)
+  preferred_username?: string;
 };
+
+export interface KeycloakAccessTokenResponse {
+  access_token: string;
+  expires_in: number;
+  token_type?: string;
+  scope?: string;
+  refresh_token?: string;
+}
 
 export interface KeycloakToken {
   access_token: string;

@@ -19,6 +19,9 @@ import { AnalyticsModule } from '../analytics/analytics.module.js';
 import { CoreHttpModule } from '../http.module.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { OAuthController } from './controllers/o-auth.controller.js';
+import { MailTokenController } from './mail/mail-token.controller.js';
+import { MAIL_TOKEN_JWE, mailTokenJweProvider } from './mail/mail-token.crypto.js';
+import { MailTokenService } from './mail/mail-token.service.js';
 import { AdminMutationResolver } from './resolvers/admin-mutation.resolver.js';
 import { AuthMutationResolver } from './resolvers/authentication-mutation.resolver.js';
 import { AuthQueryResolver } from './resolvers/authentication-query.resolver.js';
@@ -45,7 +48,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [CoreHttpModule, PrismaModule, ScheduleModule.forRoot(), AnalyticsModule],
-  controllers: [OAuthController],
+  controllers: [OAuthController, MailTokenController],
   providers: [
     AuthQueryResolver,
     AuthMutationResolver,
@@ -68,6 +71,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     LockoutService,
     SecurityQuestionService,
     OAuthService,
+    mailTokenJweProvider,
+    MailTokenService,
     // CronSchedulerService,
   ],
   exports: [
@@ -77,6 +82,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     AuthWriteService,
     PendingContactService,
     RegisterService,
+    MAIL_TOKEN_JWE,
   ],
 })
 export class AuthenticationModule {}

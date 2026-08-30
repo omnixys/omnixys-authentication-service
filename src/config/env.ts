@@ -83,6 +83,17 @@ export const env = {
   VALKEY_URL: getEnv('VALKEY_URL', 'valkey://localhost:6380'),
   VALKEY_PASSWORD: getEnv('VALKEY_PASSWORD', '', { required: true }),
 
+  INTERNAL_GATEWAY_TOKEN: getEnv('INTERNAL_GATEWAY_TOKEN', '', {
+    required: true,
+  }),
+  MAIL_TOKEN_CACHE_JWE_KEYS: getEnv('MAIL_TOKEN_CACHE_JWE_KEYS', '', {
+    required: true,
+  }),
+  MAIL_TOKEN_CACHE_JWE_ACTIVE_KID: getEnv(
+    'MAIL_TOKEN_CACHE_JWE_ACTIVE_KID',
+    'v1',
+  ),
+
   RATE_LIMIT_ENABLE: getEnv('RATE_LIMIT_ENABLE', 'true', { transform: toBool }),
   RATE_LIMIT_REQUESTS: getEnv('RATE_LIMIT_REQUEST', '100', {
     transform: toNumber,
