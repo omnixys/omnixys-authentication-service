@@ -47,6 +47,19 @@ import { firstValueFrom } from 'rxjs';
 export type RemoteJwkSet = ReturnType<typeof jose.createRemoteJWKSet>;
 
 const { KC_ADMIN_PASSWORD, KC_ADMIN_USERNAME, KC_CLIENT_SECRET, KC_CLIENT_ID } = env;
+const NETWORK_ERROR_CODES = new Set([
+  'ECONNABORTED',
+  'ECONNREFUSED',
+  'ECONNRESET',
+  'EHOSTUNREACH',
+  'ENETUNREACH',
+  'ENOTFOUND',
+  'EPIPE',
+  'ETIMEDOUT',
+  'EAI_AGAIN',
+  'UND_ERR_CONNECT_TIMEOUT',
+  'UND_ERR_SOCKET',
+]);
 
 /**
  * Shared base class for Keycloak read/write services.
@@ -120,7 +133,7 @@ export abstract class AuthenticateBaseService {
   ): Promise<T> {
     return TraceRunner.run(`Keycloak Request: ${url}`, async () => {
       const headers: Record<string, string> = { ...cfg.headers };
-      const baseURL = keycloakConfig.url;
+      const baseURL = keycloakConfig.backchannelUrl;
       const startedAt = Date.now();
 
       this.logger.info('auth.keycloak.request.start', {
@@ -164,6 +177,7 @@ export abstract class AuthenticateBaseService {
           endpoint: url,
           status,
           oauthError,
+          networkCode: info.networkCode,
           durationMs: Date.now() - startedAt,
         });
 
@@ -227,8 +241,12 @@ export abstract class AuthenticateBaseService {
    * @param issuer - The expected issuer URL.
    * @returns The decoded JWT payload.
    */
-  protected async verifyJwt<T extends object>(token: string, issuer: string): Promise<T> {
-    const JWKS = this.getJwks(issuer);
+  protected async verifyJwt<T extends object>(
+    token: string,
+    issuer: string,
+    jwksUri?: string,
+  ): Promise<T> {
+    const JWKS = this.getJwks(issuer, jwksUri);
     const { payload } = await jose.jwtVerify(token, JWKS, { issuer });
     return payload as T;
   }
@@ -272,7 +290,7 @@ export abstract class AuthenticateBaseService {
           `/realms/omnixys/protocol/openid-connect/token`,
           params.toString(),
           {
-            baseURL: keycloakConfig.url,
+            baseURL: keycloakConfig.backchannelUrl,
             headers: this.loginHeaders,
           },
         ),
@@ -307,6 +325,7 @@ export abstract class AuthenticateBaseService {
         endpoint: '/realms/omnixys/protocol/openid-connect/token',
         status: infoForLog.status,
         oauthError: infoForLog.oauthError,
+        networkCode: infoForLog.networkCode,
         durationMs: Date.now() - startedAt,
       });
       if (error instanceof FrameworkException) {
@@ -434,6 +453,10 @@ export abstract class AuthenticateBaseService {
   ): Error {
     const { status, oauthError } = info;
 
+    if (info.networkCode && NETWORK_ERROR_CODES.has(info.networkCode)) {
+      return new IdentityProviderException('keycloak', operation, status, error);
+    }
+
     if (oauthError === 'invalid_client') {
       return new IdentityProviderClientConfigurationException(operation, status, error);
     }
@@ -502,8 +525,8 @@ export abstract class AuthenticateBaseService {
    * @param issuer - The issuer URL.
    * @returns The JWKS retrieval function.
    */
-  private getJwks(issuer: string): RemoteJwkSet {
-    const url = new URL(`${issuer}/protocol/openid-connect/certs`);
+  private getJwks(issuer: string, jwksUri?: string): RemoteJwkSet {
+    const url = new URL(jwksUri ?? `${issuer}/protocol/openid-connect/certs`);
     const key = url.href;
     let jwks = this.#jwksCache.get(key);
     if (!jwks) {

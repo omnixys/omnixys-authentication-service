@@ -36,6 +36,7 @@ function getEnv(
 
 const toBool = (value: string): boolean => value === 'true';
 const toNumber = (value: string): number => Number(value);
+const keycloakIssuerUrl = getEnv('KC_URL', 'http://localhost:18080/auth');
 
 export const env = {
   NODE_ENV: getEnv('NODE_ENV', 'development'),
@@ -103,7 +104,8 @@ export const env = {
   }),
 
   KC_CLIENT_SECRET: getEnv('KC_CLIENT_SECRET', '', { required: true }),
-  KC_URL: getEnv('KC_URL', 'http://localhost:18080/auth'),
+  KC_URL: keycloakIssuerUrl,
+  KC_BACKCHANNEL_URL: getEnv('KC_BACKCHANNEL_URL', keycloakIssuerUrl),
   KC_REALM: getEnv('KC_REALM', 'camunda-platform'),
   KC_CLIENT_ID: getEnv('KC_CLIENT_ID', 'camunda-identity'),
   KC_ADMIN_USERNAME: getEnv('KC_ADMIN_USERNAME', 'admin', { required: true }),

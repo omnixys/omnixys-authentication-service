@@ -6,10 +6,13 @@ process.env.KC_CLIENT_ID = 'test-client';
 process.env.KC_CLIENT_SECRET = 'test-secret';
 process.env.KC_ADMIN_USERNAME = 'admin';
 process.env.KC_ADMIN_PASSWORD = 'admin-password';
+process.env.KC_URL = 'https://keycloak.example.test';
+process.env.KC_BACKCHANNEL_URL = 'http://keycloak.internal.test';
 
 const { AuthenticateBaseService } = await import(
   '../../dist/authentication/services/keycloak-base.service.js'
 );
+const { keycloakConfig } = await import('../../dist/config/keycloak.js');
 
 const sink = { debug() {}, info() {}, warn() {}, error() {} };
 const logger = { log: () => sink };
@@ -37,6 +40,21 @@ test('end-user invalid_grant remains INVALID_CREDENTIALS without leaking identit
     { mapTo: 'null-on-401' },
   );
   assert.equal(result, null);
+});
+
+test('Keycloak requests use the internal backchannel URL', async () => {
+  assert.equal(keycloakConfig.url, 'https://keycloak.example.test');
+  assert.equal(keycloakConfig.backchannelUrl, 'http://keycloak.internal.test');
+  let baseURL;
+  const service = new TestKeycloakService(logger, {
+    request: (config) => {
+      baseURL = config.baseURL;
+      return of({ status: 200, data: { ok: true } });
+    },
+  });
+
+  await service.request('get', '/resource', { adminAuth: false });
+  assert.equal(baseURL, 'http://keycloak.internal.test');
 });
 
 test('invalid client is not collapsed into end-user invalid credentials', async () => {
@@ -118,6 +136,26 @@ test('rate limits, network failures and malformed responses remain distinguishab
     (error) =>
       error.code === 'IDENTITY_PROVIDER_RESPONSE_INVALID' &&
       error.httpStatus === 502,
+  );
+});
+
+test('a reset response stream is unavailable even after an upstream status was received', async () => {
+  const service = new TestKeycloakService(logger, {
+    request: () =>
+      throwError(() =>
+        Object.assign(new Error('aborted'), {
+          code: 'ECONNRESET',
+          response: { status: 200 },
+        }),
+      ),
+  });
+
+  await assert.rejects(
+    service.request('post', '/token', { adminAuth: false }),
+    (error) =>
+      error.code === 'IDENTITY_PROVIDER_UNAVAILABLE' &&
+      error.httpStatus === 503 &&
+      error.retryable === true,
   );
 });
 

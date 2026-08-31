@@ -111,8 +111,7 @@ export class AuthQueryResolver {
       throw new InvalidCredentialsException('Not authenticated');
     }
 
-    const user = await this.read.findById(currentUser.id);
-    return { ...user, role: currentUser.role };
+    return this.fromCurrentUser(currentUser);
   }
 
   @Query(() => KcUser, { name: 'meAuth' })
@@ -133,8 +132,7 @@ export class AuthQueryResolver {
       throw new InvalidCredentialsException('Not authenticated');
     }
 
-    const user = await this.read.findById(currentUser.id);
-    return { ...user, role: currentUser.role };
+    return this.fromCurrentUser(currentUser);
   }
 
   /**
@@ -166,5 +164,16 @@ export class AuthQueryResolver {
   ): Promise<KcUser> {
     this.logger.debug('getByUsername: username=%s', username);
     return this.read.findByUsername(username);
+  }
+
+  private fromCurrentUser(currentUser: CurrentUserData): KcUser {
+    return {
+      id: currentUser.id,
+      username: currentUser.username,
+      firstName: currentUser.firstName,
+      lastName: currentUser.lastName,
+      email: currentUser.email,
+      role: currentUser.role,
+    };
   }
 }

@@ -156,6 +156,7 @@ export class AuthenticateReadService extends AuthenticateBaseService {
   /** Verify an access token against the configured realm, never a token-supplied issuer. */
   async verifyAccessToken(accessToken: string): Promise<KeycloakTokenPayload> {
     const issuer = `${keycloakConfig.url.replace(/\/$/, '')}/realms/${keycloakConfig.realm}`;
-    return this.verifyJwt<KeycloakTokenPayload>(accessToken, issuer);
+    const jwksUri = `${keycloakConfig.backchannelUrl.replace(/\/$/, '')}/realms/${keycloakConfig.realm}/protocol/openid-connect/certs`;
+    return this.verifyJwt<KeycloakTokenPayload>(accessToken, issuer, jwksUri);
   }
 }

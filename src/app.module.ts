@@ -41,6 +41,7 @@ const {
   NODE_ENV,
 
   KC_URL,
+  KC_BACKCHANNEL_URL,
   KC_REALM,
 
   TENANT_SERVICE_URL,
@@ -106,7 +107,7 @@ const {
     SecurityModule.forRoot({
       jwt: {
         issuer: `${KC_URL}/realms/${KC_REALM}`,
-        jwksUri: `${KC_URL}/realms/${KC_REALM}/protocol/openid-connect/certs`,
+        jwksUri: `${KC_BACKCHANNEL_URL}/realms/${KC_REALM}/protocol/openid-connect/certs`,
       },
 
       tenantVerification: {

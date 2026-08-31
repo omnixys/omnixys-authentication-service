@@ -23,12 +23,14 @@ const {
   KC_CLIENT_ID,
   KC_REALM,
   KC_URL,
+  KC_BACKCHANNEL_URL,
   KC_CLIENT_SECRET,
   KC_TLS_REJECT_UNAUTHORIZED,
 } = env;
 
 export const keycloakConfig = {
   url: KC_URL,
+  backchannelUrl: KC_BACKCHANNEL_URL,
   realm: KC_REALM,
   clientId: KC_CLIENT_ID,
   clientSecret: KC_CLIENT_SECRET,
