@@ -3,6 +3,16 @@
 All notable changes in this project will be documented in this file.
 
 
+## [3.5.1](https://github.com/omnixys/authentication-service/compare/v3.5.0...v3.5.1) (2026-08-31)
+
+### Kc
+
+* **Kc:** add backchannel ([](https://github.com/omnixys/authentication-service/commit/20649cf07c405c5302ea5c774fbfa687ff4ccb76))
+
+### Mail
+
+* **Mail:** document local token exchange env ([](https://github.com/omnixys/authentication-service/commit/14cd632da51b037e1aa14923664526910f09ff02))
+
 ## [3.5.0](https://github.com/omnixys/authentication-service/compare/v3.4.5...v3.5.0) (2026-08-30)
 
 ### Mail
