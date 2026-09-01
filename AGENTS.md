@@ -11,7 +11,7 @@ Omnixys Authentication Service – central authentication and authorization (Key
 
 - Repository path: `services/authentication` (relative to the Omnixys root)
 - Package: `authentication-service` (version: 3.4.0)
-- Runtime: Node >=25.8.2 (pnpm >=10.33.0)
+- Runtime: Node >=26.8.1 <27 (pnpm >=11.24.0)
 - Kind: Service
 
 ## Architecture
@@ -32,7 +32,7 @@ src/adapter, admin, analytics, authentication, config, core, handlers, health, o
 ## Commands
 
 Commands below are the authoritative validation commands for this repository. Run them
-with the appropriate tooling (observed versions: node 26.6.0, pnpm 11.20.0, uv 0.12.1, java 26.0.2).
+with the appropriate tooling (observed versions: node 26.8.1, pnpm 11.24.0, uv 0.12.8, java 26.0.2).
 
 ### Install
 
@@ -95,6 +95,15 @@ node --test __tests__/unit/*.test.mjs and __tests__/integration/*.test.mjs; vite
 ## Repository-Specific Rules
 
 Security-sensitive: token lifecycle, refresh rotation, tenant/principal binding.
+
+Identity semantics (transitional, Phase 2): `AuthUser.id` is the primary key and, under the
+current provisioning flow, equals the Keycloak subject (`id == K`). `AuthUser.keycloakSub`
+is an opaque nullable TEXT (mapped `keycloak_sub`, UNIQUE) prepared for the identity
+migration; it is not yet populated (`NULL`) and is distinct from `id`. The producer still
+writes `id = K`. A later producer/identity switch evolves the model to `AuthUser.id = U`
+(UUIDv7) with `keycloakSub = K`; the `uuidv7()` DB default and any NOT NULL enforcement on
+`keycloak_sub` arrive only with that switch. Keep `AuthUser.id` explicitly required (no
+`@default`) and do NOT introduce a second UUID generator.
 
 ## Development Skill
 
