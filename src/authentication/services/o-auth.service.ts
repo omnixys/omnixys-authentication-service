@@ -14,6 +14,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ValkeyKey, ValkeyService } from '@omnixys/cache-ts';
 import type { ClientContext } from '@omnixys/context-ts';
+import { KafkaProducerService, KafkaTopics } from '@omnixys/kafka-ts';
 import { OmnixysLogger } from '@omnixys/logger-ts';
 
 const {
@@ -70,6 +71,7 @@ export class OAuthService extends AuthenticateBaseService {
     private readonly authService: AuthWriteService,
     private readonly cache: ValkeyService,
     private readonly userWriteService: UserWriteService,
+    private readonly kafkaProducer: KafkaProducerService,
   ) {
     super(logger, http);
   }
@@ -297,10 +299,10 @@ export class OAuthService extends AuthenticateBaseService {
       return user;
     }
 
-    const userId = await this.userWriteService.createKeycloakUser(data);
+    const keycloakSub = await this.userWriteService.createKeycloakUser(data);
     user = await this.prisma.authUser.create({
       data: {
-        id: userId,
+        keycloakSub,
         email: data.email,
         username: data.name ?? '',
         oauthAccounts: {
@@ -309,6 +311,25 @@ export class OAuthService extends AuthenticateBaseService {
             providerId: data.providerId,
           },
         },
+      },
+    });
+
+    await this.kafkaProducer.send({
+      topic: KafkaTopics.user.createProviderUser,
+      payload: {
+        userId: user.id,
+        keycloakSub,
+        email: data.email,
+        username: data.name ?? '',
+        actorId: user.id,
+      },
+      meta: {
+        service: env.SERVICE,
+        operation: 'create user profile for oauth users',
+        version: '1',
+        type: 'EVENT',
+        actorId: user.id,
+        tenantId: 'omnixys',
       },
     });
 

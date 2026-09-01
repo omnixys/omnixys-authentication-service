@@ -118,7 +118,7 @@ test('guest and OAuth Keycloak users receive tenant attributes', async () => {
     { async send() {} },
     {},
     {},
-    { authUser: { async create() {} } },
+    { authUser: { async create() { return { id: '00000000-0000-4000-8000-000000000007' }; } } },
     { async schedule() {} },
     {},
   );

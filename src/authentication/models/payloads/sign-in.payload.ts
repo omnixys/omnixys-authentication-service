@@ -57,6 +57,7 @@ export class GuestSignUpPayload implements GuestSignUp {
 export class SignUpResultsPayload implements SignUpResult {
   @Field(() => String)
   userId!: string;
+  keycloakSub!: string;
   @Field(() => String)
   username!: string;
   @Field(() => String)

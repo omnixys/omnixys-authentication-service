@@ -19,7 +19,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ValkeyKey, ValkeyService } from '@omnixys/cache-ts';
 import type { SignUpTokenPayload } from '@omnixys/contracts-ts';
-import { createTmpUsername, RealmRoleType } from '@omnixys/contracts-ts';
+import { RealmRoleType } from '@omnixys/contracts-ts';
 import { KafkaProducerService, KafkaTopics } from '@omnixys/kafka-ts';
 import { OmnixysLogger } from '@omnixys/logger-ts';
 import { TraceRunner } from '@omnixys/observability-ts';
@@ -133,10 +133,14 @@ export class RegisterService extends AuthenticateBaseService {
 
       await this.adminService.assignRealmRoleToUser(userId, RealmRoleType.USER);
 
-      await this.prisma.$transaction(async (tx) => {
+      const {
+        userId: u,
+        keycloakSub,
+        token,
+      } = await this.prisma.$transaction(async (tx) => {
         const user = await tx.authUser.create({
           data: {
-            id: userId,
+            keycloakSub: userId,
             email: input.email,
             username,
             mfaPreference: MfaPreference.SECURITY_QUESTIONS,
@@ -166,39 +170,40 @@ export class RegisterService extends AuthenticateBaseService {
             data: hashedQuestions,
           });
         }
+
+        return { userId: user.id, keycloakSub: userId, token: signUpToken };
       });
 
-      const actorId = createTmpUsername(input.firstName, input.lastName);
       await Promise.all([
         this.producer.send({
           topic: KafkaTopics.user.createUser,
-          payload: { userId, token: signUpToken },
+          payload: { userId: u, keycloakSub, token },
           meta: {
             service: SERVICE,
             operation: 'Add User ID from Kafka to UserService',
             version: '1',
             type: 'EVENT',
-            actorId,
+            actorId: u,
             tenantId: 'omnixys',
           },
         }),
 
         this.producer.send({
           topic: KafkaTopics.address.createUserAddresses,
-          payload: { userId, token: signUpToken },
+          payload: { userId: u, token },
           meta: {
             service: SERVICE,
             operation: 'create User Addresses',
             version: '1',
             type: 'EVENT',
-            actorId,
+            actorId: u,
             tenantId: 'omnixys',
           },
         }),
       ]);
 
-      const token = await this.authService.passwordLogin({ username, password });
-      return { userId, token, username, password: '' };
+      const authToken = await this.authService.passwordLogin({ username, password });
+      return { userId: u, token: authToken, username, password: '' };
     });
   }
 

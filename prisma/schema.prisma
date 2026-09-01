@@ -41,16 +41,13 @@ enum SecurityQuestionType {
 }
 
 model AuthUser {
-  // Transitional identity model (Phase 2): AuthUser.id is BOTH the primary key and,
-  // in the current provisioning flow, the Keycloak subject (id == K). keycloakSub is
-  // prepared as a nullable TEXT UNIQUE column; it becomes populated (and later NOT NULL)
-  // once the identity/producer switch sets AuthUser.id to the internal UUIDv7 U and
-  // separates K into keycloakSub. No @default(): id is explicitly required from the
-  // provisioning layer.
-  id           String  @id @db.Uuid
-  email        String  @unique
-  username     String  @unique
-  keycloakSub  String? @unique @map("keycloak_sub") @db.Text
+  // Final identity model: AuthUser.id is the internal Omnixys UUIDv7 (U), generated once
+  // by PostgreSQL 18 uuidv7(). keycloakSub (K) is the external Keycloak subject bound to
+  // this identity (U != K). Authentication owns U; id is never supplied by a caller.
+  id          String @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  email       String @unique
+  username    String @unique
+  keycloakSub String @unique @map("keycloak_sub") @db.Text
 
   mfaPreference MfaPreference @default(NONE) @map("mfa_preference")
 

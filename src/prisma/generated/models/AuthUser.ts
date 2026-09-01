@@ -207,7 +207,7 @@ export type AuthUserGroupByOutputType = {
   id: string
   email: string
   username: string
-  keycloakSub: string | null
+  keycloakSub: string
   mfaPreference: $Enums.MfaPreference
   failedAttempts: number
   lockedUntil: Date | null
@@ -242,7 +242,7 @@ export type AuthUserWhereInput = {
   id?: Prisma.UuidFilter<"AuthUser"> | string
   email?: Prisma.StringFilter<"AuthUser"> | string
   username?: Prisma.StringFilter<"AuthUser"> | string
-  keycloakSub?: Prisma.StringNullableFilter<"AuthUser"> | string | null
+  keycloakSub?: Prisma.StringFilter<"AuthUser"> | string
   mfaPreference?: Prisma.EnumMfaPreferenceFilter<"AuthUser"> | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFilter<"AuthUser"> | number
   lockedUntil?: Prisma.DateTimeNullableFilter<"AuthUser"> | Date | string | null
@@ -262,7 +262,7 @@ export type AuthUserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   username?: Prisma.SortOrder
-  keycloakSub?: Prisma.SortOrderInput | Prisma.SortOrder
+  keycloakSub?: Prisma.SortOrder
   mfaPreference?: Prisma.SortOrder
   failedAttempts?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -305,7 +305,7 @@ export type AuthUserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   username?: Prisma.SortOrder
-  keycloakSub?: Prisma.SortOrderInput | Prisma.SortOrder
+  keycloakSub?: Prisma.SortOrder
   mfaPreference?: Prisma.SortOrder
   failedAttempts?: Prisma.SortOrder
   lockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -325,7 +325,7 @@ export type AuthUserScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"AuthUser"> | string
   email?: Prisma.StringWithAggregatesFilter<"AuthUser"> | string
   username?: Prisma.StringWithAggregatesFilter<"AuthUser"> | string
-  keycloakSub?: Prisma.StringNullableWithAggregatesFilter<"AuthUser"> | string | null
+  keycloakSub?: Prisma.StringWithAggregatesFilter<"AuthUser"> | string
   mfaPreference?: Prisma.EnumMfaPreferenceWithAggregatesFilter<"AuthUser"> | $Enums.MfaPreference
   failedAttempts?: Prisma.IntWithAggregatesFilter<"AuthUser"> | number
   lockedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"AuthUser"> | Date | string | null
@@ -334,10 +334,10 @@ export type AuthUserScalarWhereWithAggregatesInput = {
 }
 
 export type AuthUserCreateInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -354,10 +354,10 @@ export type AuthUserCreateInput = {
 }
 
 export type AuthUserUncheckedCreateInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -377,7 +377,7 @@ export type AuthUserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -397,7 +397,7 @@ export type AuthUserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -414,10 +414,10 @@ export type AuthUserUncheckedUpdateInput = {
 }
 
 export type AuthUserCreateManyInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -429,7 +429,7 @@ export type AuthUserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -441,7 +441,7 @@ export type AuthUserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -500,10 +500,6 @@ export type AuthUserScalarRelationFilter = {
 
 export type StringFieldUpdateOperationsInput = {
   set?: string
-}
-
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
 }
 
 export type EnumMfaPreferenceFieldUpdateOperationsInput = {
@@ -639,10 +635,10 @@ export type AuthUserUpdateOneRequiredWithoutOauthAccountsNestedInput = {
 }
 
 export type AuthUserCreateWithoutTotpInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -658,10 +654,10 @@ export type AuthUserCreateWithoutTotpInput = {
 }
 
 export type AuthUserUncheckedCreateWithoutTotpInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -696,7 +692,7 @@ export type AuthUserUpdateWithoutTotpInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -715,7 +711,7 @@ export type AuthUserUncheckedUpdateWithoutTotpInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -731,10 +727,10 @@ export type AuthUserUncheckedUpdateWithoutTotpInput = {
 }
 
 export type AuthUserCreateWithoutWebAuthnInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -750,10 +746,10 @@ export type AuthUserCreateWithoutWebAuthnInput = {
 }
 
 export type AuthUserUncheckedCreateWithoutWebAuthnInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -788,7 +784,7 @@ export type AuthUserUpdateWithoutWebAuthnInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -807,7 +803,7 @@ export type AuthUserUncheckedUpdateWithoutWebAuthnInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -823,10 +819,10 @@ export type AuthUserUncheckedUpdateWithoutWebAuthnInput = {
 }
 
 export type AuthUserCreateWithoutBackupCodesInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -842,10 +838,10 @@ export type AuthUserCreateWithoutBackupCodesInput = {
 }
 
 export type AuthUserUncheckedCreateWithoutBackupCodesInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -880,7 +876,7 @@ export type AuthUserUpdateWithoutBackupCodesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -899,7 +895,7 @@ export type AuthUserUncheckedUpdateWithoutBackupCodesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -915,10 +911,10 @@ export type AuthUserUncheckedUpdateWithoutBackupCodesInput = {
 }
 
 export type AuthUserCreateWithoutSecurityQuestionsInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -934,10 +930,10 @@ export type AuthUserCreateWithoutSecurityQuestionsInput = {
 }
 
 export type AuthUserUncheckedCreateWithoutSecurityQuestionsInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -972,7 +968,7 @@ export type AuthUserUpdateWithoutSecurityQuestionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -991,7 +987,7 @@ export type AuthUserUncheckedUpdateWithoutSecurityQuestionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1007,10 +1003,10 @@ export type AuthUserUncheckedUpdateWithoutSecurityQuestionsInput = {
 }
 
 export type AuthUserCreateWithoutResetTokensInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -1026,10 +1022,10 @@ export type AuthUserCreateWithoutResetTokensInput = {
 }
 
 export type AuthUserUncheckedCreateWithoutResetTokensInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -1064,7 +1060,7 @@ export type AuthUserUpdateWithoutResetTokensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1083,7 +1079,7 @@ export type AuthUserUncheckedUpdateWithoutResetTokensInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1099,10 +1095,10 @@ export type AuthUserUncheckedUpdateWithoutResetTokensInput = {
 }
 
 export type AuthUserCreateWithoutKnownDevicesInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -1118,10 +1114,10 @@ export type AuthUserCreateWithoutKnownDevicesInput = {
 }
 
 export type AuthUserUncheckedCreateWithoutKnownDevicesInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -1156,7 +1152,7 @@ export type AuthUserUpdateWithoutKnownDevicesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1175,7 +1171,7 @@ export type AuthUserUncheckedUpdateWithoutKnownDevicesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1191,10 +1187,10 @@ export type AuthUserUncheckedUpdateWithoutKnownDevicesInput = {
 }
 
 export type AuthUserCreateWithoutLoginHistoriesInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -1210,10 +1206,10 @@ export type AuthUserCreateWithoutLoginHistoriesInput = {
 }
 
 export type AuthUserUncheckedCreateWithoutLoginHistoriesInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -1248,7 +1244,7 @@ export type AuthUserUpdateWithoutLoginHistoriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1267,7 +1263,7 @@ export type AuthUserUncheckedUpdateWithoutLoginHistoriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1283,10 +1279,10 @@ export type AuthUserUncheckedUpdateWithoutLoginHistoriesInput = {
 }
 
 export type AuthUserCreateWithoutOauthAccountsInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -1302,10 +1298,10 @@ export type AuthUserCreateWithoutOauthAccountsInput = {
 }
 
 export type AuthUserUncheckedCreateWithoutOauthAccountsInput = {
-  id: string
+  id?: string
   email: string
   username: string
-  keycloakSub?: string | null
+  keycloakSub: string
   mfaPreference?: $Enums.MfaPreference
   failedAttempts?: number
   lockedUntil?: Date | string | null
@@ -1340,7 +1336,7 @@ export type AuthUserUpdateWithoutOauthAccountsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1359,7 +1355,7 @@ export type AuthUserUncheckedUpdateWithoutOauthAccountsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
-  keycloakSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keycloakSub?: Prisma.StringFieldUpdateOperationsInput | string
   mfaPreference?: Prisma.EnumMfaPreferenceFieldUpdateOperationsInput | $Enums.MfaPreference
   failedAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1547,7 +1543,7 @@ export type $AuthUserPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: string
     email: string
     username: string
-    keycloakSub: string | null
+    keycloakSub: string
     mfaPreference: $Enums.MfaPreference
     failedAttempts: number
     lockedUntil: Date | null

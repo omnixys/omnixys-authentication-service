@@ -50,6 +50,7 @@ const { SERVICE } = env;
 
 export interface SignUpResult {
   userId: string;
+  keycloakSub: string;
   username: string;
   password: string;
   email: string;
@@ -155,6 +156,7 @@ export class UserWriteService extends AuthenticateBaseService {
               topic: KafkaTopics.user.createGuest,
               payload: {
                 userId: user.userId,
+                keycloakSub: user.keycloakSub,
                 invitationId: invitee.invitationId,
                 token: signUpToken,
                 username: user.username,
@@ -167,6 +169,7 @@ export class UserWriteService extends AuthenticateBaseService {
               topic: KafkaTopics.event.addRole,
               payload: {
                 userId: user.userId,
+                keycloakSub: user.keycloakSub,
                 invitationId: invitee.invitationId,
                 token: signUpToken,
               },
@@ -177,6 +180,7 @@ export class UserWriteService extends AuthenticateBaseService {
               topic: KafkaTopics.seat.addGuestId,
               payload: {
                 userId: user.userId,
+                keycloakSub: user.keycloakSub,
                 invitationId: invitee.invitationId,
                 token: signUpToken,
               },
@@ -243,24 +247,24 @@ export class UserWriteService extends AuthenticateBaseService {
     });
 
     /**
-     * Resolve userId
+     * Resolve Keycloak subject (K)
      */
-    const userId = await this.findUserIdByUsername(username);
-    if (!userId) {
+    const keycloakSub = await this.findUserIdByUsername(username);
+    if (!keycloakSub) {
       throw new AuthenticationUserNotFoundException(username);
     }
 
     /**
      * Assign role
      */
-    await this.adminService.assignRealmRoleToUser(userId, RealmRoleType.GUEST);
+    await this.adminService.assignRealmRoleToUser(keycloakSub, RealmRoleType.GUEST);
 
     /**
-     * Persist locally
+     * Persist locally: AuthUser.id = U (PostgreSQL uuidv7()), keycloakSub = K
      */
-    await this.prisma.authUser.create({
+    const createdAuthUser = await this.prisma.authUser.create({
       data: {
-        id: userId,
+        keycloakSub,
         email: finalEmail,
         username,
         mfaPreference: MfaPreference.SECURITY_QUESTIONS,
@@ -271,12 +275,13 @@ export class UserWriteService extends AuthenticateBaseService {
 
     await this.delayedJobService.schedule({
       type: DelayedJobKeys.user.delete,
-      payload: { userId },
+      payload: { userId: createdAuthUser.id },
       delayMs,
     });
 
     return {
-      userId,
+      userId: createdAuthUser.id,
+      keycloakSub,
       username,
       password,
       email: finalEmail,
