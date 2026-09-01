@@ -7,6 +7,7 @@ import {
   AuthenticationStateException,
   IdentityProviderException,
 } from '../errors/authentication.error.js';
+import { AdminWriteService } from './admin-write.service.js';
 import { AuthWriteService } from './authentication-write.service.js';
 import { AuthenticateBaseService } from './keycloak-base.service.js';
 import { UserWriteService } from './user-write.service.js';
@@ -71,6 +72,7 @@ export class OAuthService extends AuthenticateBaseService {
     private readonly authService: AuthWriteService,
     private readonly cache: ValkeyService,
     private readonly userWriteService: UserWriteService,
+    private readonly adminService: AdminWriteService,
     private readonly kafkaProducer: KafkaProducerService,
   ) {
     super(logger, http);
@@ -313,6 +315,8 @@ export class OAuthService extends AuthenticateBaseService {
         },
       },
     });
+
+    await this.adminService.setOmnixysUidAttribute(keycloakSub, user.id);
 
     await this.kafkaProducer.send({
       topic: KafkaTopics.user.createProviderUser,

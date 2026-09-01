@@ -28,7 +28,7 @@ import { AuthenticateBaseService } from './keycloak-base.service.js';
 import { AuthenticateReadService } from './read.service.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { RealmRoleType } from '@omnixys/contracts-ts';
+import { OMNIXYS_UID_KEYCLOAK_ATTRIBUTE, RealmRoleType } from '@omnixys/contracts-ts';
 import { KafkaProducerService, KafkaTopics, type KafkaMetaInfo } from '@omnixys/kafka-ts';
 import { OmnixysLogger } from '@omnixys/logger-ts';
 
@@ -167,6 +167,43 @@ export class AdminWriteService extends AuthenticateBaseService {
     await this.kcRequest('put', `${paths.users}/${encodeURIComponent(id)}`, {
       data: patch,
       headers: await this.adminJsonHeaders(),
+    });
+  }
+
+  /**
+   * Projects the internal Omnixys user id (U) onto the Keycloak user as the
+   * `omnixys_uid` user attribute. This is a projection for token issuance only;
+   * AuthUser.id is the source of truth. Keycloak never generates U itself.
+   *
+   * **Ordering contract (Phase 4 Teil 0):** must run AFTER AuthUser/U has been
+   * created and BEFORE any access/ID token for that user is issued, so every
+   * freshly issued token carries `sub = K` and `omnixys_user_id = U`.
+   *
+   * Idempotent: re-running with the same `uid` is a no-op merge; existing
+   * attributes are preserved (Keycloak PUT replaces the whole attribute map).
+   */
+  async setOmnixysUidAttribute(keycloakUserId: string, uid: string): Promise<void> {
+    const kcUser = await this.readService.findById(keycloakUserId);
+    const mergedAttributes: Record<string, string[]> = {
+      ...(kcUser.attributes ?? {}),
+      [OMNIXYS_UID_KEYCLOAK_ATTRIBUTE]: [uid],
+    };
+
+    const patch: KeycloakUserPatch = {
+      username: kcUser.username,
+      firstName: kcUser.firstName,
+      lastName: kcUser.lastName,
+      email: kcUser.email,
+      attributes: mergedAttributes,
+    };
+
+    await this.kcRequest('put', `${paths.users}/${encodeURIComponent(keycloakUserId)}`, {
+      data: patch,
+      headers: await this.adminJsonHeaders(),
+    });
+
+    this.logger.info('omnixys_uid attribute projected to Keycloak', {
+      keycloakUserId,
     });
   }
 

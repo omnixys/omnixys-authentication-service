@@ -113,7 +113,7 @@ test('guest and OAuth Keycloak users receive tenant attributes', async () => {
     logger,
     {},
     {},
-    { async assignRealmRoleToUser() {} },
+    { async assignRealmRoleToUser() {}, async setOmnixysUidAttribute() {} },
     {},
     { async send() {} },
     {},
@@ -154,6 +154,35 @@ test('guest and OAuth Keycloak users receive tenant attributes', async () => {
   );
   assert.deepEqual(requests[1].attributes.tenants, [tenantId]);
   assert.equal(requests[1].attributes.provider, 'github');
+});
+
+test('setOmnixysUidAttribute merges omnixys_uid while preserving existing attributes', async () => {
+  const requests = [];
+  const keycloakSub = 'keycloak-sub-guest';
+  const uid = '01910000-0000-7000-8000-000000000001';
+  const service = new AdminWriteService(logger, {}, {}, {}, {}, {});
+  service.readService.findById = async () => ({
+    id: keycloakSub,
+    username: 'guest',
+    firstName: 'Ada',
+    lastName: 'Lovelace',
+    email: 'ada@example.com',
+    attributes: { tenants: ['00000000-0000-4000-8000-000000000005'] },
+  });
+  service.adminJsonHeaders = async () => ({});
+  service.kcRequest = async (_method, _path, request) => {
+    requests.push({ method: _method, path: _path, data: request.data });
+  };
+
+  await service.setOmnixysUidAttribute(keycloakSub, uid);
+
+  assert.equal(requests.length, 1);
+  assert.equal(requests[0].method, 'put');
+  assert.ok(requests[0].path.endsWith(encodeURIComponent(keycloakSub)));
+  assert.equal(requests[0].data.attributes.omnixys_uid[0], uid);
+  assert.deepEqual(requests[0].data.attributes.tenants, [
+    '00000000-0000-4000-8000-000000000005',
+  ]);
 });
 
 test('standard and admin Keycloak sign-up receive tenant attributes', async () => {

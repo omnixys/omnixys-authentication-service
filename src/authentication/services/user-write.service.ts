@@ -271,6 +271,8 @@ export class UserWriteService extends AuthenticateBaseService {
       },
     });
 
+    await this.adminService.setOmnixysUidAttribute(keycloakSub, createdAuthUser.id);
+
     const delayMs = Math.max(0, data.eventEndsAt.getTime() - Date.now());
 
     await this.delayedJobService.schedule({

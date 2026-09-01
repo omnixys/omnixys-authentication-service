@@ -202,6 +202,8 @@ export class RegisterService extends AuthenticateBaseService {
         }),
       ]);
 
+      await this.adminService.setOmnixysUidAttribute(userId, u);
+
       const authToken = await this.authService.passwordLogin({ username, password });
       return { userId: u, token: authToken, username, password: '' };
     });
