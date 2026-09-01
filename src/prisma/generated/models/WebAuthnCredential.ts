@@ -557,10 +557,6 @@ export type WebAuthnCredentialUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.WebAuthnCredentialScalarWhereInput | Prisma.WebAuthnCredentialScalarWhereInput[]
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type WebAuthnCredentialCreateWithoutUserInput = {
   id?: string
   credentialId: string
