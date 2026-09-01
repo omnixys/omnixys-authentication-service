@@ -96,14 +96,18 @@ node --test __tests__/unit/*.test.mjs and __tests__/integration/*.test.mjs; vite
 
 Security-sensitive: token lifecycle, refresh rotation, tenant/principal binding.
 
-Identity semantics (transitional, Phase 2): `AuthUser.id` is the primary key and, under the
-current provisioning flow, equals the Keycloak subject (`id == K`). `AuthUser.keycloakSub`
-is an opaque nullable TEXT (mapped `keycloak_sub`, UNIQUE) prepared for the identity
-migration; it is not yet populated (`NULL`) and is distinct from `id`. The producer still
-writes `id = K`. A later producer/identity switch evolves the model to `AuthUser.id = U`
-(UUIDv7) with `keycloakSub = K`; the `uuidv7()` DB default and any NOT NULL enforcement on
-`keycloak_sub` arrive only with that switch. Keep `AuthUser.id` explicitly required (no
-`@default`) and do NOT introduce a second UUID generator.
+Identity semantics (final): `AuthUser.id` is the internal Omnixys identity `U` (UUIDv7),
+generated exactly once by PostgreSQL's `uuidv7()` DB default; authentication owns `U` and
+never receives it from a caller. `AuthUser.keycloakSub` is the external Keycloak subject
+`K` (opaque TEXT, mapped `keycloak_sub`, UNIQUE, NOT NULL). `U != K`. Every identity is
+Keycloak-backed, so `keycloak_sub` is mandatory in all provisioning flows (Registration,
+Guest, OAuth/Provider). `User.id == AuthUser.id == U` across services. Never name a
+K-valued variable `userId`; use `keycloakSub` (or `keycloakUserId`) for K and reserve
+`userId`/`U` for the internal id. Do NOT introduce a second UUID generator.
+
+Seed fixtures: use a single shared `U` per logical user across services (same UUIDv7 as both
+the `AuthUser.id` here and the `User.id` in the user service), and a distinct valid `K` for
+`keycloak_sub` that differs from `U`. Fixture UUIDs must be valid UUIDv7, not v1/v4.
 
 ## Development Skill
 
