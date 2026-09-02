@@ -126,21 +126,21 @@ export class RegisterService extends AuthenticateBaseService {
         headers: await this.adminJsonHeaders(),
       });
 
-      const userId = await this.findUserIdByUsername(username);
-      if (!userId) {
+      const keycloakSub = await this.findUserIdByUsername(username);
+      if (!keycloakSub) {
         throw new AuthenticationUserNotFoundException(username);
       }
 
-      await this.adminService.assignRealmRoleToUser(userId, RealmRoleType.USER);
+      await this.adminService.assignRealmRoleToUser(keycloakSub, RealmRoleType.USER);
 
       const {
         userId: u,
-        keycloakSub,
+        keycloakSub: k,
         token,
       } = await this.prisma.$transaction(async (tx) => {
         const user = await tx.authUser.create({
           data: {
-            keycloakSub: userId,
+            keycloakSub,
             email: input.email,
             username,
             mfaPreference: MfaPreference.SECURITY_QUESTIONS,
@@ -171,13 +171,13 @@ export class RegisterService extends AuthenticateBaseService {
           });
         }
 
-        return { userId: user.id, keycloakSub: userId, token: signUpToken };
+        return { userId: user.id, keycloakSub, token: signUpToken };
       });
 
       await Promise.all([
         this.producer.send({
           topic: KafkaTopics.user.createUser,
-          payload: { userId: u, keycloakSub, token },
+          payload: { userId: u, keycloakSub: k, token },
           meta: {
             service: SERVICE,
             operation: 'Add User ID from Kafka to UserService',
@@ -202,7 +202,7 @@ export class RegisterService extends AuthenticateBaseService {
         }),
       ]);
 
-      await this.adminService.setOmnixysUidAttribute(userId, u);
+      await this.adminService.setOmnixysUidAttribute(k, u);
 
       const authToken = await this.authService.passwordLogin({ username, password });
       return { userId: u, token: authToken, username, password: '' };

@@ -77,13 +77,13 @@ export class AdminWriteService extends AuthenticateBaseService {
       headers: await this.adminJsonHeaders(),
     });
     // id ermitteln
-    const userId = await this.findUserIdByUsername(username);
-    if (!userId) {
+    const keycloakSub = await this.findUserIdByUsername(username);
+    if (!keycloakSub) {
       throw new AuthenticationUserNotFoundException(username);
     }
 
     // Rolle zuweisen
-    await this.assignRealmRoleToUser(userId, RealmRoleType.ADMIN);
+    await this.assignRealmRoleToUser(keycloakSub, RealmRoleType.ADMIN);
 
     const token = await this.authService.passwordLogin({ username, password });
     return token;

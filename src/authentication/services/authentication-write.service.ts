@@ -82,6 +82,19 @@ export class AuthWriteService extends AuthenticateBaseService {
   }
 
   /**
+   * Resolves the internal Omnixys user id (U, UUIDv7) from a Keycloak subject (K).
+   * Keycloak returns K; our AuthUser table stores the mapping K -> U in keycloak_sub.
+   * Must be called before any identity-sensitive persistence or analytics.
+   */
+  private async resolveInternalUserId(keycloakSub: string): Promise<string> {
+    const authUser = await this.prisma.authUser.findUniqueOrThrow({
+      where: { keycloakSub },
+      select: { id: true },
+    });
+    return authUser.id;
+  }
+
+  /**
    * Password-Login (ROPC).
    * @returns TokenPayload oder null (bei invalid_grant)
    */
@@ -97,14 +110,14 @@ export class AuthWriteService extends AuthenticateBaseService {
       throw new InvalidCredentialsException();
     }
 
-    let userId: string;
+    let keycloakSub: string;
     const userLookupStartedAt = Date.now();
     this.logger.info('auth.login.phase.start', {
       phase: 'keycloak.user-lookup',
       endpoint: paths.users,
     });
     try {
-      userId = (await this.readService.findByUsername(username)).id;
+      keycloakSub = (await this.readService.findByUsername(username)).id;
       this.logger.info('auth.login.phase.success', {
         phase: 'keycloak.user-lookup',
         endpoint: paths.users,
@@ -130,13 +143,15 @@ export class AuthWriteService extends AuthenticateBaseService {
       throw error;
     }
 
+    // Resolve internal Omnixys user id (U) from Keycloak subject (K).
+    const internalUserId = await this.resolveInternalUserId(keycloakSub);
+
     // const riskResult = await this.zeroTrustService.evaluate({
-    //   userId,
+    //   userId: internalUserId,
     //   ip: input.ip,
     //   userAgent: input.userAgent,
     //   acceptLanguage: input.acceptLanguage,
     //   clientDeviceId: input.clientDeviceId,
-
     //   isPasswordless: false,
     //   isResetFlow: false,
     // });
@@ -177,7 +192,7 @@ export class AuthWriteService extends AuthenticateBaseService {
       );
 
       if (!data) {
-        await this.riskMemory.incrementFailures(userId);
+        await this.riskMemory.incrementFailures(internalUserId);
 
         throw new InvalidCredentialsException();
       }
@@ -188,15 +203,15 @@ export class AuthWriteService extends AuthenticateBaseService {
         durationMs: Date.now() - passwordGrantStartedAt,
       });
 
-      await this.riskMemory.resetFailures(userId);
+      await this.riskMemory.resetFailures(internalUserId);
 
       if (input.ip) {
-        await this.riskMemory.storeLastIp(userId, input.ip);
+        await this.riskMemory.storeLastIp(internalUserId, input.ip);
       }
 
-      await this.deviceService.register(userId, input.clientDeviceId ?? 'unknown');
+      await this.deviceService.register(internalUserId, input.clientDeviceId ?? 'unknown');
 
-      await this.recordLoginFact(userId, input.ip, true, 'password');
+      await this.recordLoginFact(internalUserId, input.ip, true, 'password');
       return toToken(data);
     } catch (err) {
       // zusätzliche Sicherheit (Timing / Side-channel)
@@ -209,7 +224,7 @@ export class AuthWriteService extends AuthenticateBaseService {
           err instanceof InvalidCredentialsException ? 'invalid-credentials' : 'provider-error',
       });
       if (err instanceof InvalidCredentialsException) {
-        await this.recordLoginFact(userId, input.ip, false, 'password', 'INVALID_CREDENTIALS');
+        await this.recordLoginFact(internalUserId, input.ip, false, 'password', 'INVALID_CREDENTIALS');
       }
       throw err;
     }
@@ -301,9 +316,16 @@ export class AuthWriteService extends AuthenticateBaseService {
     });
   }
 
-  async createPasswordlessSession(userId: string, context: RequestContext): Promise<TokenPayload> {
+  async createPasswordlessSession(internalUserId: string, context: RequestContext): Promise<TokenPayload> {
+    // Resolve Keycloak subject (K) for token-exchange impersonation.
+    const authUser = await this.prisma.authUser.findUniqueOrThrow({
+      where: { id: internalUserId },
+      select: { keycloakSub: true },
+    });
+    const keycloakSub = authUser.keycloakSub;
+
     const riskResult = await this.zeroTrustService.evaluate({
-      userId,
+      userId: internalUserId,
       ip: context.ip,
       userAgent: context.userAgent,
       acceptLanguage: context.acceptLanguage,
@@ -338,13 +360,13 @@ export class AuthWriteService extends AuthenticateBaseService {
         adminAuth: false,
       });
 
-      // Jetzt impersonation:
+      // Jetzt impersonation: requested_subject muss Keycloak-Subject (K) sein.
       const exchangeBody = new URLSearchParams({
         grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
         client_id: keycloakConfig.clientId,
         subject_token: serviceToken.access_token,
         subject_token_type: 'urn:ietf:params:oauth:token-type:access_token',
-        requested_subject: userId,
+        requested_subject: keycloakSub,
         scope: 'openid profile email',
       });
 
@@ -355,18 +377,18 @@ export class AuthWriteService extends AuthenticateBaseService {
       });
 
       if (!exchanged) {
-        await this.riskMemory.incrementFailures(userId);
+        await this.riskMemory.incrementFailures(internalUserId);
 
         throw new InvalidCredentialsException('Token exchange failed');
       }
 
-      await this.riskMemory.resetFailures(userId);
+      await this.riskMemory.resetFailures(internalUserId);
 
       if (context.ip) {
-        await this.riskMemory.storeLastIp(userId, context.ip);
+        await this.riskMemory.storeLastIp(internalUserId, context.ip);
       }
 
-      await this.deviceService.register(userId, context.clientDeviceId ?? 'unknown');
+      await this.deviceService.register(internalUserId, context.clientDeviceId ?? 'unknown');
 
       return toToken(exchanged);
     } catch (err) {
@@ -382,16 +404,19 @@ export class AuthWriteService extends AuthenticateBaseService {
       throw new InvalidCredentialsException();
     }
 
-    let userId: string;
+    let keycloakSub: string;
     try {
-      userId = (await this.readService.findByUsername(username)).id;
+      keycloakSub = (await this.readService.findByUsername(username)).id;
     } catch {
       await this.hashService.dummyVerify();
       throw new InvalidCredentialsException();
     }
 
+    // Resolve internal Omnixys user id (U) from Keycloak subject (K).
+    const internalUserId = await this.resolveInternalUserId(keycloakSub);
+
     const riskResult = await this.zeroTrustService.evaluate({
-      userId,
+      userId: internalUserId,
       ip: input.ip,
       userAgent: input.userAgent,
       acceptLanguage: input.acceptLanguage,
@@ -428,19 +453,19 @@ export class AuthWriteService extends AuthenticateBaseService {
         throw new InvalidCredentialsException();
       }
 
-      // await this.riskMemory.markStepUpVerified(userId, {
+      // await this.riskMemory.markStepUpVerified(internalUserId, {
       //   ip: input.ip,
       //   deviceId: input.clientDeviceId,
       //   userAgent: input.userAgent,
       // });
 
-      await this.riskMemory.resetFailures(userId);
+      await this.riskMemory.resetFailures(internalUserId);
 
       if (input.ip) {
-        await this.riskMemory.storeLastIp(userId, input.ip);
+        await this.riskMemory.storeLastIp(internalUserId, input.ip);
       }
 
-      await this.deviceService.register(userId, input.clientDeviceId ?? 'unknown');
+      await this.deviceService.register(internalUserId, input.clientDeviceId ?? 'unknown');
 
       // create session via token exchange
       return this.createPasswordlessSession(user.id, input);

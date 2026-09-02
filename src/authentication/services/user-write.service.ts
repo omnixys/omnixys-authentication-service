@@ -319,17 +319,17 @@ export class UserWriteService extends AuthenticateBaseService {
     });
 
     // id ermitteln
-    const userId = await this.findUserIdByUsername(
+    const keycloakSub = await this.findUserIdByUsername(
       data.name ?? `${data.provider}_${data.providerId}`,
     );
-    if (!userId) {
+    if (!keycloakSub) {
       throw new AuthenticationUserNotFoundException(body.username);
     }
 
     // Rolle zuweisen
-    await this.adminService.assignRealmRoleToUser(userId, RealmRoleType.USER);
+    await this.adminService.assignRealmRoleToUser(keycloakSub, RealmRoleType.USER);
 
-    return userId;
+    return keycloakSub;
   }
 
   async changePassword({
