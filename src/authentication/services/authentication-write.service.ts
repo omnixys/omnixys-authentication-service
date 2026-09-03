@@ -224,7 +224,13 @@ export class AuthWriteService extends AuthenticateBaseService {
           err instanceof InvalidCredentialsException ? 'invalid-credentials' : 'provider-error',
       });
       if (err instanceof InvalidCredentialsException) {
-        await this.recordLoginFact(internalUserId, input.ip, false, 'password', 'INVALID_CREDENTIALS');
+        await this.recordLoginFact(
+          internalUserId,
+          input.ip,
+          false,
+          'password',
+          'INVALID_CREDENTIALS',
+        );
       }
       throw err;
     }
@@ -316,7 +322,10 @@ export class AuthWriteService extends AuthenticateBaseService {
     });
   }
 
-  async createPasswordlessSession(internalUserId: string, context: RequestContext): Promise<TokenPayload> {
+  async createPasswordlessSession(
+    internalUserId: string,
+    context: RequestContext,
+  ): Promise<TokenPayload> {
     // Resolve Keycloak subject (K) for token-exchange impersonation.
     const authUser = await this.prisma.authUser.findUniqueOrThrow({
       where: { id: internalUserId },
