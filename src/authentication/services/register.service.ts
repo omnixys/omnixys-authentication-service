@@ -11,10 +11,11 @@ import {
 } from '../errors/authentication.error.js';
 import { KCSignUpDTO } from '../models/dtos/kc-sign-up.dto.js';
 import { SignUpPayload } from '../models/payloads/sign-in.payload.js';
-import { keycloakTenantAttributes } from '../utils/tenant-context.js';
+import { keycloakTenantAttributes, resolveTenantId } from '../utils/tenant-context.js';
 import { AdminWriteService } from './admin-write.service.js';
 import { AuthWriteService } from './authentication-write.service.js';
 import { AuthenticateBaseService } from './keycloak-base.service.js';
+import { TenantMembershipClient } from './tenant-membership.client.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ValkeyKey, ValkeyService } from '@omnixys/cache-ts';
@@ -39,6 +40,7 @@ export class RegisterService extends AuthenticateBaseService {
     private prisma: PrismaService,
     private readonly cache: ValkeyService,
     private readonly encryptionService: EncryptionService,
+    private readonly tenantMembershipClient: TenantMembershipClient,
   ) {
     super(logger, http);
   }
@@ -173,6 +175,8 @@ export class RegisterService extends AuthenticateBaseService {
 
         return { userId: user.id, keycloakSub, token: signUpToken };
       });
+
+      await this.tenantMembershipClient.provisionMember(resolveTenantId(), u);
 
       await Promise.all([
         this.producer.send({

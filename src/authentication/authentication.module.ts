@@ -40,6 +40,7 @@ import { AuthenticateReadService } from './services/read.service.js';
 import { RegisterService } from './services/register.service.js';
 import { ResetService } from './services/reset.service.js';
 import { SecurityQuestionService } from './services/security-question.service.js';
+import { TenantMembershipClient } from './services/tenant-membership.client.js';
 import { TotpService } from './services/totp.service.js';
 import { UserWriteService } from './services/user-write.service.js';
 import { WebAuthnService } from './services/web-authn.service.js';
@@ -71,6 +72,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     LockoutService,
     SecurityQuestionService,
     OAuthService,
+    TenantMembershipClient,
     mailTokenJweProvider,
     MailTokenService,
     // CronSchedulerService,
