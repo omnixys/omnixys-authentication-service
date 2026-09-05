@@ -102,7 +102,7 @@ export abstract class AuthenticateBaseService {
       'Content-Type': 'application/x-www-form-urlencoded',
     };
 
-    this.logger = omnixysLogger.log(this.constructor.name);
+    this.logger = omnixysLogger.log(this.constructor.name, 'service:authentication');
   }
 
   /**

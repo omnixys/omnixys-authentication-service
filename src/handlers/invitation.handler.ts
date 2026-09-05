@@ -57,7 +57,7 @@ export class InvitationHandler {
     private readonly adminWriteService: AdminWriteService,
     private readonly authenticationReadService: AuthenticateReadService,
   ) {
-    this.logger = this.omnixysLogger.log(this.constructor.name);
+    this.logger = this.omnixysLogger.log(this.constructor.name, 'service:authentication');
   }
 
   @KafkaEvent(KafkaTopics.authentication.deleteGuest)

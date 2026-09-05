@@ -11,7 +11,7 @@ export class KafkaIndicator {
     private readonly kafka: KafkaLifecycleService,
     logger: OmnixysLogger,
   ) {
-    this.logger = logger.log(this.constructor.name);
+    this.logger = logger.log(this.constructor.name, 'service:authentication');
   }
 
   isHealthy(): HealthIndicatorResult {

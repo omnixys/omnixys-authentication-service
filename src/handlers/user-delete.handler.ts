@@ -18,7 +18,7 @@ export class UserDeleteHandler {
     private readonly lock: ValkeyLockService,
     logger: OmnixysLogger,
   ) {
-    this.logger = logger.log(this.constructor.name);
+    this.logger = logger.log(this.constructor.name, 'service:authentication');
   }
 
   @DelayedJob(DelayedJobKeys.user.delete)
