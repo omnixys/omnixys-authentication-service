@@ -11,13 +11,13 @@ export class KafkaIndicator {
     private readonly kafka: KafkaLifecycleService,
     logger: OmnixysLogger,
   ) {
-    this.logger = logger.log(this.constructor.name);
+    this.logger = logger.log(this.constructor.name, 'service:authentication');
   }
 
   isHealthy(): HealthIndicatorResult {
     const health = this.kafka.health();
     if (!health.healthy) {
-      this.logger.error('Kafka health check failed', { health });
+      this.logger.error('Kafka health check failed: %o', { health });
     }
 
     return {

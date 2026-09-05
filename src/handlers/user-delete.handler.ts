@@ -18,7 +18,7 @@ export class UserDeleteHandler {
     private readonly lock: ValkeyLockService,
     logger: OmnixysLogger,
   ) {
-    this.logger = logger.log(this.constructor.name);
+    this.logger = logger.log(this.constructor.name, 'service:authentication');
   }
 
   @DelayedJob(DelayedJobKeys.user.delete)
@@ -35,7 +35,7 @@ export class UserDeleteHandler {
     try {
       await this.adminWriteService.deleteUser(userId, 'sys');
 
-      this.logger.info('Delayed user deletion completed', { userId });
+      this.logger.info('Delayed user deletion completed: %o', { userId });
     } finally {
       await this.lock.releaseLock(lockKey, token);
     }

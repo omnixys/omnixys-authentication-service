@@ -1434,6 +1434,7 @@ export const AuthUserScalarFieldEnum = {
   id: 'id',
   email: 'email',
   username: 'username',
+  keycloakSub: 'keycloakSub',
   mfaPreference: 'mfaPreference',
   failedAttempts: 'failedAttempts',
   lockedUntil: 'lockedUntil',

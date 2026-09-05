@@ -29,7 +29,10 @@ export class RegisterResolver {
     private readonly registerService: RegisterService,
     omnixysLogger: OmnixysLogger,
   ) {
-    this.logger = omnixysLogger.log(this.constructor.name);
+    this.logger = omnixysLogger.log(
+      this.constructor.name,
+      'service:authentication',
+    );
   }
 
   @Mutation(() => SignUpPayload)

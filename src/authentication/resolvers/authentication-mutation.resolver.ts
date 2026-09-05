@@ -66,7 +66,10 @@ export class AuthMutationResolver {
     private readonly webAuthnService: WebAuthnService,
     private readonly tokenCookies: TokenCookieService,
   ) {
-    this.logger = this.omnixysLogger.log(AuthMutationResolver.name);
+    this.logger = this.omnixysLogger.log(
+      AuthMutationResolver.name,
+      'service:authentication',
+    );
   }
 
   /**
@@ -90,7 +93,7 @@ export class AuthMutationResolver {
   ): Promise<TokenPayload> {
     return TraceRunner.run('Credentials Login Resolver', async () => {
       // const res = ctx?.reply;
-      this.logger.debug('Credentials login requested', {
+      this.logger.debug('Credentials login requested: %o', {
         operation: 'credentialsLogin',
       });
 
@@ -303,7 +306,7 @@ export class AuthMutationResolver {
       } catch (error) {
         // Intentionally swallow errors to avoid leaking account existence.
         // Log internally for monitoring & auditing.
-        this.logger.warn('Magic Link request failed silently', {
+        this.logger.warn('Magic Link request failed silently: %o', {
           email,
           ip: client.ip,
           error: error instanceof Error ? error.message : 'unknown',

@@ -41,9 +41,13 @@ enum SecurityQuestionType {
 }
 
 model AuthUser {
-  id       String @id @default(uuid()) @db.Uuid
-  email    String @unique
-  username String @unique
+  // Final identity model: AuthUser.id is the internal Omnixys UUIDv7 (U), generated once
+  // by PostgreSQL 18 uuidv7(). keycloakSub (K) is the external Keycloak subject bound to
+  // this identity (U != K). Authentication owns U; id is never supplied by a caller.
+  id          String @id @default(dbgenerated("uuidv7()")) @db.Uuid
+  email       String @unique
+  username    String @unique
+  keycloakSub String @unique @map("keycloak_sub") @db.Text
 
   mfaPreference MfaPreference @default(NONE) @map("mfa_preference")
 

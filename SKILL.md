@@ -9,7 +9,7 @@
 
 - Kind: Service
 - Package: `authentication-service` (version: 3.3.0)
-- Runtime: Node >=25.8.2 (pnpm >=10.33.0)
+- Runtime: Node >=26.8.1 <27 (pnpm >=11.24.0)
 - Description: Omnixys Authentication Service – central authentication and authorization (Keycloak, JWT, SSO, WebAuthn, TOTP).
 - Architecture: src/adapter, admin, analytics, authentication, config, core, handlers, health, observability, prisma, security
 - Database: PostgreSQL via Prisma (prisma/schema.prisma); Migrations: Prisma Migrate (prisma:migrate / generate / validate)

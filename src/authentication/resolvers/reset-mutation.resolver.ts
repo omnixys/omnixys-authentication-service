@@ -91,7 +91,10 @@ export class ResetMutationResolver {
     private readonly resetService: ResetService,
     private readonly omnixysLogger: OmnixysLogger,
   ) {
-    this.logger = this.omnixysLogger.log(this.constructor.name);
+    this.logger = this.omnixysLogger.log(
+      this.constructor.name,
+      'service:authentication',
+    );
   }
 
   /**
@@ -110,7 +113,7 @@ export class ResetMutationResolver {
     } catch (error) {
       // Intentionally swallow errors to avoid leaking account existence.
       // Log internally for monitoring & auditing.
-      this.logger.warn('Password reset request failed silently', {
+      this.logger.warn('Password reset request failed silently: %o', {
         email,
         ip: client.ip,
         error: error instanceof Error ? error.message : 'unknown',

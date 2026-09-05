@@ -34,6 +34,7 @@ import { AuthWriteService } from './authentication-write.service.js';
 import { AuthenticateBaseService } from './keycloak-base.service.js';
 import { AuthenticateReadService } from './read.service.js';
 import { ResetService } from './reset.service.js';
+import { TenantMembershipClient } from './tenant-membership.client.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { DelayedJobKeys, DelayedJobService, ValkeyKey, ValkeyService } from '@omnixys/cache-ts';
@@ -50,6 +51,7 @@ const { SERVICE } = env;
 
 export interface SignUpResult {
   userId: string;
+  keycloakSub: string;
   username: string;
   password: string;
   email: string;
@@ -85,6 +87,7 @@ export class UserWriteService extends AuthenticateBaseService {
     private readonly prisma: PrismaService,
     private readonly delayedJobService: DelayedJobService,
     private readonly resetService: ResetService,
+    private readonly tenantMembershipClient: TenantMembershipClient,
   ) {
     super(omnixysLogger, http);
   }
@@ -155,6 +158,7 @@ export class UserWriteService extends AuthenticateBaseService {
               topic: KafkaTopics.user.createGuest,
               payload: {
                 userId: user.userId,
+                keycloakSub: user.keycloakSub,
                 invitationId: invitee.invitationId,
                 token: signUpToken,
                 username: user.username,
@@ -167,6 +171,7 @@ export class UserWriteService extends AuthenticateBaseService {
               topic: KafkaTopics.event.addRole,
               payload: {
                 userId: user.userId,
+                keycloakSub: user.keycloakSub,
                 invitationId: invitee.invitationId,
                 token: signUpToken,
               },
@@ -177,6 +182,7 @@ export class UserWriteService extends AuthenticateBaseService {
               topic: KafkaTopics.seat.addGuestId,
               payload: {
                 userId: user.userId,
+                keycloakSub: user.keycloakSub,
                 invitationId: invitee.invitationId,
                 token: signUpToken,
               },
@@ -192,7 +198,7 @@ export class UserWriteService extends AuthenticateBaseService {
 
         return { users: results };
       } catch (e: unknown) {
-        this.logger.error('Guest sign-up failed', { error: e });
+        this.logger.error('Guest sign-up failed: %o', { error: e });
         if (e instanceof GuestSignupException) {
           throw e;
         }
@@ -243,40 +249,45 @@ export class UserWriteService extends AuthenticateBaseService {
     });
 
     /**
-     * Resolve userId
+     * Resolve Keycloak subject (K)
      */
-    const userId = await this.findUserIdByUsername(username);
-    if (!userId) {
+    const keycloakSub = await this.findUserIdByUsername(username);
+    if (!keycloakSub) {
       throw new AuthenticationUserNotFoundException(username);
     }
 
     /**
      * Assign role
      */
-    await this.adminService.assignRealmRoleToUser(userId, RealmRoleType.GUEST);
+    await this.adminService.assignRealmRoleToUser(keycloakSub, RealmRoleType.GUEST);
 
     /**
-     * Persist locally
+     * Persist locally: AuthUser.id = U (PostgreSQL uuidv7()), keycloakSub = K
      */
-    await this.prisma.authUser.create({
+    const createdAuthUser = await this.prisma.authUser.create({
       data: {
-        id: userId,
+        keycloakSub,
         email: finalEmail,
         username,
         mfaPreference: MfaPreference.SECURITY_QUESTIONS,
       },
     });
 
+    await this.tenantMembershipClient.provisionMember(data.tenantId, createdAuthUser.id, 'GUEST');
+
+    await this.adminService.setOmnixysUidAttribute(keycloakSub, createdAuthUser.id);
+
     const delayMs = Math.max(0, data.eventEndsAt.getTime() - Date.now());
 
     await this.delayedJobService.schedule({
       type: DelayedJobKeys.user.delete,
-      payload: { userId },
+      payload: { userId: createdAuthUser.id },
       delayMs,
     });
 
     return {
-      userId,
+      userId: createdAuthUser.id,
+      keycloakSub,
       username,
       password,
       email: finalEmail,
@@ -312,17 +323,17 @@ export class UserWriteService extends AuthenticateBaseService {
     });
 
     // id ermitteln
-    const userId = await this.findUserIdByUsername(
+    const keycloakSub = await this.findUserIdByUsername(
       data.name ?? `${data.provider}_${data.providerId}`,
     );
-    if (!userId) {
+    if (!keycloakSub) {
       throw new AuthenticationUserNotFoundException(body.username);
     }
 
     // Rolle zuweisen
-    await this.adminService.assignRealmRoleToUser(userId, RealmRoleType.USER);
+    await this.adminService.assignRealmRoleToUser(keycloakSub, RealmRoleType.USER);
 
-    return userId;
+    return keycloakSub;
   }
 
   async changePassword({

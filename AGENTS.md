@@ -11,7 +11,7 @@ Omnixys Authentication Service – central authentication and authorization (Key
 
 - Repository path: `services/authentication` (relative to the Omnixys root)
 - Package: `authentication-service` (version: 3.4.0)
-- Runtime: Node >=25.8.2 (pnpm >=10.33.0)
+- Runtime: Node >=26.8.1 <27 (pnpm >=11.24.0)
 - Kind: Service
 
 ## Architecture
@@ -32,7 +32,7 @@ src/adapter, admin, analytics, authentication, config, core, handlers, health, o
 ## Commands
 
 Commands below are the authoritative validation commands for this repository. Run them
-with the appropriate tooling (observed versions: node 26.6.0, pnpm 11.20.0, uv 0.12.1, java 26.0.2).
+with the appropriate tooling (observed versions: node 26.8.1, pnpm 11.24.0, uv 0.12.8, java 26.0.2).
 
 ### Install
 
@@ -95,6 +95,19 @@ node --test __tests__/unit/*.test.mjs and __tests__/integration/*.test.mjs; vite
 ## Repository-Specific Rules
 
 Security-sensitive: token lifecycle, refresh rotation, tenant/principal binding.
+
+Identity semantics (final): `AuthUser.id` is the internal Omnixys identity `U` (UUIDv7),
+generated exactly once by PostgreSQL's `uuidv7()` DB default; authentication owns `U` and
+never receives it from a caller. `AuthUser.keycloakSub` is the external Keycloak subject
+`K` (opaque TEXT, mapped `keycloak_sub`, UNIQUE, NOT NULL). `U != K`. Every identity is
+Keycloak-backed, so `keycloak_sub` is mandatory in all provisioning flows (Registration,
+Guest, OAuth/Provider). `User.id == AuthUser.id == U` across services. Never name a
+K-valued variable `userId`; use `keycloakSub` (or `keycloakUserId`) for K and reserve
+`userId`/`U` for the internal id. Do NOT introduce a second UUID generator.
+
+Seed fixtures: use a single shared `U` per logical user across services (same UUIDv7 as both
+the `AuthUser.id` here and the `User.id` in the user service), and a distinct valid `K` for
+`keycloak_sub` that differs from `U`. Fixture UUIDs must be valid UUIDv7, not v1/v4.
 
 ## Development Skill
 

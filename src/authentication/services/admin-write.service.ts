@@ -16,8 +16,10 @@
  */
 
 import { paths } from '../../config/keycloak.js';
+import { MfaPreference } from '../../prisma/generated/enums.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuthenticationUserNotFoundException } from '../errors/authentication.error.js';
+import { AuthenticationInternalException } from '../errors/authentication.error.js';
 import { KeycloakUserPatch } from '../models/dtos/kc-user.dto.js';
 import type { AdminSignUpInput } from '../models/inputs/sign-up.input.js';
 import { UpdateMyProfileInput } from '../models/inputs/user-update.input.js';
@@ -28,7 +30,7 @@ import { AuthenticateBaseService } from './keycloak-base.service.js';
 import { AuthenticateReadService } from './read.service.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { RealmRoleType } from '@omnixys/contracts-ts';
+import { OMNIXYS_UID_KEYCLOAK_ATTRIBUTE, RealmRoleType } from '@omnixys/contracts-ts';
 import { KafkaProducerService, KafkaTopics, type KafkaMetaInfo } from '@omnixys/kafka-ts';
 import { OmnixysLogger } from '@omnixys/logger-ts';
 
@@ -54,7 +56,7 @@ export class AdminWriteService extends AuthenticateBaseService {
 
   async adminSignUp(input: AdminSignUpInput): Promise<TokenPayload> {
     const { firstName, lastName, email, username, password } = input;
-    this.logger.debug('Admin sign-up started', { username });
+    this.logger.debug('Admin sign-up started: %o', { username });
 
     const credentials: Array<Record<string, string | undefined | boolean>> = [
       { type: 'password', value: password, temporary: false },
@@ -77,13 +79,24 @@ export class AdminWriteService extends AuthenticateBaseService {
       headers: await this.adminJsonHeaders(),
     });
     // id ermitteln
-    const userId = await this.findUserIdByUsername(username);
-    if (!userId) {
+    const keycloakSub = await this.findUserIdByUsername(username);
+    if (!keycloakSub) {
       throw new AuthenticationUserNotFoundException(username);
     }
 
     // Rolle zuweisen
-    await this.assignRealmRoleToUser(userId, RealmRoleType.ADMIN);
+    await this.assignRealmRoleToUser(keycloakSub, RealmRoleType.ADMIN);
+
+    const authUser = await this.prisma.authUser.create({
+      data: {
+        keycloakSub,
+        email,
+        username,
+        mfaPreference: MfaPreference.SECURITY_QUESTIONS,
+      },
+    });
+
+    await this.setOmnixysUidAttribute(keycloakSub, authUser.id);
 
     const token = await this.authService.passwordLogin({ username, password });
     return token;
@@ -139,7 +152,7 @@ export class AdminWriteService extends AuthenticateBaseService {
       }),
     ]);
 
-    this.logger.info('User deletion propagated', { userId: id });
+    this.logger.info('User deletion propagated: %o', { userId: id });
   }
 
   /**
@@ -168,6 +181,49 @@ export class AdminWriteService extends AuthenticateBaseService {
       data: patch,
       headers: await this.adminJsonHeaders(),
     });
+  }
+
+  /**
+   * Projects the internal Omnixys user id (U) onto the Keycloak user as the
+   * `omnixys_uid` user attribute. This is a projection for token issuance only;
+   * AuthUser.id is the source of truth. Keycloak never generates U itself.
+   *
+   * **Ordering contract (Phase 4 Teil 0):** must run AFTER AuthUser/U has been
+   * created and BEFORE any access/ID token for that user is issued, so every
+   * freshly issued token carries `sub = K` and `omnixys_user_id = U`.
+   *
+   * Idempotent: re-running with the same `uid` is a no-op merge; existing
+   * attributes are preserved (Keycloak PUT replaces the whole attribute map).
+   */
+  async setOmnixysUidAttribute(keycloakUserId: string, uid: string): Promise<void> {
+    const kcUser = await this.readService.findById(keycloakUserId);
+    this.logger.debug('omnixys_uid projection: fetched user attributes: %o', kcUser.attributes);
+    const mergedAttributes: Record<string, string[]> = {
+      ...(kcUser.attributes ?? {}),
+      [OMNIXYS_UID_KEYCLOAK_ATTRIBUTE]: [uid],
+    };
+
+    const patch: KeycloakUserPatch = {
+      username: kcUser.username,
+      firstName: kcUser.firstName,
+      lastName: kcUser.lastName,
+      email: kcUser.email,
+      attributes: mergedAttributes,
+    };
+
+    try {
+      this.logger.debug('omnixys_uid projection: PUT body: %o', patch);
+      await this.kcRequest('put', `${paths.users}/${encodeURIComponent(keycloakUserId)}`, {
+        data: patch,
+        headers: await this.adminJsonHeaders(),
+      });
+      this.logger.info('omnixys_uid attribute projected to Keycloak: %o', {
+        keycloakUserId,
+      });
+    } catch (error) {
+      this.logger.error('omnixys_uid attribute projection failed: %o', error);
+      throw new AuthenticationInternalException('omnixys-uid-projection', error);
+    }
   }
 
   /**

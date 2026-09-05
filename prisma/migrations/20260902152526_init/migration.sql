@@ -9,9 +9,10 @@ CREATE TYPE "security_question_key" AS ENUM ('FIRST_PET', 'BIRTH_CITY', 'MOTHER_
 
 -- CreateTable
 CREATE TABLE "auth_user" (
-    "id" UUID NOT NULL,
+    "id" UUID NOT NULL DEFAULT uuidv7(),
     "email" TEXT NOT NULL,
     "username" TEXT NOT NULL,
+    "keycloak_sub" TEXT NOT NULL,
     "mfa_preference" "mfa_preference" NOT NULL DEFAULT 'NONE',
     "failed_attempts" INTEGER NOT NULL DEFAULT 0,
     "locked_until" TIMESTAMP(3),
@@ -123,6 +124,8 @@ CREATE TABLE "login_history" (
     "ip" TEXT NOT NULL,
     "country" TEXT,
     "city" TEXT,
+    "succeeded" BOOLEAN NOT NULL DEFAULT true,
+    "reason" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "login_history_pkey" PRIMARY KEY ("id")
@@ -138,11 +141,45 @@ CREATE TABLE "o_auth_account" (
     CONSTRAINT "o_auth_account_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "user_presence" (
+    "id" UUID NOT NULL,
+    "user_id" UUID NOT NULL,
+    "is_online" BOOLEAN NOT NULL DEFAULT false,
+    "last_seen_at" TIMESTAMP(3),
+    "updated_at" TIMESTAMP(3),
+
+    CONSTRAINT "user_presence_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "analytics_outbox" (
+    "id" UUID NOT NULL,
+    "tenant_id" UUID NOT NULL,
+    "topic" TEXT NOT NULL,
+    "payload" JSONB NOT NULL,
+    "correlation_id" TEXT,
+    "actor_id" TEXT,
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "next_attempt_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "locked_at" TIMESTAMP(3),
+    "locked_by" TEXT,
+    "published_at" TIMESTAMP(3),
+    "dead_lettered_at" TIMESTAMP(3),
+    "last_error" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "analytics_outbox_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "auth_user_email_key" ON "auth_user"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "auth_user_username_key" ON "auth_user"("username");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "auth_user_keycloak_sub_key" ON "auth_user"("keycloak_sub");
 
 -- CreateIndex
 CREATE INDEX "auth_user_email_idx" ON "auth_user"("email");
@@ -209,6 +246,12 @@ CREATE INDEX "o_auth_account_user_id_idx" ON "o_auth_account"("user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "o_auth_account_provider_provider_id_key" ON "o_auth_account"("provider", "provider_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "user_presence_user_id_key" ON "user_presence"("user_id");
+
+-- CreateIndex
+CREATE INDEX "analytics_outbox_published_at_dead_lettered_at_next_attempt_idx" ON "analytics_outbox"("published_at", "dead_lettered_at", "next_attempt_at");
 
 -- AddForeignKey
 ALTER TABLE "totp_credential" ADD CONSTRAINT "totp_credential_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth_user"("id") ON DELETE CASCADE ON UPDATE CASCADE;

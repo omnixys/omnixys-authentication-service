@@ -4,7 +4,10 @@ import 'reflect-metadata';
 
 const { ContextAccessor } = await import('@omnixys/context-ts');
 const { InvalidCredentialsException } = await import('@omnixys/security-ts');
-const { AuthenticationStateException } = await import(
+const {
+  AuthenticationStateException,
+  AuthenticationInternalException,
+} = await import(
   '../../dist/authentication/errors/authentication.error.js'
 );
 const { AuthWriteService } = await import(
@@ -109,18 +112,20 @@ test('tenant resolution prefers an explicit verified UUID and rejects invalid va
 test('guest and OAuth Keycloak users receive tenant attributes', async () => {
   const tenantId = '00000000-0000-4000-8000-000000000005';
   const requests = [];
+  const membershipCalls = [];
   const service = new UserWriteService(
     logger,
     {},
     {},
-    { async assignRealmRoleToUser() {} },
+    { async assignRealmRoleToUser() {}, async setOmnixysUidAttribute() {} },
     {},
     { async send() {} },
     {},
     {},
-    { authUser: { async create() {} } },
+    { authUser: { async create() { return { id: '00000000-0000-4000-8000-000000000007' }; } } },
     { async schedule() {} },
     {},
+    { async provisionMember(...args) { membershipCalls.push(args); } },
   );
   service.createUsernameAndEmailAndPassword = async () => ({
     username: 'ada',
@@ -140,6 +145,11 @@ test('guest and OAuth Keycloak users receive tenant attributes', async () => {
     tenantId,
   });
   assert.deepEqual(requests[0].attributes, { tenants: [tenantId] });
+  assert.deepEqual(membershipCalls, [[
+    tenantId,
+    '00000000-0000-4000-8000-000000000007',
+    'GUEST',
+  ]]);
 
   await ContextAccessor.run(
     {
@@ -154,6 +164,60 @@ test('guest and OAuth Keycloak users receive tenant attributes', async () => {
   );
   assert.deepEqual(requests[1].attributes.tenants, [tenantId]);
   assert.equal(requests[1].attributes.provider, 'github');
+});
+
+test('setOmnixysUidAttribute merges omnixys_uid while preserving existing attributes', async () => {
+  const requests = [];
+  const keycloakSub = 'keycloak-sub-guest';
+  const uid = '01910000-0000-7000-8000-000000000001';
+  const service = new AdminWriteService(logger, {}, {}, {}, {}, {});
+  service.readService.findById = async () => ({
+    id: keycloakSub,
+    username: 'guest',
+    firstName: 'Ada',
+    lastName: 'Lovelace',
+    email: 'ada@example.com',
+    attributes: { tenants: ['00000000-0000-4000-8000-000000000005'] },
+  });
+  service.adminJsonHeaders = async () => ({});
+  service.kcRequest = async (_method, _path, request) => {
+    requests.push({ method: _method, path: _path, data: request.data });
+  };
+
+  await service.setOmnixysUidAttribute(keycloakSub, uid);
+
+  assert.equal(requests.length, 1);
+  assert.equal(requests[0].method, 'put');
+  assert.ok(requests[0].path.endsWith(encodeURIComponent(keycloakSub)));
+  assert.equal(requests[0].data.attributes.omnixys_uid[0], uid);
+  assert.deepEqual(requests[0].data.attributes.tenants, [
+    '00000000-0000-4000-8000-000000000005',
+  ]);
+});
+
+test('setOmnixysUidAttribute rethrows a failed projection as AuthenticationInternalException', async () => {
+  const keycloakSub = 'keycloak-sub-failing';
+  const uid = '01910000-0000-7000-8000-000000000002';
+  const service = new AdminWriteService(logger, {}, {}, {}, {}, {});
+  service.readService.findById = async () => ({
+    id: keycloakSub,
+    username: 'guest',
+    firstName: 'Ada',
+    lastName: 'Lovelace',
+    email: 'ada@example.com',
+    attributes: {},
+  });
+  service.adminJsonHeaders = async () => ({});
+  service.kcRequest = async () => {
+    throw new Error('keycloak put failed');
+  };
+
+  await assert.rejects(
+    service.setOmnixysUidAttribute(keycloakSub, uid),
+    (error) =>
+      error instanceof AuthenticationInternalException &&
+      error.code === 'AUTHENTICATION_INTERNAL_ERROR',
+  );
 });
 
 test('standard and admin Keycloak sign-up receive tenant attributes', async () => {

@@ -8,18 +8,20 @@ import {
   AuthenticationUserAlreadyExistsException,
   AuthenticationPasswordPolicyException,
   AuthenticationUserNotFoundException,
+  AuthenticationInternalException,
 } from '../errors/authentication.error.js';
 import { KCSignUpDTO } from '../models/dtos/kc-sign-up.dto.js';
 import { SignUpPayload } from '../models/payloads/sign-in.payload.js';
-import { keycloakTenantAttributes } from '../utils/tenant-context.js';
+import { keycloakTenantAttributes, resolveTenantId } from '../utils/tenant-context.js';
 import { AdminWriteService } from './admin-write.service.js';
 import { AuthWriteService } from './authentication-write.service.js';
 import { AuthenticateBaseService } from './keycloak-base.service.js';
+import { TenantMembershipClient } from './tenant-membership.client.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ValkeyKey, ValkeyService } from '@omnixys/cache-ts';
 import type { SignUpTokenPayload } from '@omnixys/contracts-ts';
-import { createTmpUsername, RealmRoleType } from '@omnixys/contracts-ts';
+import { RealmRoleType } from '@omnixys/contracts-ts';
 import { KafkaProducerService, KafkaTopics } from '@omnixys/kafka-ts';
 import { OmnixysLogger } from '@omnixys/logger-ts';
 import { TraceRunner } from '@omnixys/observability-ts';
@@ -39,6 +41,7 @@ export class RegisterService extends AuthenticateBaseService {
     private prisma: PrismaService,
     private readonly cache: ValkeyService,
     private readonly encryptionService: EncryptionService,
+    private readonly tenantMembershipClient: TenantMembershipClient,
   ) {
     super(logger, http);
   }
@@ -83,7 +86,8 @@ export class RegisterService extends AuthenticateBaseService {
 
         if (
           error instanceof AuthenticationUserAlreadyExistsException ||
-          error instanceof AuthenticationPasswordPolicyException
+          error instanceof AuthenticationPasswordPolicyException ||
+          error instanceof AuthenticationInternalException
         ) {
           throw error;
         }
@@ -126,17 +130,23 @@ export class RegisterService extends AuthenticateBaseService {
         headers: await this.adminJsonHeaders(),
       });
 
-      const userId = await this.findUserIdByUsername(username);
-      if (!userId) {
+      const keycloakSub = await this.findUserIdByUsername(username);
+      if (!keycloakSub) {
         throw new AuthenticationUserNotFoundException(username);
       }
 
-      await this.adminService.assignRealmRoleToUser(userId, RealmRoleType.USER);
+      await this.adminService.assignRealmRoleToUser(keycloakSub, RealmRoleType.USER);
 
-      await this.prisma.$transaction(async (tx) => {
+      this.logger.info('User SignUp add Tenant member ');
+
+      const {
+        userId: u,
+        keycloakSub: k,
+        token,
+      } = await this.prisma.$transaction(async (tx) => {
         const user = await tx.authUser.create({
           data: {
-            id: userId,
+            keycloakSub,
             email: input.email,
             username,
             mfaPreference: MfaPreference.SECURITY_QUESTIONS,
@@ -166,39 +176,45 @@ export class RegisterService extends AuthenticateBaseService {
             data: hashedQuestions,
           });
         }
+
+        return { userId: user.id, keycloakSub, token: signUpToken };
       });
 
-      const actorId = createTmpUsername(input.firstName, input.lastName);
+      this.logger.debug('User SignUp: add Tenant member %s', u);
+      await this.tenantMembershipClient.provisionMember(resolveTenantId(), u);
+
       await Promise.all([
         this.producer.send({
           topic: KafkaTopics.user.createUser,
-          payload: { userId, token: signUpToken },
+          payload: { userId: u, keycloakSub: k, token },
           meta: {
             service: SERVICE,
             operation: 'Add User ID from Kafka to UserService',
             version: '1',
             type: 'EVENT',
-            actorId,
+            actorId: u,
             tenantId: 'omnixys',
           },
         }),
 
         this.producer.send({
           topic: KafkaTopics.address.createUserAddresses,
-          payload: { userId, token: signUpToken },
+          payload: { userId: u, token },
           meta: {
             service: SERVICE,
             operation: 'create User Addresses',
             version: '1',
             type: 'EVENT',
-            actorId,
+            actorId: u,
             tenantId: 'omnixys',
           },
         }),
       ]);
 
-      const token = await this.authService.passwordLogin({ username, password });
-      return { userId, token, username, password: '' };
+      await this.adminService.setOmnixysUidAttribute(k, u);
+
+      const authToken = await this.authService.passwordLogin({ username, password });
+      return { userId: u, token: authToken, username, password: '' };
     });
   }
 

@@ -139,6 +139,11 @@ export const env = {
     'dev-tenant-service-token',
     { required: true },
   ),
+  TENANT_GRPC_AUTHENTICATION_TOKEN: getEnv(
+    'TENANT_GRPC_AUTHENTICATION_TOKEN',
+    'dev-authentication-service-token',
+    { required: true },
+  ),
 
   KEYCLOAK_HEALTH_URL: getEnv('KEYCLOAK_HEALTH_URL', ''),
   TEMPO_HEALTH_URL: getEnv('TEMPO_HEALTH_URL', ''),
