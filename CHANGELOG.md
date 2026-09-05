@@ -3,6 +3,57 @@
 All notable changes in this project will be documented in this file.
 
 
+## [4.0.0](https://github.com/omnixys/authentication-service/compare/v3.5.1...v4.0.0) (2026-09-05)
+
+### Auth
+
+* **Auth:** persist omnixys_uid projection on admin sign-up and surface Keycloak write failures ([](https://github.com/omnixys/authentication-service/commit/e3247811f1ab50c75e31beb86b80d446907366ba))
+
+### Authentication
+
+* **Authentication:** provision guest tenant memberships ([](https://github.com/omnixys/authentication-service/commit/961b35a4ece7fb4379e2dcc7e2ac56ef5567b290))
+* **Authentication:** provision tenant membership on registration ([](https://github.com/omnixys/authentication-service/commit/3cd0aca76638a9c978de4e5be1ef146b7dd5256f))
+
+### Deps
+
+* **Deps:** update omnixys deps ([](https://github.com/omnixys/authentication-service/commit/f65c7e2aa2bce56840c49e35ea71a16f922b294d))
+* **Deps:** use local contracts dependency for identity work ([](https://github.com/omnixys/authentication-service/commit/be79196f0ce01e682fb78ea65500c071398196d3))
+
+### Docker
+
+* **Docker:** align service runtime image to node 26 and pnpm 11 ([](https://github.com/omnixys/authentication-service/commit/50587c3baab9a3cdea343563a0302cbfcb8beb8e))
+
+### Identity
+
+* **Identity:** document final U/K identity semantics ([](https://github.com/omnixys/authentication-service/commit/8d69b109e9d89f69b647ca916731ccb7efa3271d))
+* **Identity:** document transitional identity model and toolchain ([](https://github.com/omnixys/authentication-service/commit/01407b7e9252c097bb3828e62f7dbc9097c8bd45))
+* **Identity:** add nullable keycloak subject and drop unused id default ([](https://github.com/omnixys/authentication-service/commit/28e768e0e3ee4e2e4e5dcf1c45d1e4b9a243dac8))
+* **Identity:** project omnixys_uid to keycloak before token issuance ([](https://github.com/omnixys/authentication-service/commit/631bb8ebec7f826e84423a826043512d8a310ed8))
+* **Identity:** provision auth users with uuid v7 identities ([](https://github.com/omnixys/authentication-service/commit/25bd989468570160ced9e9895f925fb7c15e2f0d))
+* **Identity:** resolve K-as-U in login flows, fix naming (keycloakSub for K), align createPasswordlessSession U/K ([](https://github.com/omnixys/authentication-service/commit/9b517edb71a29ecafe0e88b5e432c16ea876ad8b))
+
+### Lint
+
+* **Lint:** fix lint errors ([](https://github.com/omnixys/authentication-service/commit/75499f09da2676e09970df16a882860b3b3d4bcd))
+
+### Logging
+
+* **Logging:** add service:authentication provenance source to logger acquisitions ([](https://github.com/omnixys/authentication-service/commit/0f81dd6b35a4f6e268709c99c171d08e0138f15f))
+* **Logging:** add missing format placeholders to structured log calls ([](https://github.com/omnixys/authentication-service/commit/3bdfa3e132f6c2264a2ef4a9bf094f3a688d5842))
+
+### Other
+
+* **Other:** Merge pull request #23 from omnixys/migration/uuid-v7 ([](https://github.com/omnixys/authentication-service/commit/8bdef6b7fc20212ec970043af79d13ca6d30f337)), closes [#23](https://github.com/omnixys/authentication-service/issues/23)
+
+### Prisma
+
+* **Prisma:** update schema ([](https://github.com/omnixys/authentication-service/commit/e46377f2d91f758557454b7c21500c4dcdf1394a))
+
+### Runtime
+
+* **Runtime:** align github actions toolchain and label mapping ([](https://github.com/omnixys/authentication-service/commit/396184719839930a12e1d0ce7d0bdd7158c77d91))
+* **Runtime:** align service runtime with node 26 and pnpm 11 ([](https://github.com/omnixys/authentication-service/commit/aa372eff94dc6b31d8acb17fb7817ae78f8ad7d6))
+
 ## [3.5.1](https://github.com/omnixys/authentication-service/compare/v3.5.0...v3.5.1) (2026-08-31)
 
 ### Kc
