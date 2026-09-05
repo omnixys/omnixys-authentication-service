@@ -16,8 +16,10 @@
  */
 
 import { paths } from '../../config/keycloak.js';
+import { MfaPreference } from '../../prisma/generated/enums.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuthenticationUserNotFoundException } from '../errors/authentication.error.js';
+import { AuthenticationInternalException } from '../errors/authentication.error.js';
 import { KeycloakUserPatch } from '../models/dtos/kc-user.dto.js';
 import type { AdminSignUpInput } from '../models/inputs/sign-up.input.js';
 import { UpdateMyProfileInput } from '../models/inputs/user-update.input.js';
@@ -54,7 +56,7 @@ export class AdminWriteService extends AuthenticateBaseService {
 
   async adminSignUp(input: AdminSignUpInput): Promise<TokenPayload> {
     const { firstName, lastName, email, username, password } = input;
-    this.logger.debug('Admin sign-up started', { username });
+    this.logger.debug('Admin sign-up started: %o', { username });
 
     const credentials: Array<Record<string, string | undefined | boolean>> = [
       { type: 'password', value: password, temporary: false },
@@ -84,6 +86,17 @@ export class AdminWriteService extends AuthenticateBaseService {
 
     // Rolle zuweisen
     await this.assignRealmRoleToUser(keycloakSub, RealmRoleType.ADMIN);
+
+    const authUser = await this.prisma.authUser.create({
+      data: {
+        keycloakSub,
+        email,
+        username,
+        mfaPreference: MfaPreference.SECURITY_QUESTIONS,
+      },
+    });
+
+    await this.setOmnixysUidAttribute(keycloakSub, authUser.id);
 
     const token = await this.authService.passwordLogin({ username, password });
     return token;
@@ -139,7 +152,7 @@ export class AdminWriteService extends AuthenticateBaseService {
       }),
     ]);
 
-    this.logger.info('User deletion propagated', { userId: id });
+    this.logger.info('User deletion propagated: %o', { userId: id });
   }
 
   /**
@@ -184,6 +197,7 @@ export class AdminWriteService extends AuthenticateBaseService {
    */
   async setOmnixysUidAttribute(keycloakUserId: string, uid: string): Promise<void> {
     const kcUser = await this.readService.findById(keycloakUserId);
+    this.logger.debug('omnixys_uid projection: fetched user attributes: %o', kcUser.attributes);
     const mergedAttributes: Record<string, string[]> = {
       ...(kcUser.attributes ?? {}),
       [OMNIXYS_UID_KEYCLOAK_ATTRIBUTE]: [uid],
@@ -197,14 +211,19 @@ export class AdminWriteService extends AuthenticateBaseService {
       attributes: mergedAttributes,
     };
 
-    await this.kcRequest('put', `${paths.users}/${encodeURIComponent(keycloakUserId)}`, {
-      data: patch,
-      headers: await this.adminJsonHeaders(),
-    });
-
-    this.logger.info('omnixys_uid attribute projected to Keycloak', {
-      keycloakUserId,
-    });
+    try {
+      this.logger.debug('omnixys_uid projection: PUT body: %o', patch);
+      await this.kcRequest('put', `${paths.users}/${encodeURIComponent(keycloakUserId)}`, {
+        data: patch,
+        headers: await this.adminJsonHeaders(),
+      });
+      this.logger.info('omnixys_uid attribute projected to Keycloak: %o', {
+        keycloakUserId,
+      });
+    } catch (error) {
+      this.logger.error('omnixys_uid attribute projection failed: %o', error);
+      throw new AuthenticationInternalException('omnixys-uid-projection', error);
+    }
   }
 
   /**

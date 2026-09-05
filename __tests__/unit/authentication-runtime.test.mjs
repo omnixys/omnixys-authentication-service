@@ -4,7 +4,10 @@ import 'reflect-metadata';
 
 const { ContextAccessor } = await import('@omnixys/context-ts');
 const { InvalidCredentialsException } = await import('@omnixys/security-ts');
-const { AuthenticationStateException } = await import(
+const {
+  AuthenticationStateException,
+  AuthenticationInternalException,
+} = await import(
   '../../dist/authentication/errors/authentication.error.js'
 );
 const { AuthWriteService } = await import(
@@ -183,6 +186,31 @@ test('setOmnixysUidAttribute merges omnixys_uid while preserving existing attrib
   assert.deepEqual(requests[0].data.attributes.tenants, [
     '00000000-0000-4000-8000-000000000005',
   ]);
+});
+
+test('setOmnixysUidAttribute rethrows a failed projection as AuthenticationInternalException', async () => {
+  const keycloakSub = 'keycloak-sub-failing';
+  const uid = '01910000-0000-7000-8000-000000000002';
+  const service = new AdminWriteService(logger, {}, {}, {}, {}, {});
+  service.readService.findById = async () => ({
+    id: keycloakSub,
+    username: 'guest',
+    firstName: 'Ada',
+    lastName: 'Lovelace',
+    email: 'ada@example.com',
+    attributes: {},
+  });
+  service.adminJsonHeaders = async () => ({});
+  service.kcRequest = async () => {
+    throw new Error('keycloak put failed');
+  };
+
+  await assert.rejects(
+    service.setOmnixysUidAttribute(keycloakSub, uid),
+    (error) =>
+      error instanceof AuthenticationInternalException &&
+      error.code === 'AUTHENTICATION_INTERNAL_ERROR',
+  );
 });
 
 test('standard and admin Keycloak sign-up receive tenant attributes', async () => {

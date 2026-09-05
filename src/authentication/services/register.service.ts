@@ -8,6 +8,7 @@ import {
   AuthenticationUserAlreadyExistsException,
   AuthenticationPasswordPolicyException,
   AuthenticationUserNotFoundException,
+  AuthenticationInternalException,
 } from '../errors/authentication.error.js';
 import { KCSignUpDTO } from '../models/dtos/kc-sign-up.dto.js';
 import { SignUpPayload } from '../models/payloads/sign-in.payload.js';
@@ -85,7 +86,8 @@ export class RegisterService extends AuthenticateBaseService {
 
         if (
           error instanceof AuthenticationUserAlreadyExistsException ||
-          error instanceof AuthenticationPasswordPolicyException
+          error instanceof AuthenticationPasswordPolicyException ||
+          error instanceof AuthenticationInternalException
         ) {
           throw error;
         }
