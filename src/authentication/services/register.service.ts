@@ -137,6 +137,8 @@ export class RegisterService extends AuthenticateBaseService {
 
       await this.adminService.assignRealmRoleToUser(keycloakSub, RealmRoleType.USER);
 
+          this.logger.info('User SignUp add Tenant member ',);
+
       const {
         userId: u,
         keycloakSub: k,
@@ -178,6 +180,7 @@ export class RegisterService extends AuthenticateBaseService {
         return { userId: user.id, keycloakSub, token: signUpToken };
       });
 
+      await this.logger.debug('User SignUp: add Tenant member %s', u);
       await this.tenantMembershipClient.provisionMember(resolveTenantId(), u);
 
       await Promise.all([

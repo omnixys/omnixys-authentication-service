@@ -34,6 +34,7 @@ import { AuthWriteService } from './authentication-write.service.js';
 import { AuthenticateBaseService } from './keycloak-base.service.js';
 import { AuthenticateReadService } from './read.service.js';
 import { ResetService } from './reset.service.js';
+import { TenantMembershipClient } from './tenant-membership.client.js';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { DelayedJobKeys, DelayedJobService, ValkeyKey, ValkeyService } from '@omnixys/cache-ts';
@@ -86,6 +87,7 @@ export class UserWriteService extends AuthenticateBaseService {
     private readonly prisma: PrismaService,
     private readonly delayedJobService: DelayedJobService,
     private readonly resetService: ResetService,
+    private readonly tenantMembershipClient: TenantMembershipClient,
   ) {
     super(omnixysLogger, http);
   }
@@ -270,6 +272,8 @@ export class UserWriteService extends AuthenticateBaseService {
         mfaPreference: MfaPreference.SECURITY_QUESTIONS,
       },
     });
+
+    await this.tenantMembershipClient.provisionMember(data.tenantId, createdAuthUser.id, 'GUEST');
 
     await this.adminService.setOmnixysUidAttribute(keycloakSub, createdAuthUser.id);
 

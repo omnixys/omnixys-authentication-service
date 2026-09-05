@@ -112,6 +112,7 @@ test('tenant resolution prefers an explicit verified UUID and rejects invalid va
 test('guest and OAuth Keycloak users receive tenant attributes', async () => {
   const tenantId = '00000000-0000-4000-8000-000000000005';
   const requests = [];
+  const membershipCalls = [];
   const service = new UserWriteService(
     logger,
     {},
@@ -124,6 +125,7 @@ test('guest and OAuth Keycloak users receive tenant attributes', async () => {
     { authUser: { async create() { return { id: '00000000-0000-4000-8000-000000000007' }; } } },
     { async schedule() {} },
     {},
+    { async provisionMember(...args) { membershipCalls.push(args); } },
   );
   service.createUsernameAndEmailAndPassword = async () => ({
     username: 'ada',
@@ -143,6 +145,11 @@ test('guest and OAuth Keycloak users receive tenant attributes', async () => {
     tenantId,
   });
   assert.deepEqual(requests[0].attributes, { tenants: [tenantId] });
+  assert.deepEqual(membershipCalls, [[
+    tenantId,
+    '00000000-0000-4000-8000-000000000007',
+    'GUEST',
+  ]]);
 
   await ContextAccessor.run(
     {

@@ -13,6 +13,8 @@ interface CreateMembershipRequest {
   createdBy: string;
 }
 
+type MembershipRole = 'MEMBER' | 'GUEST';
+
 interface TenantServiceClient extends grpc.Client {
   CreateMembership?: (
     request: CreateMembershipRequest,
@@ -66,7 +68,11 @@ export class TenantMembershipClient implements OnModuleInit {
     this.createMembership = promisify(client.CreateMembership.bind(client));
   }
 
-  async provisionMember(tenantId: string, userId: string): Promise<void> {
+  async provisionMember(
+    tenantId: string,
+    userId: string,
+    role: MembershipRole = 'MEMBER',
+  ): Promise<void> {
     const metadata = new grpc.Metadata();
     metadata.set(
       'authorization',
@@ -77,7 +83,7 @@ export class TenantMembershipClient implements OnModuleInit {
       {
         tenantId,
         userId,
-        role: 'MEMBER',
+        role,
         status: 'ACTIVE',
         createdBy: userId,
       },
