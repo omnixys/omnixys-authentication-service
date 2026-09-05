@@ -152,7 +152,7 @@ export class OAuthService extends AuthenticateBaseService {
     });
 
     if (!tokenRes.ok) {
-      this.logger.warn('github_token_exchange_failed', { status: tokenRes.status });
+      this.logger.warn('github_token_exchange_failed: %o', { status: tokenRes.status });
       throw new IdentityProviderException('github', 'token-exchange', tokenRes.status);
     }
 
@@ -167,12 +167,12 @@ export class OAuthService extends AuthenticateBaseService {
     });
 
     if (!userRes.ok) {
-      this.logger.warn('github_user_profile_failed', { status: userRes.status });
+      this.logger.warn('github_user_profile_failed: %o', { status: userRes.status });
       throw new IdentityProviderException('github', 'user-profile', userRes.status);
     }
 
     const githubUser = (await userRes.json()) as GithubUser;
-    this.logger.info('github_user_profile_success', { githubId: githubUser.id });
+    this.logger.info('github_user_profile_success: %o', { githubId: githubUser.id });
 
     let email = githubUser.email;
 
@@ -186,7 +186,7 @@ export class OAuthService extends AuthenticateBaseService {
       });
 
       if (!emailRes.ok) {
-        this.logger.warn('github_email_fetch_failed', { status: emailRes.status });
+        this.logger.warn('github_email_fetch_failed: %o', { status: emailRes.status });
         throw new IdentityProviderException('github', 'email-profile', emailRes.status);
       }
 
@@ -229,7 +229,7 @@ export class OAuthService extends AuthenticateBaseService {
     });
 
     if (!tokenRes.ok) {
-      this.logger.warn('google_token_exchange_failed', { status: tokenRes.status });
+      this.logger.warn('google_token_exchange_failed: %o', { status: tokenRes.status });
       throw new IdentityProviderException('google', 'token-exchange', tokenRes.status);
     }
 
@@ -244,12 +244,12 @@ export class OAuthService extends AuthenticateBaseService {
     });
 
     if (!profileRes.ok) {
-      this.logger.warn('google_user_profile_failed', { status: profileRes.status });
+      this.logger.warn('google_user_profile_failed: %o', { status: profileRes.status });
       throw new IdentityProviderException('google', 'user-profile', profileRes.status);
     }
 
     const googleUser = (await profileRes.json()) as GoogleUser;
-    this.logger.info('google_user_profile_success', { sub: googleUser.sub });
+    this.logger.info('google_user_profile_success: %o', { sub: googleUser.sub });
 
     const user = await this.findOrCreateUser({
       provider: 'google',
@@ -320,6 +320,7 @@ export class OAuthService extends AuthenticateBaseService {
     });
 
     await this.adminService.setOmnixysUidAttribute(keycloakSub, user.id);
+    await this.tenantMembershipClient.provisionMember(resolveTenantId(), user.id);
 
     await this.kafkaProducer.send({
       topic: KafkaTopics.user.createProviderUser,

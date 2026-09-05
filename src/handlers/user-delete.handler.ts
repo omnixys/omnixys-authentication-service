@@ -35,7 +35,7 @@ export class UserDeleteHandler {
     try {
       await this.adminWriteService.deleteUser(userId, 'sys');
 
-      this.logger.info('Delayed user deletion completed', { userId });
+      this.logger.info('Delayed user deletion completed: %o', { userId });
     } finally {
       await this.lock.releaseLock(lockKey, token);
     }

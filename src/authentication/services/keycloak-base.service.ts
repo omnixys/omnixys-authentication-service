@@ -136,7 +136,7 @@ export abstract class AuthenticateBaseService {
       const baseURL = keycloakConfig.backchannelUrl;
       const startedAt = Date.now();
 
-      this.logger.info('auth.keycloak.request.start', {
+      this.logger.info('auth.keycloak.request.start: %o', {
         method: method.toUpperCase(),
         endpoint: url,
       });
@@ -161,7 +161,7 @@ export abstract class AuthenticateBaseService {
             headers,
           }),
         );
-        this.logger.info('auth.keycloak.request.success', {
+        this.logger.info('auth.keycloak.request.success: %o', {
           method: method.toUpperCase(),
           endpoint: url,
           status: res.status,
@@ -172,7 +172,7 @@ export abstract class AuthenticateBaseService {
         const info = this.keycloakErrorInfo(err);
         const { status, responseData, oauthError, safeMessage } = info;
 
-        this.logger.warn('auth.keycloak.request.failure', {
+        this.logger.warn('auth.keycloak.request.failure: %o', {
           method: method.toUpperCase(),
           endpoint: url,
           status,
@@ -281,7 +281,7 @@ export abstract class AuthenticateBaseService {
 
     const startedAt = Date.now();
     try {
-      this.logger.info('auth.keycloak.admin-token.start', {
+      this.logger.info('auth.keycloak.admin-token.start: %o', {
         phase: 'keycloak.admin-token',
         endpoint: '/realms/omnixys/protocol/openid-connect/token',
       });
@@ -310,8 +310,8 @@ export abstract class AuthenticateBaseService {
         token,
         expiresAt: Date.now() + Math.max(1, expiresIn - 30) * 1000,
       };
-      this.logger.info('admin_token_acquired', { expiresIn });
-      this.logger.info('auth.keycloak.admin-token.success', {
+      this.logger.info('admin_token_acquired: %o', { expiresIn });
+      this.logger.info('auth.keycloak.admin-token.success: %o', {
         phase: 'keycloak.admin-token',
         endpoint: '/realms/omnixys/protocol/openid-connect/token',
         status: res.status,
@@ -320,7 +320,7 @@ export abstract class AuthenticateBaseService {
       return token;
     } catch (error: unknown) {
       const infoForLog = this.keycloakErrorInfo(error);
-      this.logger.warn('auth.keycloak.admin-token.failure', {
+      this.logger.warn('auth.keycloak.admin-token.failure: %o', {
         phase: 'keycloak.admin-token',
         endpoint: '/realms/omnixys/protocol/openid-connect/token',
         status: infoForLog.status,
@@ -368,7 +368,7 @@ export abstract class AuthenticateBaseService {
       }
       return { id: role.id, name: role.name };
     } catch (err) {
-      this.logger.warn('Realm role lookup failed', { role: effective, error: err });
+      this.logger.warn('Realm role lookup failed: %o', { role: effective, error: err });
       throw new AuthenticationStateException('realm-role-not-found', err);
     }
   }

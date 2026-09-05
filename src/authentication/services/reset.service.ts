@@ -96,7 +96,7 @@ export class ResetService extends AuthenticateBaseService {
       },
     });
 
-    this.logger.debug('Password reset notification requested', {
+    this.logger.debug('Password reset notification requested: %o', {
       email: user.email,
       userId: user.id,
     });

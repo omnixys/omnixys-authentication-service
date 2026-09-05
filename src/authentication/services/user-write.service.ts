@@ -196,7 +196,7 @@ export class UserWriteService extends AuthenticateBaseService {
 
         return { users: results };
       } catch (e: unknown) {
-        this.logger.error('Guest sign-up failed', { error: e });
+        this.logger.error('Guest sign-up failed: %o', { error: e });
         if (e instanceof GuestSignupException) {
           throw e;
         }

@@ -17,7 +17,7 @@ export class KafkaIndicator {
   isHealthy(): HealthIndicatorResult {
     const health = this.kafka.health();
     if (!health.healthy) {
-      this.logger.error('Kafka health check failed', { health });
+      this.logger.error('Kafka health check failed: %o', { health });
     }
 
     return {

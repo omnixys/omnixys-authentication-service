@@ -101,7 +101,7 @@ export class AuthWriteService extends AuthenticateBaseService {
   async passwordLogin(input: LogInInput & RequestContext): Promise<TokenPayload> {
     const { username, password } = input;
 
-    this.logger.info('auth.login.start', {
+    this.logger.info('auth.login.start: %o', {
       phase: 'login.start',
       operation: 'passwordLogin',
     });
@@ -112,13 +112,13 @@ export class AuthWriteService extends AuthenticateBaseService {
 
     let keycloakSub: string;
     const userLookupStartedAt = Date.now();
-    this.logger.info('auth.login.phase.start', {
+    this.logger.info('auth.login.phase.start: %o', {
       phase: 'keycloak.user-lookup',
       endpoint: paths.users,
     });
     try {
       keycloakSub = (await this.readService.findByUsername(username)).id;
-      this.logger.info('auth.login.phase.success', {
+      this.logger.info('auth.login.phase.success: %o', {
         phase: 'keycloak.user-lookup',
         endpoint: paths.users,
         durationMs: Date.now() - userLookupStartedAt,
@@ -126,7 +126,7 @@ export class AuthWriteService extends AuthenticateBaseService {
     } catch (error) {
       await this.hashService.dummyVerify();
       if (error instanceof AuthenticationUserNotFoundException) {
-        this.logger.info('auth.login.phase.failure', {
+        this.logger.info('auth.login.phase.failure: %o', {
           phase: 'keycloak.user-lookup',
           endpoint: paths.users,
           durationMs: Date.now() - userLookupStartedAt,
@@ -134,7 +134,7 @@ export class AuthWriteService extends AuthenticateBaseService {
         });
         throw new InvalidCredentialsException();
       }
-      this.logger.warn('auth.login.phase.failure', {
+      this.logger.warn('auth.login.phase.failure: %o', {
         phase: 'keycloak.user-lookup',
         endpoint: paths.users,
         durationMs: Date.now() - userLookupStartedAt,
@@ -174,7 +174,7 @@ export class AuthWriteService extends AuthenticateBaseService {
         password,
         scope: 'openid',
       });
-      this.logger.info('auth.login.phase.start', {
+      this.logger.info('auth.login.phase.start: %o', {
         phase: 'keycloak.password-grant',
         endpoint: paths.accessToken,
         operation: 'passwordLogin',
@@ -197,7 +197,7 @@ export class AuthWriteService extends AuthenticateBaseService {
         throw new InvalidCredentialsException();
       }
 
-      this.logger.info('auth.login.phase.success', {
+      this.logger.info('auth.login.phase.success: %o', {
         phase: 'keycloak.password-grant',
         endpoint: paths.accessToken,
         durationMs: Date.now() - passwordGrantStartedAt,
@@ -216,7 +216,7 @@ export class AuthWriteService extends AuthenticateBaseService {
     } catch (err) {
       // zusätzliche Sicherheit (Timing / Side-channel)
       await this.hashService.dummyVerify();
-      this.logger.warn('auth.login.phase.failure', {
+      this.logger.warn('auth.login.phase.failure: %o', {
         phase: 'keycloak.password-grant',
         endpoint: paths.accessToken,
         durationMs: Date.now() - passwordGrantStartedAt,
