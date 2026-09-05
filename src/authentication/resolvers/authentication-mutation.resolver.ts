@@ -66,7 +66,10 @@ export class AuthMutationResolver {
     private readonly webAuthnService: WebAuthnService,
     private readonly tokenCookies: TokenCookieService,
   ) {
-    this.logger = this.omnixysLogger.log(AuthMutationResolver.name, 'service:authentication');
+    this.logger = this.omnixysLogger.log(
+      AuthMutationResolver.name,
+      'service:authentication',
+    );
   }
 
   /**

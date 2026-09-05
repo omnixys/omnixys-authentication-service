@@ -91,7 +91,10 @@ export class ResetMutationResolver {
     private readonly resetService: ResetService,
     private readonly omnixysLogger: OmnixysLogger,
   ) {
-    this.logger = this.omnixysLogger.log(this.constructor.name, 'service:authentication');
+    this.logger = this.omnixysLogger.log(
+      this.constructor.name,
+      'service:authentication',
+    );
   }
 
   /**
